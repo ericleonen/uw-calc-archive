@@ -4,6 +4,8 @@
 ---
 📁 Access the archive [here](#). *Coming soon!*
 
+📝 View a spreadsheet of the archive's sources [here](https://1drv.ms/x/c/34ec95d0cb013ef6/EQtPYARlQW9Jgd-bYbrfeFwBe8_yS7sNLgq0alRNS3BpPQ?e=j44Xcf).
+
 ---
 ## 💡 What is this?
 UW CalcArchive is a test question bank built for UW MATH 124/5/6 students practicing for midterms and finals.
