@@ -4,7 +4,7 @@
 ---
 📁 Access the archive [here](#). *Coming soon!*
 
-📝 View a spreadsheet of the archive's sources [here](https://1drv.ms/x/c/34ec95d0cb013ef6/EQtPYARlQW9Jgd-bYbrfeFwBe8_yS7sNLgq0alRNS3BpPQ?e=j44Xcf).
+📝 Download an Excel file of the archive's sources [here](data/test_archives.xlsx).
 
 ---
 ## 💡 What is this?
