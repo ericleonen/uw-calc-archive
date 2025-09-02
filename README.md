@@ -17,7 +17,7 @@ This archive lets your search for specific types of test questions. The question
 ---
 ## 🚧 Roadmap
 *Work in progress!*
-- [ ] Compile a list of all MATH 12x test archive pages on professor sites or on the official UW Math Department test archives.
+- [X] Compile a list of all MATH 12x test archive pages on professor sites or on the official UW Math Department test archives.
 - [ ] Capture image pairs of every question and their answer. Store in a cloud-hosted database.
 - [ ] Tune an image classification model to provide tags for each question. Add tags as metadata to the questions in the database.
 - [ ] Build and deploy an API to handle queries and return relevant questions.
