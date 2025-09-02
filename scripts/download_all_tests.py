@@ -37,7 +37,10 @@ def download_test(test: dict):
     metadata = {
         "id": test_id,
         "class": test["class"],
-        "type": test["type"]
+        "type": test["type"],
+        "test_pdf": test["test_pdf"],
+        "answers_pdf": test["answers_pdf"] if "answers_pdf" in test else None,
+        "archive_url": test["archive_url"]
     }
 
     with open(dir_path + "metadata.json", "w") as f:
@@ -65,7 +68,8 @@ def download_tests_from_archive(
     for tr_elem in archive_soup.find_all("tr"):
         test = {
             "class": class_,
-            "type": test_type
+            "type": test_type,
+            "archive_url": archive_url
         }
 
         for a_elem in tr_elem.find_all("a"):
@@ -91,5 +95,5 @@ if __name__ == "__main__":
         download_tests_from_archive(
             archive_url=archive.url,
             class_=archive["class"],
-            test_type=archive.type
+            test_type=archive.type,
         )
