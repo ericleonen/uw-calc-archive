@@ -3,36 +3,45 @@ import requests
 import urllib.parse
 import uuid
 import os
+import json
+import pandas as pd
 
 def download_test(test: dict):
     test_id = str(uuid.uuid4())
     dir_path = f"data/raw/{test_id}/"
 
-    print(f"Downloading test (ID: {test_id}) to {dir_path}")
+    print(f"Downloading test to {dir_path}")
 
     os.makedirs(dir_path, exist_ok=True)
 
-    print(f"  > Downloading test PDF:", end=" ")
+    print(f" > Downloading test PDF")
     test_pdf_res = requests.get(test["test_pdf"])
     test_pdf_res.raise_for_status()
 
     with open(dir_path + "test.pdf", "wb") as f:
-        f.write(res.content)
+        f.write(test_pdf_res.content)
 
-    for key in ["test_pdf", "answers_pdf"]:
-        if key not in test:
-            continue
+    if "answers_pdf" in test:
+        print(f" > Downloading answers PDF")
 
-        url = test[key]
-        filename = f"tests/{test['class']}_{key}.pdf"
+        try:
+            answers_pdf_res = requests.get(test["answers_pdf"])
+            answers_pdf_res.raise_for_status()
 
-        print(f"Downloading {url} to {filename}...")
+            with open(dir_path + "answers.pdf", "wb") as f:
+                f.write(answers_pdf_res.content)
+        except Exception as e:
+            print(e)
 
-        res = requests.get(url)
-        res.raise_for_status()
+    print(f" > Generating metadata")
+    metadata = {
+        "id": test_id,
+        "class": test["class"],
+        "type": test["type"]
+    }
 
-        with open(filename, "wb") as f:
-            f.write(res.content)
+    with open(dir_path + "metadata.json", "w") as f:
+        json.dump(metadata, f)
 
 def download_tests_from_archive(
     archive_url: str, 
@@ -43,7 +52,7 @@ def download_tests_from_archive(
     archive_res = requests.get(archive_url)
     archive_res.raise_for_status()
 
-    archive_soup = BeautifulSoup(archive_res.content)
+    archive_soup = BeautifulSoup(archive_res.content, "html5lib")
         
     # Get base URL for downloading tests
     archive_base = archive_url[:archive_url.rfind("/") + 1]
@@ -71,5 +80,16 @@ def download_tests_from_archive(
                     test[key] = href if has_http else archive_base + href
                     break
 
-        if "test" in test:
+        if "test_pdf" in test:
             download_test(test)
+
+if __name__ == "__main__":
+    test_archives = pd.read_excel("data/test_archives.xlsx")
+
+    for _, archive in test_archives.iterrows():
+        print(f"--- Reading from archive {archive.url} ---")
+        download_tests_from_archive(
+            archive_url=archive.url,
+            class_=archive["class"],
+            test_type=archive.type
+        )
