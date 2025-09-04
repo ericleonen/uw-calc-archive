@@ -2,15 +2,15 @@ from pathlib import Path
 import fitz
 from PIL import Image
 from fitz import Document
+import numpy as np
 
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
-NUMBERED_BLOCK_PREFIXES = ["_.", "problem _.", "question _.", "q_.", "_ ("]
+NUMBERED_BLOCK_PREFIXES = ["_.", "# _", "problem _.", "question _.", "q_.", "_ ("]
 
 def get_numbered_block_bounds(
-    doc: Document, 
-    margin: int = 4,
+    doc: Document,
     look_for_pair: bool = False
 ) -> tuple[list, list | None]:
     curr_question_num = 1
@@ -23,52 +23,85 @@ def get_numbered_block_bounds(
         page_height = page.rect.height
 
         for block in dict_["blocks"]:
-            for line in block.get("lines", []):
-                _, y0, _, _ = line["bbox"]
-                line_text = "".join(span["text"] for span in line["spans"]).strip().lower()
+            _, y0, _, _ = block["bbox"]
+            block_text = "".join(span["text"] for line in block.get("lines", []) for span in line["spans"]).lower()
+            
+            if any([
+                block_text.startswith(prefix.replace("_", str(curr_question_num))) 
+                for prefix in NUMBERED_BLOCK_PREFIXES
+            ]):
+                if len(all_bounds) > 0:
+                    all_bounds[-1]["end"] = {
+                        "page_idx": page_idx,
+                        "y": min(y0, page_height)
+                    }
 
-                if any([
-                    line_text.startswith(prefix.replace("_", str(curr_question_num))) 
-                    for prefix in NUMBERED_BLOCK_PREFIXES
-                ]):
-                    if len(all_bounds) > 0:
-                        all_bounds[-1]["end"] = {
-                            "page_idx": page_idx,
-                            "y": min(y0 + margin, page_height)
-                        }
-
-                    all_bounds.append({
-                        "start": {
-                            "page_idx": page_idx,
-                            "y": max(y0 - margin, 0)
-                        },
-                        "end": {
-                            "page_idx": doc.page_count - 1,
-                            "y": doc[-1].rect.height
-                        }
-                    })
-                    curr_question_num += 1
-                elif look_for_pair and all_bounds is all_bounds_1 and len(all_bounds_1) > 1 and any([
-                    line_text.startswith(prefix.replace("_", "1")) 
-                    for prefix in NUMBERED_BLOCK_PREFIXES
-                ]):
-                    all_bounds = all_bounds_2
-                    curr_question_num = 1
-                    
-                    all_bounds_1[-1]["end"] = {
-                            "page_idx": page_idx,
-                            "y": min(y0 + margin, page_height)
-                        }
-                    all_bounds.append({
-                        "start": {
-                            "page_idx": page_idx,
-                            "y": max(y0 - margin, 0)
-                        },
-                        "end": None
-                    })
-                    curr_question_num += 1
+                all_bounds.append({
+                    "start": {
+                        "page_idx": page_idx,
+                        "y": max(y0, 0)
+                    },
+                    "end": {
+                        "page_idx": doc.page_count - 1,
+                        "y": doc[-1].rect.height
+                    }
+                })
+                curr_question_num += 1
+            elif look_for_pair and all_bounds is all_bounds_1 and len(all_bounds_1) > 1 and any([
+                block_text.startswith(prefix.replace("_", "1")) 
+                for prefix in NUMBERED_BLOCK_PREFIXES
+            ]):
+                all_bounds = all_bounds_2
+                curr_question_num = 1
+                
+                all_bounds_1[-1]["end"] = {
+                        "page_idx": page_idx,
+                        "y": min(y0, page_height)
+                    }
+                all_bounds.append({
+                    "start": {
+                        "page_idx": page_idx,
+                        "y": max(y0, 0)
+                    },
+                    "end": None
+                })
+                curr_question_num += 1
 
     return all_bounds_1, all_bounds_2
+
+def cap_whitespace_from_canvas(
+    canvas: Image,
+    max_whitespace_height: int = 128,
+    ink_threshold: int = 245,
+    min_ink_pixels_ratio: float = 0.001,
+) -> Image:
+    gray_canvas = canvas.convert("L")
+    arr = np.array(gray_canvas, dtype=np.uint8)
+    arr_height, arr_width = arr.shape
+    ink_mask = arr < ink_threshold
+    row_has_ink = ink_mask.sum(axis=1) >= int(min_ink_pixels_ratio * arr_width)
+
+    out_rows = []
+    consecutive_whitespace_rows = 0
+
+    for r in range(arr_height):
+        if row_has_ink[r]:
+            if consecutive_whitespace_rows > 0:
+                n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
+                out_rows.extend([255] * arr_width for _ in range(n_rows_keep))
+                consecutive_whitespace_rows = 0
+            
+            out_rows.append(arr[r])
+
+        else:
+            consecutive_whitespace_rows += 1
+
+    if consecutive_whitespace_rows > 0:
+        n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
+        out_rows.extend([255] * arr_width for _ in range(n_rows_keep))
+
+    out_arr = np.stack(out_rows, axis=0).astype(np.uint8)
+    return Image.fromarray(out_arr, mode="L").convert("RGB")
 
 def slice_doc_and_save(
     doc: Document, 
@@ -161,13 +194,20 @@ def generate_questions_answers_from_test(test_dir: Path):
             raise Exception(f"Test {test_id} has answers.pdf nor answers attatched to the end of its test.pdf")
         else:   
             answers_doc = test_doc
+
+    if len(answers_bounds) != len(questions_bounds):
+        raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
         
-    processed_test_dir = PROCESSED_DIR / test_id    
+    processed_test_dir = PROCESSED_DIR / test_id
+
     slice_doc_and_save(test_doc, questions_bounds, processed_test_dir / "questions")
     slice_doc_and_save(answers_doc, answers_bounds, processed_test_dir / "answers")
     
 if __name__ == "__main__":
-    for folder in RAW_DIR.iterdir():
+    for i, folder in enumerate(RAW_DIR.iterdir()):
+        if i != 186:
+            continue
+
         if folder.is_dir():
             generate_questions_answers_from_test(folder)
                 
