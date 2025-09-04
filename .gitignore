@@ -2,3 +2,4 @@
 data/raw
 .env
 data/example
+data/processed
