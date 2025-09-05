@@ -1,5 +1,6 @@
 """
 Script to parse questions and answers from test PDFs and answer key PDFs respectively.
+Error-free parsing (152/280 ≈ 54%)
 
 === VOCAB ===
 - Section: a series of blocks in a document that may span multiple pages. Shares the width of the
@@ -25,10 +26,11 @@ PROCESSED_DIR = Path("data/processed")
 NUMBERED_1_SECTION_REGEXES = [
     r"^1+\.",
     r"^#\s*1+",
-    r"^problem\s+1+\.",
-    r"^question\s+1+\.",
+    r"^problem\s+1",
+    r"^question\s+1",
     r"^q1+\.",
-    r"^1+\s*\("
+    r"^1+\s*\(",
+    r"^exercise\s+1"
 ]
 UNDESIRABLES_REGEXES = [
     r"^\d+$",
@@ -40,7 +42,8 @@ UNDESIRABLES_REGEXES = [
 ]
 INSTRUCTIONS_PAGE_REGEXES = [
     r"honor\s+statement",
-    r"good\s+luck"
+    r"good\s+luck",
+    r"electronic\s+devices"
 ]
 
 def get_numbered_sections_and_undesirable_block_bounds(
@@ -141,33 +144,16 @@ def get_numbered_sections_and_undesirable_block_bounds(
             block_text = "".join(
                 span["text"] for line in block.get("lines", []) for span in line.get("spans", [])
             ).lstrip()
-
-            if any(regex_search(block_text, r) for r in instructions_page_regexes):
+            
+            if p == 0 and any(regex_search(block_text, r) for r in instructions_page_regexes):
                 break
-
-            has_enough_whitespace_above = (
-                prev_block_y1 == 0 or \
-                y0 - prev_block_y1 >= undesirables_min_whitespace_above
-            )
-
-            if (
-                has_enough_whitespace_above and \
-                any(regex_search(block_text, r) for r in undesirables_regexes)
-            ):
-                # current block is undesirable
-                undesirables_bounds.append({
-                    "p": p,
-                    "y0": y0,
-                    "y1": y1
-                })
-            else:
-                prev_block_y1 = y1
 
             if numbered_q_section_regex is None:
                 numbered_q_section_regex = \
                     get_matching_regex(block_text, numbered_1_section_regexes)
 
             if (
+                y0 >= prev_block_y1 and \
                 numbered_q_section_regex is not None and \
                 regex_search(block_text, numbered_q_section_regex)
             ):
@@ -210,6 +196,22 @@ def get_numbered_sections_and_undesirable_block_bounds(
 
                     numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
                     q += 1
+            elif (
+                (
+                    prev_block_y1 == 0 or \
+                    y0 - prev_block_y1 >= undesirables_min_whitespace_above
+                ) and any(regex_search(block_text, r) for r in undesirables_regexes)
+            ):
+                # current block is undesirable
+                undesirables_bounds.append({
+                    "p": p,
+                    "y0": y0,
+                    "y1": y1
+                })
+
+                continue
+
+            prev_block_y1 = y1
 
         if prev_block_y1 == 0:
             # only undesirable blocks on this page
@@ -440,8 +442,6 @@ def generate_questions_answers_from_test(test_dir: Path):
     answers_pdf = test_dir / "answers.pdf"
     metadata_json = test_dir / "metadata.json"
 
-    print(metadata_json)
-
     if not test_pdf.exists():
         raise FileNotFoundError(f"Test {test_id} has no test.pdf")
     
@@ -459,15 +459,17 @@ def generate_questions_answers_from_test(test_dir: Path):
     if answers_pdf_exists:
         answers_doc = fitz.open(str(answers_pdf))
 
-        if answers_doc.page_count == test_doc.page_count:
-            # answers are filled out in test
-            answers_bounds = questions_bounds
-            answers_undesirables_bounds = test_undesirables_bounds
-        elif answers_doc.page_count < test_doc.page_count:
-            # answers are compact
-            answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
-        else:
-            raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
+        answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
+
+        # if answers_doc.page_count == test_doc.page_count:
+        #     # answers are filled out in test
+        #     answers_bounds = questions_bounds
+        #     answers_undesirables_bounds = test_undesirables_bounds
+        # elif answers_doc.page_count < test_doc.page_count:
+        #     # answers are compact
+        #     answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
+        # else:
+        #     raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
         if answers_bounds is None:
             raise Exception(f"Test {test_id} has answers.pdf nor answers attatched to the end of its test.pdf")
@@ -487,7 +489,18 @@ def generate_questions_answers_from_test(test_dir: Path):
     slice_doc_and_save(answers_doc, answers_bounds, answers_undesirables_bounds, processed_test_dir / "answers")
     
 if __name__ == "__main__":
+    good, bad = 0, 0
+    N = len(list(RAW_DIR.iterdir()))
     for i, folder in enumerate(sorted(RAW_DIR.iterdir())):
-        if folder.is_dir() and i == 3:
+        # issues:
+        # - i = 4: answer key is too compact
+        # - i = 7-8: answer key is a filled test, but is missing instructions page
+        try:
+            good += 1
             generate_questions_answers_from_test(folder)
+        except Exception:
+            good -= 1
+            bad += 1
+        
+        print(f"{good} good vs {bad} bad ({i+1}/{N})")
                 
