@@ -7,7 +7,7 @@ Script to parse questions and answers from test PDFs and answer key PDFs respect
 - Numbered section: a section that starts with a "numbered" prefix like "1." or "2)"
 - Bounds: the upper and lower y-coordinates (and possibly pages) of a section or block
 - Undesirable (block): a block on a document that shouldn't be shown to the user (i.e. page numbers
-                       or headers)
+                       or headers) with whitespace above it
 """
 
 from pathlib import Path
@@ -22,26 +22,29 @@ import shutil
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
-NUMBERED_SECTION_REGEXES = [re.compile(p, re.IGNORECASE) for p in [
-    r"^\d+\.",
-    r"^#\s*\d+",
-    r"^problem\s+\d+\.",
-    r"^question\s+\d+\.",
-    r"^q\d+\.",
-    r"^\d+\s*\("
-]]
-UNDESIRABLES_REGEXES = [re.compile(p, re.IGNORECASE) for p in [
+NUMBERED_1_SECTION_REGEXES = [
+    r"^1+\.",
+    r"^#\s*1+",
+    r"^problem\s+1+\.",
+    r"^question\s+1+\.",
+    r"^q1+\.",
+    r"^1+\s*\("
+]
+UNDESIRABLES_REGEXES = [
     r"^\d+$",
-    r"math 12[456]", re.I,
+    r"math 12[456]",
     r"(fall|spring|winter|summer)\s+20(0\d|1\d)",
-    r"page\s+\d+\s+of\s+\d+"
-]]
+    r"page\s+\d+\s+of\s+\d+",
+    r"next\s+page",
+    r"answers"
+]
 
 def get_numbered_sections_and_undesirable_block_bounds(
     doc: Document,
     look_for_pair: bool = False,
-    numbered_section_regexes: list[Pattern[str]] = NUMBERED_SECTION_REGEXES,
-    undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES
+    numbered_1_section_regexes: list[Pattern[str]] = NUMBERED_1_SECTION_REGEXES,
+    undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES,
+    undesirables_min_whitespace_above: float = 16
 ) -> tuple[list, list | None, list]:
     """
     Creates bounds of (1) numbered sections, (2) a possible second numbered sections, and (3)
@@ -53,10 +56,13 @@ def get_numbered_sections_and_undesirable_block_bounds(
         The document including sections.
     look_for_pair: bool, optional
         Flag to expect and look for a second pair of numbered sections. Default false.
-    numbered_section_regexes: list[Pattern[str]], optional
-        A list of regex patterns that define a numbered section. Default NUMBERED_SECTION_REGEXES.
+    numbered_1_section_regexes: list[Pattern[str]], optional
+        A list of regex patterns that define a numbered section. Default NUMBERED_1_SECTION_REGEXES.
     undesirables_regexes: list[Pattern[str]], optional
-        A list of regex patterns that define an undesirable block.
+        A list of regex patterns that define an undesirable block. Default UNDESIRABLES_REGEXES
+    undesirables_min_whitespace_above: float, optional
+        The minimum height (in PDF pixels) of whitespace above a block that makes it eligible to
+        be undesirable. Default 16.
 
     Returns
     -------
@@ -64,14 +70,10 @@ def get_numbered_sections_and_undesirable_block_bounds(
         A list of sections bounds, where each section bounds follows the schema:
         ```
         {
-            start: {
-                page_idx: int,
-                y: float
-            },
-            end: {
-                page_idx: int,
-                y: float
-            }
+            p0: int,
+            y0: float,
+            p1: int,
+            y1: float
         }
         ```
     sections_bounds_2: list | None
@@ -81,88 +83,122 @@ def get_numbered_sections_and_undesirable_block_bounds(
         A list of blocks bounds, where each block bound follows the schema:
         ```
         {
-            page_idx: int,
+            p: int,
             y0: float,
             y1: float
         }
         ```
     """
-    if look_for_pair:
-        numbered_section_regexes_1 = [
-            re.compile(p.pattern.replace(r"\d", "1"), re.IGNORECASE)
-            for p in numbered_section_regexes
-        ]
+    def regex_search(text: str, regex: str) -> bool:
+        return re.compile(regex, re.IGNORECASE).search(text)
 
-    curr_question_num = 1
+    def get_matching_regex(text: str, regexes: list[str]) -> str | None:
+        for regex in regexes:
+            if regex_search(text, regex):
+                return regex
+            
+        return None
+
+    q = 1
+    numbered_q_section_regex = None
 
     sections_bounds_1, sections_bounds_2 = [], [] if look_for_pair else None
     sections_bounds = sections_bounds_1
     undesirables_bounds = []
 
-    for page_idx, page in enumerate(doc):
+    page_count = doc.page_count
+
+    for p, page in enumerate(doc):
         dict_ = page.get_text("dict")
 
         page_height = page.rect.height
         prev_block_y1 = 0
 
-        for block in dict_["blocks"]:
+        for block in dict_.get("blocks", []):
             _, y0, _, y1 = block["bbox"]
 
-            if len(sections_bounds) > 0 and sections_bounds[-1]["start"]["page_idx"] == page_idx and sections_bounds[-1]["start"]["y"] > y0:
-                sections_bounds[-1]["start"]["y"] = y0 
+            if (
+                len(sections_bounds) > 0 \
+                and sections_bounds[-1]["p0"] == p \
+                and sections_bounds[-1]["y0"] > y0
+            ):
+                # block inside last numbered section lies above its start bound
+                sections_bounds[-1]["y0"] = y0 
 
-                # LIKELY A CULPRIT FOR MISSING BOTTOMS
-                if len(sections_bounds) > 1 and sections_bounds[-2]["end"]["page_idx"] == page_idx:
-                    sections_bounds[-2]["end"]["y"] = y0
+                if len(sections_bounds) > 1 and sections_bounds[-2]["p1"] == p:
+                    # block inside last numbered section lies above the penultimate numbered
+                    # section's end bound
+                    sections_bounds[-2]["y1"] = y0
 
-            block_text = "".join(span["text"] for line in block.get("lines", []) for span in line["spans"]).lower()
-            
-            is_empty_above = prev_block_y1 == 0 or y0 - prev_block_y1 >= 64
+            block_text = "".join(
+                span["text"] for line in block.get("lines", []) for span in line.get("spans", [])
+            ).lstrip()
 
-            if is_empty_above and any(r.search(block_text) for r in undesirables_regexes):
+            has_enough_whitespace_above = (
+                prev_block_y1 == 0 or \
+                y0 - prev_block_y1 >= undesirables_min_whitespace_above
+            )
+
+            if (
+                has_enough_whitespace_above and \
+                any(regex_search(block_text, r) for r in undesirables_regexes)
+            ):
+                # current block is undesirable
                 undesirables_bounds.append({
-                    "page_idx": page_idx,
+                    "p": p,
                     "y0": y0,
                     "y1": y1
                 })
-            elif any(r.search(block_text) for r in numbered_section_regexes):
-                if len(sections_bounds) > 0:
-                    sections_bounds[-1]["end"] = {
-                        "page_idx": page_idx,
-                        "y": min(y0, page_height)
-                    }
+            else:
+                prev_block_y1 = y1
 
-                sections_bounds.append({
-                    "start": {
-                        "page_idx": page_idx,
-                        "y": max(y0, 0)
-                    },
-                    "end": {
-                        "page_idx": doc.page_count - 1,
-                        "y": doc[-1].rect.height
-                    }
-                })
-                curr_question_num += 1
-            elif look_for_pair and sections_bounds is sections_bounds_1 and len(sections_bounds_1) > 1 and any(
-                r.search(block_text) for r in numbered_section_regexes_1
+            if numbered_q_section_regex is None:
+                numbered_q_section_regex = \
+                    get_matching_regex(block_text, numbered_1_section_regexes)
+
+            if (
+                numbered_q_section_regex is not None and \
+                regex_search(block_text, numbered_q_section_regex)
             ):
-                sections_bounds = sections_bounds_2
-                curr_question_num = 1
-                
-                sections_bounds_1[-1]["end"] = {
-                        "page_idx": page_idx,
-                        "y": min(y0, page_height)
-                    }
-                sections_bounds.append({
-                    "start": {
-                        "page_idx": page_idx,
-                        "y": max(y0, 0)
-                    },
-                    "end": None
-                })
-                curr_question_num += 1
+                # current block starts a numbered section
+                if len(sections_bounds) > 0:
+                    sections_bounds[-1]["p1"] = p
+                    sections_bounds[-1]["y1"] = min(y0, page_height)
 
-            prev_block_y1 = y1
+                sections_bounds.append({
+                    "p0": p,
+                    "y0": max(y0, 0),
+                    "p1": page_count - 1,
+                    "y1": doc[-1].rect.height
+                })
+
+                numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
+                q += 1
+            elif (
+                look_for_pair and \
+                sections_bounds is sections_bounds_1 and \
+                len(sections_bounds_1) > 1
+            ):
+                numbered_q_section_regex_tmp = \
+                    get_matching_regex(block_text, numbered_1_section_regexes)
+                if numbered_q_section_regex_tmp is not None:
+                    # current block starts the second set of numbered sections
+                    sections_bounds = sections_bounds_2
+                    numbered_q_section_regex = numbered_q_section_regex_tmp
+                    q = 1
+                    
+                    sections_bounds_1[-1]["p1"] = p
+                    sections_bounds_1[-1]["y1"] = min(y0, page_height)
+
+                    sections_bounds.append({
+                        "p0": p,
+                        "y0": y0,
+                        "p1": doc.page_count - 1,
+                        "y1": doc[-1].rect.height
+                    })
+
+                    numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
+                    q += 1
 
     return sections_bounds_1, sections_bounds_2, undesirables_bounds
 
@@ -170,60 +206,87 @@ def cap_whitespace_from_canvas(
     canvas: Image,
     max_whitespace_height: int = 32,
     max_whitespace_width: int = 32,
-    ink_threshold: int = 245,
-    min_ink_pixels_ratio: float = 0.001,
+    white_threshold: int = 245,
+    min_whitespace_pixels_ratio: float = 0.999,
 ) -> Image:
+    """
+    Caps the height and width of whitespace rectangles in a canvas.
+
+    Parameters
+    ----------
+    canvas: Image
+        The original canvas.
+    max_whitespace_height: int, optional
+        Maximum allowed height (in image pixels) of a whitespace rectangle that is the width of the
+        page. Default 32.
+    max_whitespace_width: int, optional
+        Maximum allowed width (in image pixels) of a whitespace rectangle that is the height of the
+        page. Default 32.
+    ink_threshold: float, optional
+        Minimum value of a grayscale pixel (0-255) to be considered "white". Default 245.
+    min_whitespace_pixels_ratio: float, optional
+        Minimum ratio of "white" pixels in a row or column to consider the whole row or column
+        white.
+
+    Returns
+    -------
+    canvas: Image
+        A new image with capped whitespaces.
+    """
     gray_canvas = canvas.convert("L")
+
+    # --- ROWS ---
     arr = np.array(gray_canvas, dtype=np.uint8)
     arr_height, arr_width = arr.shape
-    ink_mask = arr < ink_threshold
-    row_thresh = max(1, int(min_ink_pixels_ratio * arr_width))
-    row_has_ink = ink_mask.sum(axis=1) >= row_thresh
+
+    white_mask = arr >= white_threshold
+    min_whitespace_row_pixels = max(1, int(min_whitespace_pixels_ratio * arr_width))
+    row_is_white = white_mask.sum(axis=1) >= min_whitespace_row_pixels
 
     out_rows = []
     consecutive_whitespace_rows = 0
 
     for r in range(arr_height):
-        if row_has_ink[r]:
+        if row_is_white[r]:
+            consecutive_whitespace_rows += 1
+        else:
             if consecutive_whitespace_rows > 0:
                 n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
                 out_rows.extend(np.full(arr_width, 255, dtype=np.uint8) for _ in range(n_rows_keep))
                 consecutive_whitespace_rows = 0
             out_rows.append(arr[r])
-        else:
-            consecutive_whitespace_rows += 1
 
     if consecutive_whitespace_rows > 0:
         n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
         out_rows.extend(np.full(arr_width, 255, dtype=np.uint8) for _ in range(n_rows_keep))
 
-    out_arr = np.stack(out_rows, axis=0).astype(np.uint8)
+    # --- COLUMNS ---
+    arr = np.stack(out_rows, axis=0).astype(np.uint8)
+    arr_height, arr_width = arr.shape
 
-    arr2 = out_arr
-    arr2_height, arr2_width = arr2.shape
-    ink_mask2 = arr2 < ink_threshold
-    col_thresh = max(1, int(min_ink_pixels_ratio * arr2_height))
-    col_has_ink = ink_mask2.sum(axis=0) >= col_thresh
+    white_mask = arr >= white_threshold
+    min_whitespace_col_pixels = max(1, int(min_whitespace_pixels_ratio * arr_height))
+    col_is_white = white_mask.sum(axis=0) >= min_whitespace_col_pixels
 
     out_cols = []
     consecutive_whitespace_cols = 0
 
-    for c in range(arr2_width):
-        if col_has_ink[c]:
+    for c in range(arr_width):
+        if col_is_white[c]:
+            consecutive_whitespace_cols += 1
+        else:
             if consecutive_whitespace_cols > 0:
                 n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-                out_cols.extend(np.full(arr2_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
+                out_cols.extend(np.full(arr_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
                 consecutive_whitespace_cols = 0
-            out_cols.append(arr2[:, c])
-        else:
-            consecutive_whitespace_cols += 1
+            out_cols.append(arr[:, c])
 
     if consecutive_whitespace_cols > 0:
         n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-        out_cols.extend(np.full(arr2_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
+        out_cols.extend(np.full(arr_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
 
-    out_arr2 = np.stack(out_cols, axis=1).astype(np.uint8)
-    return Image.fromarray(out_arr2).convert("RGB")
+    arr = np.stack(out_cols, axis=1).astype(np.uint8)
+    return Image.fromarray(arr).convert("RGB")
 
 def slice_doc_and_save(
     doc: Document, 
@@ -232,10 +295,30 @@ def slice_doc_and_save(
     save_to_path: Path,
     dpi: int = 200,
 ):
+    """
+    Slices the given doc into sections defined by sections and undesirables bounds.
+
+    Parameters
+    ----------
+    doc: Document, 
+    sections_bounds: list
+        The list of sections bounds to define sections.
+    undesirables_bounds: list
+        The list of undesirables bounds to crop out of images.
+    save_to_path: Path
+        The path to save the images to.
+    dpi: int, optional
+        The density of the saved images. Default 200.
+
+    Returns
+    -------
+    None
+    """
+
     save_to_path.mkdir(parents=True, exist_ok=False)
 
-    def get_slice(page_idx, y0, y1):
-        page = doc[page_idx]
+    def get_slice(p, y0, y1):
+        page = doc[p]
         page_width, page_height = page.rect.width, page.rect.height
 
         if y0 > y1:
@@ -250,7 +333,7 @@ def slice_doc_and_save(
 
     undesirables_by_page = {}
     for b in undesirables_bounds:
-        lst = undesirables_by_page.setdefault(b["page_idx"], [])
+        lst = undesirables_by_page.setdefault(b["p"], [])
         lst.append((b["y0"], b["y1"]))
     for k in undesirables_by_page:
         undesirables_by_page[k].sort()
@@ -274,40 +357,40 @@ def slice_doc_and_save(
 
     for bounds_idx, bounds in enumerate(sections_bounds):
         slices = []
-        curr_page_idx = bounds["start"]["page_idx"]
+        curr_p = bounds["p0"]
 
         while True:
-            curr_page = doc[curr_page_idx]
+            curr_page = doc[curr_p]
             page_height = curr_page.rect.height
 
-            if curr_page_idx == bounds["start"]["page_idx"] and curr_page_idx == bounds["end"]["page_idx"]:
-                base_segments = [(bounds["start"]["y"], bounds["end"]["y"])]
-                cuts = undesirables_by_page.get(curr_page_idx, [])
+            if curr_p == bounds["p0"] and curr_p == bounds["p1"]:
+                base_segments = [(bounds["y0"], bounds["y1"])]
+                cuts = undesirables_by_page.get(curr_p, [])
                 segs = sum((subtract_intervals(a, b, cuts) for a, b in base_segments), [])
                 for a, b in segs:
-                    slices.append(get_slice(curr_page_idx, a, b))
+                    slices.append(get_slice(curr_p, a, b))
                 break
-            elif curr_page_idx == bounds["start"]["page_idx"]:
-                base_segments = [(bounds["start"]["y"], page_height)]
-                cuts = undesirables_by_page.get(curr_page_idx, [])
+            elif curr_p == bounds["p0"]:
+                base_segments = [(bounds["y0"], page_height)]
+                cuts = undesirables_by_page.get(curr_p, [])
                 segs = sum((subtract_intervals(a, b, cuts) for a, b in base_segments), [])
                 for a, b in segs:
-                    slices.append(get_slice(curr_page_idx, a, b))
-            elif curr_page_idx == bounds["end"]["page_idx"]:
-                base_segments = [(0, bounds["end"]["y"])]
-                cuts = undesirables_by_page.get(curr_page_idx, [])
+                    slices.append(get_slice(curr_p, a, b))
+            elif curr_p == bounds["p1"]:
+                base_segments = [(0, bounds["y1"])]
+                cuts = undesirables_by_page.get(curr_p, [])
                 segs = sum((subtract_intervals(a, b, cuts) for a, b in base_segments), [])
                 for a, b in segs:
-                    slices.append(get_slice(curr_page_idx, a, b))
+                    slices.append(get_slice(curr_p, a, b))
                 break
             else:
                 base_segments = [(0, page_height)]
-                cuts = undesirables_by_page.get(curr_page_idx, [])
+                cuts = undesirables_by_page.get(curr_p, [])
                 segs = sum((subtract_intervals(a, b, cuts) for a, b in base_segments), [])
                 for a, b in segs:
-                    slices.append(get_slice(curr_page_idx, a, b))
+                    slices.append(get_slice(curr_p, a, b))
 
-            curr_page_idx += 1
+            curr_p += 1
 
         if not slices:
             continue
@@ -377,7 +460,7 @@ if __name__ == "__main__":
     for i, folder in enumerate(RAW_DIR.iterdir()):
         # if i > 3:
         #     continue
-        if folder.name == "027f9e1b-d76f-4fb9-ab3e-5a8831b965d3":
+        if folder.name == "answers-after-questions":
 
             if folder.is_dir():
                 generate_questions_answers_from_test(folder)
