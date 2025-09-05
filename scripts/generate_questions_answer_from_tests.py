@@ -1,33 +1,102 @@
+"""
+Script to parse questions and answers from test PDFs and answer key PDFs respectively.
+
+=== VOCAB ===
+- Section: a series of blocks in a document that may span multiple pages. Shares the width of the
+           page.
+- Numbered section: a section that starts with a "numbered" prefix like "1." or "2)"
+- Bounds: the upper and lower y-coordinates (and possibly pages) of a section or block
+- Undesirable (block): a block on a document that shouldn't be shown to the user (i.e. page numbers
+                       or headers)
+"""
+
 from pathlib import Path
 import fitz
 from PIL import Image
 from fitz import Document
 import numpy as np
 import re
+from re import Pattern
 import shutil
 
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
-NUMBERED_BLOCK_PREFIXES = ["_.", "# _", "problem _.", "question _.", "q_.", "_ ("]
+NUMBERED_SECTION_REGEXES = [re.compile(p, re.IGNORECASE) for p in [
+    r"^\d+\.",
+    r"^#\s*\d+",
+    r"^problem\s+\d+\.",
+    r"^question\s+\d+\.",
+    r"^q\d+\.",
+    r"^\d+\s*\("
+]]
+UNDESIRABLES_REGEXES = [re.compile(p, re.IGNORECASE) for p in [
+    r"^\d+$",
+    r"math 12[456]", re.I,
+    r"(fall|spring|winter|summer)\s+20(0\d|1\d)",
+    r"page\s+\d+\s+of\s+\d+"
+]]
 
-IS_EMPTY_ABOVE = lambda y1, prev_block_y1: prev_block_y1 == 0 or y1 - prev_block_y1 > 64
-
-UNDESIRABLE_BLOCK_REGEXES = [
-    re.compile(r"^\d+$"),
-    re.compile(r"math 12[456]", re.I),
-    re.compile(r"(fall|spring|winter|summer)\s+20(0\d|1\d)", re.I),
-    re.compile(r"page\s+\d+\s+of\s+\d+", re.I)
-]
-
-def get_numbered_block_bounds(
+def get_numbered_sections_and_undesirable_block_bounds(
     doc: Document,
-    look_for_pair: bool = False
-) -> tuple[list, list | None]:
+    look_for_pair: bool = False,
+    numbered_section_regexes: list[Pattern[str]] = NUMBERED_SECTION_REGEXES,
+    undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES
+) -> tuple[list, list | None, list]:
+    """
+    Creates bounds of (1) numbered sections, (2) a possible second numbered sections, and (3)
+    undesirable blocks.
+
+    Parameters
+    ----------
+    doc: Document
+        The document including sections.
+    look_for_pair: bool, optional
+        Flag to expect and look for a second pair of numbered sections. Default false.
+    numbered_section_regexes: list[Pattern[str]], optional
+        A list of regex patterns that define a numbered section. Default NUMBERED_SECTION_REGEXES.
+    undesirables_regexes: list[Pattern[str]], optional
+        A list of regex patterns that define an undesirable block.
+
+    Returns
+    -------
+    sections_bounds_1: list
+        A list of sections bounds, where each section bounds follows the schema:
+        ```
+        {
+            start: {
+                page_idx: int,
+                y: float
+            },
+            end: {
+                page_idx: int,
+                y: float
+            }
+        }
+        ```
+    sections_bounds_2: list | None
+        If look_for_pair, a list of section bounds with the same schema as sections_bounds_2,
+        otherwise, None.
+    undesirables_bounds: list
+        A list of blocks bounds, where each block bound follows the schema:
+        ```
+        {
+            page_idx: int,
+            y0: float,
+            y1: float
+        }
+        ```
+    """
+    if look_for_pair:
+        numbered_section_regexes_1 = [
+            re.compile(p.pattern.replace(r"\d", "1"), re.IGNORECASE)
+            for p in numbered_section_regexes
+        ]
+
     curr_question_num = 1
 
-    all_bounds_1, all_bounds_2 = [], [] if look_for_pair else None
-    all_bounds = all_bounds_1
+    sections_bounds_1, sections_bounds_2 = [], [] if look_for_pair else None
+    sections_bounds = sections_bounds_1
     undesirables_bounds = []
 
     for page_idx, page in enumerate(doc):
@@ -39,32 +108,31 @@ def get_numbered_block_bounds(
         for block in dict_["blocks"]:
             _, y0, _, y1 = block["bbox"]
 
-            if len(all_bounds) > 0 and all_bounds[-1]["start"]["page_idx"] == page_idx and all_bounds[-1]["start"]["y"] > y0:
-                all_bounds[-1]["start"]["y"] = y0 
+            if len(sections_bounds) > 0 and sections_bounds[-1]["start"]["page_idx"] == page_idx and sections_bounds[-1]["start"]["y"] > y0:
+                sections_bounds[-1]["start"]["y"] = y0 
 
                 # LIKELY A CULPRIT FOR MISSING BOTTOMS
-                if len(all_bounds) > 1 and all_bounds[-2]["end"]["page_idx"] == page_idx:
-                    all_bounds[-2]["end"]["y"] = y0
+                if len(sections_bounds) > 1 and sections_bounds[-2]["end"]["page_idx"] == page_idx:
+                    sections_bounds[-2]["end"]["y"] = y0
 
             block_text = "".join(span["text"] for line in block.get("lines", []) for span in line["spans"]).lower()
             
-            if IS_EMPTY_ABOVE(y1, prev_block_y1) and any(r.search(block_text) for r in UNDESIRABLE_BLOCK_REGEXES):
+            is_empty_above = prev_block_y1 == 0 or y0 - prev_block_y1 >= 64
+
+            if is_empty_above and any(r.search(block_text) for r in undesirables_regexes):
                 undesirables_bounds.append({
                     "page_idx": page_idx,
                     "y0": y0,
                     "y1": y1
                 })
-            elif any(
-                block_text.startswith(prefix.replace("_", str(curr_question_num))) 
-                for prefix in NUMBERED_BLOCK_PREFIXES
-            ):
-                if len(all_bounds) > 0:
-                    all_bounds[-1]["end"] = {
+            elif any(r.search(block_text) for r in numbered_section_regexes):
+                if len(sections_bounds) > 0:
+                    sections_bounds[-1]["end"] = {
                         "page_idx": page_idx,
                         "y": min(y0, page_height)
                     }
 
-                all_bounds.append({
+                sections_bounds.append({
                     "start": {
                         "page_idx": page_idx,
                         "y": max(y0, 0)
@@ -75,18 +143,17 @@ def get_numbered_block_bounds(
                     }
                 })
                 curr_question_num += 1
-            elif look_for_pair and all_bounds is all_bounds_1 and len(all_bounds_1) > 1 and any(
-                block_text.startswith(prefix.replace("_", "1")) 
-                for prefix in NUMBERED_BLOCK_PREFIXES
+            elif look_for_pair and sections_bounds is sections_bounds_1 and len(sections_bounds_1) > 1 and any(
+                r.search(block_text) for r in numbered_section_regexes_1
             ):
-                all_bounds = all_bounds_2
+                sections_bounds = sections_bounds_2
                 curr_question_num = 1
                 
-                all_bounds_1[-1]["end"] = {
+                sections_bounds_1[-1]["end"] = {
                         "page_idx": page_idx,
                         "y": min(y0, page_height)
                     }
-                all_bounds.append({
+                sections_bounds.append({
                     "start": {
                         "page_idx": page_idx,
                         "y": max(y0, 0)
@@ -97,7 +164,7 @@ def get_numbered_block_bounds(
 
             prev_block_y1 = y1
 
-    return all_bounds_1, all_bounds_2, undesirables_bounds
+    return sections_bounds_1, sections_bounds_2, undesirables_bounds
 
 def cap_whitespace_from_canvas(
     canvas: Image,
@@ -160,7 +227,7 @@ def cap_whitespace_from_canvas(
 
 def slice_doc_and_save(
     doc: Document, 
-    all_bounds: list,
+    sections_bounds: list,
     undesirables_bounds: list, 
     save_to_path: Path,
     dpi: int = 200,
@@ -205,7 +272,7 @@ def slice_doc_and_save(
                 break
         return segs
 
-    for bounds_idx, bounds in enumerate(all_bounds):
+    for bounds_idx, bounds in enumerate(sections_bounds):
         slices = []
         curr_page_idx = bounds["start"]["page_idx"]
 
@@ -271,7 +338,7 @@ def generate_questions_answers_from_test(test_dir: Path):
     answers_pdf_exists = answers_pdf.exists()
 
     test_doc = fitz.open(str(test_pdf))
-    questions_bounds, answers_bounds, test_undesirables_bounds = get_numbered_block_bounds(test_doc, look_for_pair=not answers_pdf_exists)
+    questions_bounds, answers_bounds, test_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(test_doc, look_for_pair=not answers_pdf_exists)
 
     if len(questions_bounds) <= 1:
         raise Exception(f"Only found {len(questions_bounds)} questions in test {test_id}")
@@ -285,7 +352,7 @@ def generate_questions_answers_from_test(test_dir: Path):
             answers_undesirables_bounds = test_undesirables_bounds
         elif answers_doc.page_count < test_doc.page_count:
             # answers are compact
-            answers_bounds, _, answers_undesirables_bounds = get_numbered_block_bounds(answers_doc)
+            answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
         else:
             raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
