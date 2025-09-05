@@ -38,13 +38,18 @@ UNDESIRABLES_REGEXES = [
     r"next\s+page",
     r"answers"
 ]
+INSTRUCTIONS_PAGE_REGEXES = [
+    r"honor\s+statement",
+    r"good\s+luck"
+]
 
 def get_numbered_sections_and_undesirable_block_bounds(
     doc: Document,
     look_for_pair: bool = False,
     numbered_1_section_regexes: list[Pattern[str]] = NUMBERED_1_SECTION_REGEXES,
     undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES,
-    undesirables_min_whitespace_above: float = 16
+    undesirables_min_whitespace_above: float = 16,
+    instructions_page_regexes: list[str] = INSTRUCTIONS_PAGE_REGEXES
 ) -> tuple[list, list | None, list]:
     """
     Creates bounds of (1) numbered sections, (2) a possible second numbered sections, and (3)
@@ -62,7 +67,10 @@ def get_numbered_sections_and_undesirable_block_bounds(
         A list of regex patterns that define an undesirable block. Default UNDESIRABLES_REGEXES
     undesirables_min_whitespace_above: float, optional
         The minimum height (in PDF pixels) of whitespace above a block that makes it eligible to
-        be undesirable. Default 16.
+        be undesirable. Default 16
+    instructions_page_regexes: list[str], optional
+        A list of regex patterns that define an instructions page (to be skipped in searching for
+        numbered sections). Default INSTRUCTIONS_PAGE_REGEXES
 
     Returns
     -------
@@ -134,6 +142,9 @@ def get_numbered_sections_and_undesirable_block_bounds(
                 span["text"] for line in block.get("lines", []) for span in line.get("spans", [])
             ).lstrip()
 
+            if any(regex_search(block_text, r) for r in instructions_page_regexes):
+                break
+
             has_enough_whitespace_above = (
                 prev_block_y1 == 0 or \
                 y0 - prev_block_y1 >= undesirables_min_whitespace_above
@@ -200,6 +211,12 @@ def get_numbered_sections_and_undesirable_block_bounds(
                     numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
                     q += 1
 
+        if prev_block_y1 == 0:
+            # only undesirable blocks on this page
+            if len(sections_bounds) > 0 and sections_bounds[-1]["p1"] >= p:
+                sections_bounds[-1]["p1"] = p - 1
+                sections_bounds[-1]["y1"] = doc[p - 1].rect.height
+
     return sections_bounds_1, sections_bounds_2, undesirables_bounds
 
 def cap_whitespace_from_canvas(
@@ -233,17 +250,18 @@ def cap_whitespace_from_canvas(
     canvas: Image
         A new image with capped whitespaces.
     """
-    gray_canvas = canvas.convert("L")
+    rgb_canvas = canvas.convert("RGB")
+    arr_rgb = np.array(rgb_canvas, dtype=np.uint8)
 
     # --- ROWS ---
-    arr = np.array(gray_canvas, dtype=np.uint8)
-    arr_height, arr_width = arr.shape
+    arr_gray = np.array(canvas.convert("L"), dtype=np.uint8)
+    arr_height, arr_width = arr_gray.shape
 
-    white_mask = arr >= white_threshold
+    white_mask = arr_gray >= white_threshold
     min_whitespace_row_pixels = max(1, int(min_whitespace_pixels_ratio * arr_width))
     row_is_white = white_mask.sum(axis=1) >= min_whitespace_row_pixels
 
-    out_rows = []
+    out_rows_rgb = []
     consecutive_whitespace_rows = 0
 
     for r in range(arr_height):
@@ -252,23 +270,29 @@ def cap_whitespace_from_canvas(
         else:
             if consecutive_whitespace_rows > 0:
                 n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
-                out_rows.extend(np.full(arr_width, 255, dtype=np.uint8) for _ in range(n_rows_keep))
+                out_rows_rgb.extend(
+                    np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
+                )
                 consecutive_whitespace_rows = 0
-            out_rows.append(arr[r])
+            out_rows_rgb.append(arr_rgb[r : r + 1, :, :])
 
     if consecutive_whitespace_rows > 0:
         n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
-        out_rows.extend(np.full(arr_width, 255, dtype=np.uint8) for _ in range(n_rows_keep))
+        out_rows_rgb.extend(
+            np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
+        )
+
+    arr_rgb = np.vstack(out_rows_rgb).astype(np.uint8)
 
     # --- COLUMNS ---
-    arr = np.stack(out_rows, axis=0).astype(np.uint8)
-    arr_height, arr_width = arr.shape
+    arr_gray = np.array(Image.fromarray(arr_rgb).convert("L"), dtype=np.uint8)
+    arr_height, arr_width = arr_gray.shape
 
-    white_mask = arr >= white_threshold
+    white_mask = arr_gray >= white_threshold
     min_whitespace_col_pixels = max(1, int(min_whitespace_pixels_ratio * arr_height))
     col_is_white = white_mask.sum(axis=0) >= min_whitespace_col_pixels
 
-    out_cols = []
+    out_cols_rgb = []
     consecutive_whitespace_cols = 0
 
     for c in range(arr_width):
@@ -277,16 +301,20 @@ def cap_whitespace_from_canvas(
         else:
             if consecutive_whitespace_cols > 0:
                 n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-                out_cols.extend(np.full(arr_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
+                out_cols_rgb.extend(
+                    np.full((arr_height, 1, 3), 255, dtype=np.uint8) for _ in range(n_cols_keep)
+                )
                 consecutive_whitespace_cols = 0
-            out_cols.append(arr[:, c])
+            out_cols_rgb.append(arr_rgb[:, c : c + 1, :])
 
     if consecutive_whitespace_cols > 0:
         n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-        out_cols.extend(np.full(arr_height, 255, dtype=np.uint8) for _ in range(n_cols_keep))
+        out_cols_rgb.extend(
+            np.full((arr_height, 1, 3), 255, dtype=np.uint8) for _ in range(n_cols_keep)
+        )
 
-    arr = np.stack(out_cols, axis=1).astype(np.uint8)
-    return Image.fromarray(arr).convert("RGB")
+    arr_rgb = np.concatenate(out_cols_rgb, axis=1).astype(np.uint8)
+    return Image.fromarray(arr_rgb)
 
 def slice_doc_and_save(
     doc: Document, 
@@ -412,6 +440,8 @@ def generate_questions_answers_from_test(test_dir: Path):
     answers_pdf = test_dir / "answers.pdf"
     metadata_json = test_dir / "metadata.json"
 
+    print(metadata_json)
+
     if not test_pdf.exists():
         raise FileNotFoundError(f"Test {test_id} has no test.pdf")
     
@@ -457,11 +487,7 @@ def generate_questions_answers_from_test(test_dir: Path):
     slice_doc_and_save(answers_doc, answers_bounds, answers_undesirables_bounds, processed_test_dir / "answers")
     
 if __name__ == "__main__":
-    for i, folder in enumerate(RAW_DIR.iterdir()):
-        # if i > 3:
-        #     continue
-        if folder.name == "answers-after-questions":
-
-            if folder.is_dir():
-                generate_questions_answers_from_test(folder)
+    for i, folder in enumerate(sorted(RAW_DIR.iterdir())):
+        if folder.is_dir() and i == 3:
+            generate_questions_answers_from_test(folder)
                 
