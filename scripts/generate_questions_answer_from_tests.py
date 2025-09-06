@@ -19,6 +19,7 @@ import numpy as np
 import re
 from re import Pattern
 import shutil
+import argparse
 
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
@@ -147,7 +148,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
             
             if p == 0 and any(regex_search(block_text, r) for r in instructions_page_regexes):
                 break
-
+            
             if numbered_q_section_regex is None:
                 numbered_q_section_regex = \
                     get_matching_regex(block_text, numbered_1_section_regexes)
@@ -196,7 +197,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
 
                     numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
                     q += 1
-            elif (
+            if (
                 (
                     prev_block_y1 == 0 or \
                     y0 - prev_block_y1 >= undesirables_min_whitespace_above
@@ -208,10 +209,8 @@ def get_numbered_sections_and_undesirable_block_bounds(
                     "y0": y0,
                     "y1": y1
                 })
-
-                continue
-
-            prev_block_y1 = y1
+            else:
+                prev_block_y1 = y1
 
         if prev_block_y1 == 0:
             # only undesirable blocks on this page
@@ -260,29 +259,26 @@ def cap_whitespace_from_canvas(
     arr_height, arr_width = arr_gray.shape
 
     white_mask = arr_gray >= white_threshold
-    min_whitespace_row_pixels = max(1, int(min_whitespace_pixels_ratio * arr_width))
-    row_is_white = white_mask.sum(axis=1) >= min_whitespace_row_pixels
+    row_is_white = white_mask.mean(axis=1) >= min_whitespace_pixels_ratio
 
     out_rows_rgb = []
     consecutive_whitespace_rows = 0
 
     for r in range(arr_height):
         if row_is_white[r]:
+            if consecutive_whitespace_rows < max_whitespace_height:
+                out_rows_rgb.append(arr_rgb[r:r + 1, :, :])
+
             consecutive_whitespace_rows += 1
         else:
-            if consecutive_whitespace_rows > 0:
-                n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
-                out_rows_rgb.extend(
-                    np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
-                )
-                consecutive_whitespace_rows = 0
-            out_rows_rgb.append(arr_rgb[r : r + 1, :, :])
+            consecutive_whitespace_rows = 0
+            out_rows_rgb.append(arr_rgb[r:r + 1, :, :])
 
-    if consecutive_whitespace_rows > 0:
-        n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
-        out_rows_rgb.extend(
-            np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
-        )
+    # if consecutive_whitespace_rows > 0:
+    #     n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
+    #     out_rows_rgb.extend(
+    #         np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
+    #     )
 
     arr_rgb = np.vstack(out_rows_rgb).astype(np.uint8)
 
@@ -291,40 +287,30 @@ def cap_whitespace_from_canvas(
     arr_height, arr_width = arr_gray.shape
 
     white_mask = arr_gray >= white_threshold
-    min_whitespace_col_pixels = max(1, int(min_whitespace_pixels_ratio * arr_height))
-    col_is_white = white_mask.sum(axis=0) >= min_whitespace_col_pixels
+    col_is_white = white_mask.mean(axis=0) >= min_whitespace_pixels_ratio
 
     out_cols_rgb = []
     consecutive_whitespace_cols = 0
 
     for c in range(arr_width):
         if col_is_white[c]:
+            if consecutive_whitespace_cols < max_whitespace_width:
+                out_cols_rgb.append(arr_rgb[:, c : c + 1, :])
+
             consecutive_whitespace_cols += 1
         else:
-            if consecutive_whitespace_cols > 0:
-                n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-                out_cols_rgb.extend(
-                    np.full((arr_height, 1, 3), 255, dtype=np.uint8) for _ in range(n_cols_keep)
-                )
-                consecutive_whitespace_cols = 0
+            consecutive_whitespace_cols = 0
             out_cols_rgb.append(arr_rgb[:, c : c + 1, :])
-
-    if consecutive_whitespace_cols > 0:
-        n_cols_keep = min(consecutive_whitespace_cols, max_whitespace_width)
-        out_cols_rgb.extend(
-            np.full((arr_height, 1, 3), 255, dtype=np.uint8) for _ in range(n_cols_keep)
-        )
 
     arr_rgb = np.concatenate(out_cols_rgb, axis=1).astype(np.uint8)
     return Image.fromarray(arr_rgb)
 
-def slice_doc_and_save(
+def slice_doc(
     doc: Document, 
     sections_bounds: list,
-    undesirables_bounds: list, 
-    save_to_path: Path,
+    undesirables_bounds: list,
     dpi: int = 200,
-):
+) -> list[Image]:
     """
     Slices the given doc into sections defined by sections and undesirables bounds.
 
@@ -335,17 +321,16 @@ def slice_doc_and_save(
         The list of sections bounds to define sections.
     undesirables_bounds: list
         The list of undesirables bounds to crop out of images.
-    save_to_path: Path
-        The path to save the images to.
     dpi: int, optional
         The density of the saved images. Default 200.
 
     Returns
     -------
-    None
+    sections: list[Image]
+        List of doc sections.
     """
 
-    save_to_path.mkdir(parents=True, exist_ok=False)
+    sections = []
 
     def get_slice(p, y0, y1):
         page = doc[p]
@@ -356,7 +341,7 @@ def slice_doc_and_save(
         elif y0 < 0 or y1 > page_height:
             raise ValueError("Slice goes out of the page")
         
-        rect = fitz.Rect(0, max(y0 - 2, 0), page_width, y1)
+        rect = fitz.Rect(0, y0, page_width, y1)
         pix = page.get_pixmap(clip=rect, dpi=dpi)
 
         return Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
@@ -385,7 +370,7 @@ def slice_doc_and_save(
                 break
         return segs
 
-    for bounds_idx, bounds in enumerate(sections_bounds):
+    for bounds in sections_bounds:
         slices = []
         curr_p = bounds["p0"]
 
@@ -434,7 +419,9 @@ def slice_doc_and_save(
             canvas.paste(slice_, (0, curr_y))
             curr_y += slice_.height
 
-        cap_whitespace_from_canvas(canvas).save(save_to_path / f"Q{bounds_idx + 1}.png")
+        sections.append(cap_whitespace_from_canvas(canvas))
+
+    return sections
 
 def generate_questions_answers_from_test(test_dir: Path):
     test_id = test_dir.name
@@ -459,17 +446,15 @@ def generate_questions_answers_from_test(test_dir: Path):
     if answers_pdf_exists:
         answers_doc = fitz.open(str(answers_pdf))
 
-        answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
-
-        # if answers_doc.page_count == test_doc.page_count:
-        #     # answers are filled out in test
-        #     answers_bounds = questions_bounds
-        #     answers_undesirables_bounds = test_undesirables_bounds
-        # elif answers_doc.page_count < test_doc.page_count:
-        #     # answers are compact
-        #     answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
-        # else:
-        #     raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
+        if answers_doc.page_count == test_doc.page_count:
+            # answers are filled out in test
+            answers_bounds = questions_bounds
+            answers_undesirables_bounds = test_undesirables_bounds
+        elif answers_doc.page_count < test_doc.page_count:
+            # answers are compact
+            answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
+        else:
+            raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
         if answers_bounds is None:
             raise Exception(f"Test {test_id} has answers.pdf nor answers attatched to the end of its test.pdf")
@@ -485,22 +470,39 @@ def generate_questions_answers_from_test(test_dir: Path):
 
     shutil.copy(metadata_json, processed_test_dir / "metadata.json")
 
-    slice_doc_and_save(test_doc, questions_bounds, test_undesirables_bounds, processed_test_dir / "questions")
-    slice_doc_and_save(answers_doc, answers_bounds, answers_undesirables_bounds, processed_test_dir / "answers")
+    question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
+    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
+
+    for q, (question_image, answer_image) in enumerate(zip(question_images, answer_images)):
+        question_dir = processed_test_dir / f"Q{q + 1}"
+        question_dir.mkdir(exist_ok=False)
+
+        question_image.save(question_dir / "question.png")
+        answer_image.save(question_dir / "answer.png")
     
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-testId", type=str, required=False, default=None)
+
+    args = parser.parse_args()
+
+    if args.testId is not None:
+        generate_questions_answers_from_test(RAW_DIR / args.testId)
+
 if __name__ == "__main__":
-    good, bad = 0, 0
-    N = len(list(RAW_DIR.iterdir()))
-    for i, folder in enumerate(sorted(RAW_DIR.iterdir())):
-        # issues:
-        # - i = 4: answer key is too compact
-        # - i = 7-8: answer key is a filled test, but is missing instructions page
-        try:
-            good += 1
-            generate_questions_answers_from_test(folder)
-        except Exception:
-            good -= 1
-            bad += 1
+    main()
+    # good, bad = 0, 0
+    # N = len(list(RAW_DIR.iterdir()))
+    # for i, folder in enumerate(sorted(RAW_DIR.iterdir())):
+    #     # issues:
+    #     # - i = 4: answer key is too compact
+    #     # - i = 7-8: answer key is a filled test, but is missing instructions page
+    #     try:
+    #         good += 1
+    #         generate_questions_answers_from_test(folder)
+    #     except Exception:
+    #         good -= 1
+    #         bad += 1
         
-        print(f"{good} good vs {bad} bad ({i+1}/{N})")
+    #     print(f"{good} good vs {bad} bad ({i+1}/{N})")
                 
