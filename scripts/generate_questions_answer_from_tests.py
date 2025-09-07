@@ -225,7 +225,7 @@ def cap_whitespace_from_canvas(
     max_whitespace_height: int = 32,
     max_whitespace_width: int = 32,
     white_threshold: int = 245,
-    min_whitespace_pixels_ratio: float = 0.999,
+    min_whitespace_pixels_ratio: float = 0.995,
 ) -> Image:
     """
     Caps the height and width of whitespace rectangles in a canvas.
@@ -273,12 +273,6 @@ def cap_whitespace_from_canvas(
         else:
             consecutive_whitespace_rows = 0
             out_rows_rgb.append(arr_rgb[r:r + 1, :, :])
-
-    # if consecutive_whitespace_rows > 0:
-    #     n_rows_keep = min(consecutive_whitespace_rows, max_whitespace_height)
-    #     out_rows_rgb.extend(
-    #         np.full((1, arr_width, 3), 255, dtype=np.uint8) for _ in range(n_rows_keep)
-    #     )
 
     arr_rgb = np.vstack(out_rows_rgb).astype(np.uint8)
 
