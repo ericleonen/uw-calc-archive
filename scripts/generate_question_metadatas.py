@@ -18,26 +18,79 @@ class QuestionMetadata(BaseModel):
 
 class QuestionMetadataMATH124(QuestionMetadata):
     topics: list[Literal[
-        "Tangents", "Parametric Equations", "Limits", "Continuity", "Asymptotes",
-        "Differentiation", "Implicit Differentiation", "Related Rates", "Linear Approximations",
-        "Extreme Values", "Trigonometry", "Geometry", "Curve Tracing", "Curve Sketching"
+        "Tangent Lines",
+        "Parametric Equations",
+        "Limits",
+        "Continuity",
+        "Asymptotes",
+        "Basic Derivatives",
+        "Definition of a Derivative",
+        "Product Rule",
+        "Quotient Rule",
+        "Chain Rule",
+        "Trignometric Derivatives",
+        "Exponential and Logarithmic Derivatives",
+        "L'Hopital's Rule",
+        "Implicit Differentiation",
+        "Related Rates",
+        "Linear Approximations",
+        "Critical and Inflection Points",
+        "Optimization",
+        "Trigonometry",
+        "Curve Sketching"
     ]]
 
 class QuestionMetadataMATH125(QuestionMetadata):
     topics: list[Literal[
-        "Antidifferentiation", "Area", "Mechanics", "Riemann Sums",
-        "Fundamental Theorem of Calculus", "Definite Integrals", "Indefinite Integrals",
-        "Integration", "Partial Fractions", "Trigonometric Substitutions", "Integration by Parts",
-        "Integration by Substitution", "Volumes by Disks or Washers", 
-        "Volumes by Cylindrical Shells", "Work", "Average Value", "Approximate Integration",
-        "Arc Length", "Improper Integrals", "Center of Mass", "Differential Equations"
+        "Indefinite Integrals",
+        "Definite Integrals",
+        "Basic Integrals",
+        "Integrals by Substitution",
+        "Integration by Parts",
+        "Trigonometric Integrals",
+        "Trigonometric Substitution",
+        "Partial Fractions",
+        "Improper Integrals",
+        "Area Under/Between Curves",
+        "Kinematics",
+        "Work",
+        "Numerical Integration",
+        "Riemann Sums",
+        "Fundamental Theorem of Calculus",
+        "Volume by Disks/Washers",
+        "Volume by Cylindrical Shells",
+        "Average Value of a Function",
+        "Arc Length",
+        "Center of Mass",
+        "Differential Equations"
     ]]
 
 class QuestionMetadataMATH126(QuestionMetadata):
     topics: list[Literal[
-        "Tangents", "Parametric Equations", "Limits", "Continuity", "Asymptotes",
-        "Differentiation", "Implicit Differentiation", "Related Rates", "Linear Approximations",
-        "Extreme Values", "Trigonometry", "Geometry", "Curve Tracing", "Curve Sketching"
+        "Vector Operations",
+        "3D Lines/Planes",
+        "Quadric/Conic Surfaces",
+        "Parameterized Curves",
+        "Arc Length",
+        "Curvature",
+        "Tangent/Normal/Binormal Vectors",
+        "Polar Coordinates",
+        "Polar Curves",
+        "Two-Variable Functions",
+        "Partial Derivatives",
+        "Tangent Planes",
+        "Linear Approximations",
+        "Gradients",
+        "Critical Points",
+        "Optimization",
+        "Multivariable Riemann Sums",
+        "Iterated Integrals",
+        "Polar Form Integrals",
+        "Center of Mass",
+        "Taylor Polynomials",
+        "Taylor Series",
+        "Convergence Tests"
+        "Taylor Series Manipulations"
     ]]
 
 SYSTEM_MSG = (
