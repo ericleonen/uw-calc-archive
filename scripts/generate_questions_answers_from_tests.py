@@ -39,7 +39,8 @@ UNDESIRABLES_REGEXES = [
     r"(fall|spring|winter|summer)\s+20(0\d|1\d)",
     r"page\s+\d+\s+of\s+\d+",
     r"next\s+page",
-    r"answers"
+    r"answers",
+    r"page\s+\d"
 ]
 INSTRUCTIONS_PAGE_REGEXES = [
     r"honor\s+statement",
@@ -211,6 +212,13 @@ def get_numbered_sections_and_undesirable_block_bounds(
                 })
             else:
                 prev_block_y1 = y1
+
+                while (
+                    len(undesirables_bounds) > 0 and \
+                    undesirables_bounds[-1]["p"] == p and \
+                    y0 - undesirables_bounds[-1]["y1"] < undesirables_min_whitespace_above
+                ):
+                    undesirables_bounds.pop()
 
         if prev_block_y1 == 0:
             # only undesirable blocks on this page
@@ -473,30 +481,27 @@ def generate_questions_answers_from_test(test_dir: Path):
 
         question_image.save(question_dir / "question.png")
         answer_image.save(question_dir / "answer.png")
-    
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-testId", type=str, required=False, default=None)
-
-    args = parser.parse_args()
-
-    if args.testId is not None:
-        generate_questions_answers_from_test(RAW_DIR / args.testId)
 
 if __name__ == "__main__":
-    main()
-    # good, bad = 0, 0
-    # N = len(list(RAW_DIR.iterdir()))
-    # for i, folder in enumerate(sorted(RAW_DIR.iterdir())):
-    #     # issues:
-    #     # - i = 4: answer key is too compact
-    #     # - i = 7-8: answer key is a filled test, but is missing instructions page
-    #     try:
-    #         good += 1
-    #         generate_questions_answers_from_test(folder)
-    #     except Exception:
-    #         good -= 1
-    #         bad += 1
-        
-    #     print(f"{good} good vs {bad} bad ({i+1}/{N})")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-goodQuestionsNum", type=int, required=False, default=None)
+    args = parser.parse_args()
+
+    good_questions_num, err_questions_num = 0, 0
+
+    tests_num = len(list(RAW_DIR.iterdir()))
+
+    for f, folder in enumerate(RAW_DIR.iterdir()):
+        try:
+            generate_questions_answers_from_test(folder)
+            good_questions_num += 1
+        except Exception as e:
+            err_questions_num += 1
+
+        if args.goodQuestionsNum is not None:
+            print(f"{good_questions_num}/{args.goodQuestionsNum} good questions vs. "
+                  f"{err_questions_num} errors, ({f + 1}/{tests_num})")
+
+            if good_questions_num == args.goodQuestionsNum:
+                break
                 
