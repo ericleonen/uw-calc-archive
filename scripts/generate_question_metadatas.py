@@ -96,8 +96,7 @@ class QuestionMetadataMATH126(QuestionMetadata):
 
 SYSTEM_MSG = (
     "You extract metadata from calculus question/answer images. "
-    "Transcribe math in LaTeX. "
-    "Write the question idea briefly (ignore number/points). "
+    "Write the question idea, not exact equations, briefly (ignore number/points). "
     "Summarize solution strategy in ~3 sentences (no full solution). "
     "Rate difficulty: 0=easy, 1=medium, 2=hard. "
     "List relevant topics from schema only."
@@ -105,10 +104,11 @@ SYSTEM_MSG = (
 
 USER_INSTRUCTIONS = (
     "Return ONLY JSON matching the schema. "
+    "All string values must be ASCII only. Replace symbols with ASCII. No accents/diacritics. "
     "Input images: first=question, second=solution."
 )
 
-def get_b64_data_url(img_path: Path, max_size: int = 1600) -> str:
+def get_b64_data_url(img_path: Path, max_size: int = 1200) -> str:
     """
     Grayscales and downscales a given image and then returns its base65 date URL.
 
@@ -117,7 +117,7 @@ def get_b64_data_url(img_path: Path, max_size: int = 1600) -> str:
     img_path: Path
         Path to image.
     max_size: int, optional
-        The maximum height or width to downscale to. Default 1600.
+        The maximum height or width to downscale to. Default 1200.
 
     Returns
     -------
@@ -187,13 +187,18 @@ def write_metadata(question_path: Path, md: dict[str, Any]) -> Path:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-testId", type=str, required=True)
-    parser.add_argument("-question", type=int, required=True)
     args = parser.parse_args()
     
-    test_path = PROCESSED_DIR / args.testId
+    test_path = Path(__file__).resolve().parents[1] / PROCESSED_DIR / args.testId
     test_metadata_path = test_path / "metadata.json"
     class_ = json.loads(test_metadata_path.read_text(encoding="utf-8"))["class"]
 
-    question_path = test_path / f"Q{args.question}"
-    question_metadata = generate_question_metadata(question_path, class_)
-    out = write_metadata(question_path, question_metadata)
+    print(f"Generating question metadatas for test {args.testId}")
+
+    for question_path in sorted(question_path for question_path in test_path.iterdir() if question_path.is_dir()):
+        print(f"{question_path.name}:", end=" ")
+
+        question_metadata = generate_question_metadata(question_path, class_)
+        out = write_metadata(question_path, question_metadata)
+
+        print("✅")

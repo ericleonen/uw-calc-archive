@@ -466,14 +466,14 @@ def generate_questions_answers_from_test(test_dir: Path):
 
     if len(answers_bounds) != len(questions_bounds):
         raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
-        
+
+    question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
+    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
+
     processed_test_dir = PROCESSED_DIR / test_id
     processed_test_dir.mkdir(parents=True, exist_ok=False)
 
     shutil.copy(metadata_json, processed_test_dir / "metadata.json")
-
-    question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
-    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
 
     for q, (question_image, answer_image) in enumerate(zip(question_images, answer_images)):
         question_dir = processed_test_dir / f"Q{q + 1}"
