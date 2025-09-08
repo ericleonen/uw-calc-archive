@@ -233,7 +233,7 @@ def cap_whitespace_from_canvas(
     max_whitespace_height: int = 32,
     max_whitespace_width: int = 32,
     white_threshold: int = 245,
-    min_whitespace_pixels_ratio: float = 0.995,
+    min_whitespace_pixels_ratio: float = 0.998,
 ) -> Image:
     """
     Caps the height and width of whitespace rectangles in a canvas.
@@ -484,24 +484,33 @@ def generate_questions_answers_from_test(test_dir: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-goodQuestionsNum", type=int, required=False, default=None)
+    parser.add_argument("-parse", type=str, required=True)
     args = parser.parse_args()
 
-    good_questions_num, err_questions_num = 0, 0
+    tests_to_parse_num = None
+    if args.parse != "all":
+        if args.parse.isdigit() and int(args.parse) > 0:
+            tests_to_parse_num = int(args.parse)
+        else:
+            raise Exception("-parse must be 'all' or a positive integer")
+
+    parsed_tests_num, err_tests_num = 0, 0
 
     tests_num = len(list(RAW_DIR.iterdir()))
 
     for f, folder in enumerate(RAW_DIR.iterdir()):
         try:
             generate_questions_answers_from_test(folder)
-            good_questions_num += 1
+            parsed_tests_num += 1
         except Exception as e:
-            err_questions_num += 1
+            err_tests_num += 1
 
-        if args.goodQuestionsNum is not None:
-            print(f"{good_questions_num}/{args.goodQuestionsNum} good questions vs. "
-                  f"{err_questions_num} errors, ({f + 1}/{tests_num})")
+        if tests_to_parse_num is None:
+            print(f"{parsed_tests_num} parsed vs. {err_tests_num} errors, ({f+1}/{tests_num})")
+        else:
+            print(f"{parsed_tests_num}/{tests_to_parse_num} parsed vs. "
+                  f"{err_tests_num} errors, ({f + 1}/{tests_num})")
 
-            if good_questions_num == args.goodQuestionsNum:
+            if parsed_tests_num == tests_to_parse_num:
                 break
                 

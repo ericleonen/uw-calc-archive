@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import os, base64, json, time, argparse
 from pydantic import BaseModel
 from typing import Literal, Any
+from PIL import Image
+import io
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -12,7 +14,6 @@ PROCESSED_DIR = Path("data/processed")
 
 class QuestionMetadata(BaseModel):
     question_short: str
-    diagram_descriptions: list[str]
     answer_strategy: str
     difficulty: Literal[0, 1, 2]
 
@@ -94,22 +95,45 @@ class QuestionMetadataMATH126(QuestionMetadata):
     ]]
 
 SYSTEM_MSG = (
-    "You extract retrieval-friendly metadata from UW calculus question images. "
-    "Transcribe math faithfully (prefer LaTeX). "
-    "Capture the full idea of the question, but keep it short. Ignore the question number or points. "
-    "For each diagram, describe it in a sentence. Each description is a separate list item. "
-    "Summarize the strategy to get to the solution in ~3 sentences (no full solution). "
-    "Rate difficulty (0 = easy, 1 = medium, 2 = hard) for an average freshman in calculus. "
-    "Create a list of topics most relevant to this question. Use topics from the schema, don't make things up. "
-)
-USER_INSTRUCTIONS = (
-    "Return ONLY the JSON that matches the schema. "
-    "Images: first is the question, second is the official solution/answer."
+    "You extract metadata from calculus question/answer images. "
+    "Transcribe math in LaTeX. "
+    "Write the question idea briefly (ignore number/points). "
+    "Summarize solution strategy in ~3 sentences (no full solution). "
+    "Rate difficulty: 0=easy, 1=medium, 2=hard. "
+    "List relevant topics from schema only."
 )
 
-def get_b64_data_url(img_path: Path) -> str:
-    mime = "image/png" if img_path.suffix.lower() == ".png" else "image/jpeg"
-    b64 = base64.b64encode(img_path.read_bytes()).decode("utf-8")
+USER_INSTRUCTIONS = (
+    "Return ONLY JSON matching the schema. "
+    "Input images: first=question, second=solution."
+)
+
+def get_b64_data_url(img_path: Path, max_size: int = 1600) -> str:
+    """
+    Grayscales and downscales a given image and then returns its base65 date URL.
+
+    Parameters
+    ----------
+    img_path: Path
+        Path to image.
+    max_size: int, optional
+        The maximum height or width to downscale to. Default 1600.
+
+    Returns
+    -------
+    img_url: str
+        The optimized data URL of the grayscaled and downscaled image.
+    """
+    mime = "image/png"
+
+    with Image.open(img_path) as img:
+        img = img.convert("L")
+        img.thumbnail((max_size, max_size), Image.LANCZOS)
+
+        buf = io.BytesIO()
+        img.save(buf, format="PNG", optimize=True)
+        b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
     return f"data:{mime};base64,{b64}"
 
 def generate_question_metadata(
@@ -152,7 +176,7 @@ def generate_question_metadata(
             return as_dict
         except Exception as e:
             if attempt == max_retries:
-                raise
+                raise e
             time.sleep(1.5 * attempt)
 
 def write_metadata(question_path: Path, md: dict[str, Any]) -> Path:
