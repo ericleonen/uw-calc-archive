@@ -6,10 +6,12 @@ from pydantic import BaseModel
 from typing import Literal, Any
 from PIL import Image
 import io
+import shutil
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+ARCHIVE_DIR = Path("data/archive")
 PROCESSED_DIR = Path("data/processed")
 
 class QuestionMetadata(BaseModel):
@@ -190,6 +192,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     test_path = Path(__file__).resolve().parents[1] / PROCESSED_DIR / args.testId
+    archive_path = Path(__file__).resolve().parents[1] / ARCHIVE_DIR / args.testId
     test_metadata_path = test_path / "metadata.json"
     class_ = json.loads(test_metadata_path.read_text(encoding="utf-8"))["class"]
 
@@ -202,3 +205,5 @@ if __name__ == "__main__":
         out = write_metadata(question_path, question_metadata)
 
         print("✅")
+
+    shutil.move(str(test_path), str(archive_path))

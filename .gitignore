@@ -1,5 +1,3 @@
 .venv
-data/raw
+data
 .env
-data/example
-data/processed
