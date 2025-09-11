@@ -2,14 +2,14 @@ import Link from "next/link";
 
 export default function Header() {
     return (
-        <div className="flex items-center w-full px-6 h-14 bg-uw">
+        <header className="flex items-center w-full px-6 h-14 bg-uw">
             <h1 className="font-bold text-white/90">UW CalcArchive</h1>
             <div className="flex ml-auto space-x-8">
                 <HeaderLink label="Search" to="search" />
                 <HeaderLink label="About" to="about" />
                 <HeaderLink label="Sign up" to="signup" />
             </div>
-        </div>
+        </header>
     )
 }
 
