@@ -36,11 +36,12 @@ NUMBERED_1_SECTION_REGEXES = [
 UNDESIRABLES_REGEXES = [
     r"^\d+$",
     r"math 12[456]",
-    r"(fall|spring|winter|summer)\s+20(0\d|1\d)",
+    r"(fall|spring|winter|summer)\s+20(0|1|2)\d",
     r"page\s+\d+\s+of\s+\d+",
     r"next\s+page",
     r"answers",
-    r"page\s+\d"
+    r"page\s+\d",
+    r"final\s+examination"
 ]
 INSTRUCTIONS_PAGE_REGEXES = [
     r"honor\s+statement",
@@ -227,6 +228,70 @@ def get_numbered_sections_and_undesirable_block_bounds(
                 sections_bounds[-1]["y1"] = doc[p - 1].rect.height
 
     return sections_bounds_1, sections_bounds_2, undesirables_bounds
+
+def erase_horizontal_lines(
+    canvas: Image.Image,
+    min_line_percentage_width: float = 0.7,
+    white_threshold: int = 245,
+) -> Image.Image:
+    rgb = canvas.convert("RGB")
+    arr = np.array(rgb, dtype=np.uint8)
+
+    gray = np.array(rgb.convert("L"), dtype=np.uint8)
+    H, W = gray.shape
+    non_white = gray < white_threshold
+
+    # pad with False so runs at edges close cleanly
+    padded = np.pad(non_white, ((0,0),(1,1)), mode="constant", constant_values=False)
+    d = np.diff(padded.astype(np.int8), axis=1)  # +1 starts, -1 ends
+
+    s_r, s_c = np.where(d == 1)   # start rows/cols
+    e_r, e_c = np.where(d == -1)  # end rows/cols
+
+    # If no runs anywhere, return early
+    if s_c.size == 0 and e_c.size == 0:
+        return Image.fromarray(arr)
+
+    # Count starts/ends per row
+    s_count = np.bincount(s_r, minlength=H)
+    e_count = np.bincount(e_r, minlength=H)
+
+    # Fix asymmetries: add synthetic ends at W or starts at 0 per row
+    add_end_rows   = np.repeat(np.arange(H), np.maximum(s_count - e_count, 0))
+    add_start_rows = np.repeat(np.arange(H), np.maximum(e_count - s_count, 0))
+
+    if add_end_rows.size:
+        e_r = np.concatenate([e_r, add_end_rows])
+        e_c = np.concatenate([e_c, np.full(add_end_rows.size, W, dtype=int)])
+    if add_start_rows.size:
+        s_r = np.concatenate([s_r, add_start_rows])
+        s_c = np.concatenate([s_c, np.zeros(add_start_rows.size, dtype=int)])
+
+    # Sort starts and ends by (row, col) so pairs align within each row
+    s_order = np.lexsort((s_c, s_r))
+    e_order = np.lexsort((e_c, e_r))
+    s_r, s_c = s_r[s_order], s_c[s_order]
+    e_r, e_c = e_r[e_order], e_c[e_order]
+
+    # Now runs are paired within rows: lengths = end - start
+    lengths = e_c - s_c  # >= 0
+
+    # Reduce to per-row maxima without a Python loop
+    # Compute segment starts in the starts array where row changes
+    seg_starts = np.r_[0, np.flatnonzero(s_r[1:] != s_r[:-1]) + 1]
+    row_of_seg = s_r[seg_starts]
+
+    max_run = np.zeros(H, dtype=int)
+    # maximum over each contiguous block (row segment)
+    seg_max = np.maximum.reduceat(lengths, seg_starts)
+    max_run[row_of_seg] = seg_max
+
+    # Build mask of rows to whiten
+    row_mask = (max_run.astype(float) / W) >= min_line_percentage_width
+    if row_mask.any():
+        arr[row_mask, :, :3] = 255
+
+    return Image.fromarray(arr)
 
 def cap_whitespace_from_canvas(
     canvas: Image,
@@ -421,7 +486,7 @@ def slice_doc(
             canvas.paste(slice_, (0, curr_y))
             curr_y += slice_.height
 
-        sections.append(cap_whitespace_from_canvas(canvas))
+        sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
 
     return sections
 
@@ -503,6 +568,7 @@ if __name__ == "__main__":
             generate_questions_answers_from_test(folder)
             parsed_tests_num += 1
         except Exception as e:
+            raise e
             err_tests_num += 1
 
         if tests_to_parse_num is None:
