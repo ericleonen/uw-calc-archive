@@ -90,10 +90,7 @@ class QuestionMetadataMATH126(QuestionMetadata):
         "Iterated Integrals",
         "Polar Form Integrals",
         "Center of Mass",
-        "Taylor Polynomials",
         "Taylor Series",
-        "Convergence Tests",
-        "Taylor Series Manipulations"
     ]]
 
 SYSTEM_MSG = (
