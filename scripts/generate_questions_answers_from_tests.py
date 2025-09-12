@@ -21,6 +21,7 @@ from re import Pattern
 import shutil
 import argparse
 
+ARCHIVE_DIR = Path("data/archive")
 RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
@@ -46,7 +47,8 @@ UNDESIRABLES_REGEXES = [
 INSTRUCTIONS_PAGE_REGEXES = [
     r"honor\s+statement",
     r"good\s+luck",
-    r"electronic\s+devices"
+    r"electronic\s+devices",
+    r"calculator"
 ]
 
 def get_numbered_sections_and_undesirable_block_bounds(
@@ -150,6 +152,8 @@ def get_numbered_sections_and_undesirable_block_bounds(
             
             if p == 0 and any(regex_search(block_text, r) for r in instructions_page_regexes):
                 break
+
+            print(block_text)
             
             if numbered_q_section_regex is None:
                 numbered_q_section_regex = \
@@ -561,21 +565,23 @@ if __name__ == "__main__":
 
     parsed_tests_num, err_tests_num = 0, 0
 
-    tests_num = len(list(RAW_DIR.iterdir()))
+    tests_num = len(list(RAW_DIR.iterdir())) - len(list(ARCHIVE_DIR.iterdir()))
 
     for f, folder in enumerate(RAW_DIR.iterdir()):
+        if (ARCHIVE_DIR / folder.name).exists():
+            continue
+
         try:
             generate_questions_answers_from_test(folder)
             parsed_tests_num += 1
         except Exception as e:
-            raise e
             err_tests_num += 1
 
         if tests_to_parse_num is None:
-            print(f"{parsed_tests_num} parsed vs. {err_tests_num} errors, ({f+1}/{tests_num})")
+            print(f"{parsed_tests_num} parsed vs. {err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
         else:
             print(f"{parsed_tests_num}/{tests_to_parse_num} parsed vs. "
-                  f"{err_tests_num} errors, ({f + 1}/{tests_num})")
+                  f"{err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
 
             if parsed_tests_num == tests_to_parse_num:
                 break
