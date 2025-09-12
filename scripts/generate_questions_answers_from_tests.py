@@ -46,6 +46,7 @@ UNDESIRABLES_REGEXES = [
     r"page\s+is\s+blank",
     r"scratch\s+paper",
     r"scratch\s+work",
+    r"scratch-work",
     r"all\s+work\s+on\s+this\s+page\s+will\s+be\s+ignored"
 ]
 INSTRUCTIONS_PAGE_REGEXES = [
