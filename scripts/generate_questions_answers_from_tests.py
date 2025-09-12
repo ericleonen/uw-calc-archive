@@ -40,7 +40,7 @@ UNDESIRABLES_REGEXES = [
     r"page\s+\d+\s+of\s+\d+",
     r"^\d\s+of\s+\d",
     r"next\s+page",
-    r"answers",
+    r"^answers$",
     r"page\s+\d",
     r"final\s+examination",
     r"page\s+is\s+blank",
