@@ -35,14 +35,16 @@ NUMBERED_1_SECTION_REGEXES = [
     r"^exercise\s+1"
 ]
 UNDESIRABLES_REGEXES = [
-    r"^\d+$",
     r"math 12[456]",
     r"(fall|spring|winter|summer)\s+20(0|1|2)\d",
     r"page\s+\d+\s+of\s+\d+",
+    r"^\d\s+of\s+\d",
     r"next\s+page",
     r"answers",
     r"page\s+\d",
-    r"final\s+examination"
+    r"final\s+examination",
+    r"page\s+is\s+blank",
+    r"scratch\s+paper"
 ]
 INSTRUCTIONS_PAGE_REGEXES = [
     r"honor\s+statement",
@@ -56,7 +58,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
     look_for_pair: bool = False,
     numbered_1_section_regexes: list[Pattern[str]] = NUMBERED_1_SECTION_REGEXES,
     undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES,
-    undesirables_min_whitespace_above: float = 16,
+    undesirables_min_whitespace_margin: float = 4,
     instructions_page_regexes: list[str] = INSTRUCTIONS_PAGE_REGEXES
 ) -> tuple[list, list | None, list]:
     """
@@ -73,7 +75,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
         A list of regex patterns that define a numbered section. Default NUMBERED_1_SECTION_REGEXES.
     undesirables_regexes: list[Pattern[str]], optional
         A list of regex patterns that define an undesirable block. Default UNDESIRABLES_REGEXES
-    undesirables_min_whitespace_above: float, optional
+    undesirables_min_whitespace_margin: float, optional
         The minimum height (in PDF pixels) of whitespace above a block that makes it eligible to
         be undesirable. Default 16
     instructions_page_regexes: list[str], optional
@@ -151,9 +153,12 @@ def get_numbered_sections_and_undesirable_block_bounds(
             ).lstrip()
             
             if p == 0 and any(regex_search(block_text, r) for r in instructions_page_regexes):
-                break
+                sections_bounds.clear()
+                undesirables_bounds.clear()
+                q = 1
+                numbered_q_section_regex = None
 
-            print(block_text)
+                break
             
             if numbered_q_section_regex is None:
                 numbered_q_section_regex = \
@@ -185,6 +190,8 @@ def get_numbered_sections_and_undesirable_block_bounds(
             ):
                 numbered_q_section_regex_tmp = \
                     get_matching_regex(block_text, numbered_1_section_regexes)
+                
+                
                 if numbered_q_section_regex_tmp is not None:
                     # current block starts the second set of numbered sections
                     sections_bounds = sections_bounds_2
@@ -203,13 +210,24 @@ def get_numbered_sections_and_undesirable_block_bounds(
 
                     numbered_q_section_regex = numbered_q_section_regex.replace(str(q), str(q + 1))
                     q += 1
+
             if (
                 (
                     prev_block_y1 == 0 or \
-                    y0 - prev_block_y1 >= undesirables_min_whitespace_above
+                    y0 - prev_block_y1 >= undesirables_min_whitespace_margin
                 ) and any(regex_search(block_text, r) for r in undesirables_regexes)
             ):
                 # current block is undesirable
+                undesirables_bounds.append({
+                    "p": p,
+                    "y0": y0,
+                    "y1": y1
+                })
+            elif (
+                regex_search(block_text, r"^\d+$") and \
+                y0 - prev_block_y1 >= undesirables_min_whitespace_margin and \
+                y0 / page_height >= 0.9
+            ):
                 undesirables_bounds.append({
                     "p": p,
                     "y0": y0,
@@ -221,7 +239,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
                 while (
                     len(undesirables_bounds) > 0 and \
                     undesirables_bounds[-1]["p"] == p and \
-                    y0 - undesirables_bounds[-1]["y1"] < undesirables_min_whitespace_above
+                    y0 - undesirables_bounds[-1]["y1"] < undesirables_min_whitespace_margin
                 ):
                     undesirables_bounds.pop()
 
@@ -553,36 +571,45 @@ def generate_questions_answers_from_test(test_dir: Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-parse", type=str, required=True)
+    parser.add_argument("-parse", type=str, required=False, default=None)
+    parser.add_argument("-testId", type=str, required=False, default=None)
     args = parser.parse_args()
 
-    tests_to_parse_num = None
-    if args.parse != "all":
-        if args.parse.isdigit() and int(args.parse) > 0:
-            tests_to_parse_num = int(args.parse)
-        else:
-            raise Exception("-parse must be 'all' or a positive integer")
+    if args.parse is not None and args.testId is not None:
+        raise Exception("You must provide parse or testId. Not both.")
+    elif args.parse is None and args.testId is None:
+        raise Exception("You must provide parse or testId. Not neither.")
+    elif args.testId is not None:
+        generate_questions_answers_from_test(RAW_DIR / args.testId)
+    else:
+        tests_to_parse_num = None
+        if args.parse != "all":
+            if args.parse.isdigit() and int(args.parse) > 0:
+                tests_to_parse_num = int(args.parse)
+            else:
+                raise Exception("parse must be 'all' or an integer")
+            
 
-    parsed_tests_num, err_tests_num = 0, 0
+        parsed_tests_num, err_tests_num = 0, 0
 
-    tests_num = len(list(RAW_DIR.iterdir())) - len(list(ARCHIVE_DIR.iterdir()))
+        tests_num = len(list(RAW_DIR.iterdir())) - len(list(ARCHIVE_DIR.iterdir()))
 
-    for f, folder in enumerate(RAW_DIR.iterdir()):
-        if (ARCHIVE_DIR / folder.name).exists():
-            continue
+        for f, folder in enumerate(RAW_DIR.iterdir()):
+            if (ARCHIVE_DIR / folder.name).exists():
+                continue
 
-        try:
-            generate_questions_answers_from_test(folder)
-            parsed_tests_num += 1
-        except Exception as e:
-            err_tests_num += 1
+            try:
+                generate_questions_answers_from_test(folder)
+                parsed_tests_num += 1
+            except Exception as e:
+                err_tests_num += 1
 
-        if tests_to_parse_num is None:
-            print(f"{parsed_tests_num} parsed vs. {err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
-        else:
-            print(f"{parsed_tests_num}/{tests_to_parse_num} parsed vs. "
-                  f"{err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
+            if tests_to_parse_num is None:
+                print(f"{parsed_tests_num} parsed vs. {err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
+            else:
+                print(f"{parsed_tests_num}/{tests_to_parse_num} parsed vs. "
+                    f"{err_tests_num} errors, ({parsed_tests_num + err_tests_num}/{tests_num})")
 
-            if parsed_tests_num == tests_to_parse_num:
-                break
+                if parsed_tests_num == tests_to_parse_num:
+                    break
                 
