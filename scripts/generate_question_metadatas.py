@@ -92,7 +92,7 @@ class QuestionMetadataMATH126(QuestionMetadata):
         "Center of Mass",
         "Taylor Polynomials",
         "Taylor Series",
-        "Convergence Tests"
+        "Convergence Tests",
         "Taylor Series Manipulations"
     ]]
 
