@@ -2,6 +2,7 @@ from pathlib import Path
 import os, mimetypes, concurrent.futures
 import boto3
 from dotenv import load_dotenv
+import argparse
 
 load_dotenv()
 
@@ -18,6 +19,16 @@ s3 = boto3.client(
     aws_secret_access_key=SECRET_KEY,
     region_name="auto",
 )
+
+def empty_archive_bucket():
+    paginator = s3.get_paginator("list_objects_v2")
+
+    for page in paginator.paginate(Bucket=BUCKET):
+        if "Contents" in page:
+            delete_keys = {"Objects": [{"Key": obj["Key"]} for obj in page["Contents"]]}
+            s3.delete_objects(Bucket=BUCKET, Delete=delete_keys)
+            print(f"Deleted {len(delete_keys['Objects'])} objects")
+
 
 def upload_file(root: Path, file_path: Path):
     rel = file_path.relative_to(root).as_posix()
@@ -43,5 +54,11 @@ def upload_archive(archive_path_str: str):
             print("uploaded:", key)
         
 if __name__ == "__main__":
-    import sys
-    upload_archive(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-empty", type=bool, required=False, default=False)
+    args = parser.parse_args()
+
+    if args.empty:
+        empty_archive_bucket()
+
+    upload_archive("data/archive")
