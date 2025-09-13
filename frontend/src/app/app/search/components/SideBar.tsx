@@ -3,11 +3,15 @@
 import { useState } from "react";
 import SearchSelect from "./SearchSelect";
 import SearchMultiSelect from "./SearchMultiSelect";
+import { TOPICS } from "../constants";
 
-export default function SideBar() {
+type SideBarProps = {
+    updateQuestions: (class_: string, exam: string, topics: string[]) => Promise<void>
+}
+
+export default function SideBar({ updateQuestions }: SideBarProps) {
     const [class_, setClass] = useState("");
     const [exam, setExam] = useState("");
-    const [difficulties, setDifficulties] = useState<string[]>(["Easy", "Medium", "Hard"]);
     const [topics, setTopics] = useState<string[]>([]);
 
     return (
@@ -29,44 +33,18 @@ export default function SideBar() {
                     setValue={setExam}
                 />
                 <SearchMultiSelect
-                    label="Difficulties"
-                    placeholder="Select difficulties"
-                    options={["Easy", "Medium", "Hard"]}
-                    values={difficulties}
-                    setValues={setDifficulties}
-                />
-                <SearchMultiSelect
                     label="Topics"
                     placeholder="Select topics"
-                    options={[
-                        "Vector Operations",
-                        "3D Lines/Planes",
-                        "Quadric/Conic Surfaces",
-                        "Parameterized Curves",
-                        "Arc Length",
-                        "Curvature",
-                        "Tangent/Normal/Binormal Vectors",
-                        "Polar Coordinates",
-                        "Polar Curves",
-                        "Two-Variable Functions",
-                        "Partial Derivatives",
-                        "Tangent Planes",
-                        "Linear Approximations",
-                        "Gradients",
-                        "Critical Points",
-                        "Optimization",
-                        "Multivariable Riemann Sums",
-                        "Iterated Integrals",
-                        "Polar Form Integrals",
-                        "Center of Mass",
-                        "Taylor Polynomials",
-                        "Taylor Series",
-                        "Convergence Tests",
-                        "Taylor Series Manipulations"
-                    ]}
+                    options={TOPICS[class_] || []}
                     values={topics}
                     setValues={setTopics}
                 />
+                <button
+                    onClick={() => updateQuestions(class_, exam, topics)}
+                    className="text-center px-3 py-2 bg-uw/90 rounded-md font-medium text-white/90"
+                >
+                    Find questions
+                </button>
             </div>
 
         </div>
