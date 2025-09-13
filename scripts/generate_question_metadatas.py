@@ -17,7 +17,6 @@ PROCESSED_DIR = Path("data/processed")
 class QuestionMetadata(BaseModel):
     question_short: str
     answer_strategy: str
-    difficulty: Literal[0, 1, 2]
 
 class QuestionMetadataMATH124(QuestionMetadata):
     topics: list[Literal[
@@ -97,7 +96,6 @@ SYSTEM_MSG = (
     "You extract metadata from calculus question/answer images. "
     "Write the question idea, not exact equations, briefly (ignore number/points). "
     "Summarize solution strategy in ~3 sentences (no full solution). "
-    "Rate difficulty: 0=easy, 1=medium, 2=hard. "
     "List relevant topics from schema only."
 )
 

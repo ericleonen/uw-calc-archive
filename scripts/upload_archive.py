@@ -36,7 +36,7 @@ def upload_archive(archive_path_str: str):
     if not root.is_dir():
         raise SystemExit(f"Not a folder: {root}")
 
-    paths = [p for p in root.rglob("*") if p.is_file()]
+    paths = [p for p in root.rglob("*") if p.is_file() and not p.name == "metadata.json"]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as ex:
         for key in ex.map(lambda p: upload_file(root, p), paths):
