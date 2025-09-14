@@ -3,7 +3,7 @@
 import { useState } from "react";
 import SearchSelect from "./SearchSelect";
 import SearchMultiSelect from "./SearchMultiSelect";
-import { TOPICS } from "../constants";
+import { TOPICS } from "../../constants";
 
 type SideBarProps = {
     updateQuestions: (class_: string, exam: string, topics: string[]) => Promise<void>
