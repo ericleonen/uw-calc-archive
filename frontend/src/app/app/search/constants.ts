@@ -67,9 +67,6 @@ export const TOPICS: {
         "Iterated Integrals",
         "Polar Form Integrals",
         "Center of Mass",
-        "Taylor Polynomials",
-        "Taylor Series",
-        "Convergence Tests",
-        "Taylor Series Manipulations"
+        "Taylor Series"
     ]
 }

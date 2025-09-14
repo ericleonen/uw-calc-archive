@@ -5,8 +5,8 @@ export function useFilteredQuestions() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchFilteredQuestions = useCallback(async (class_: string, exam: string, topics: string[]) => {
-        if (!class_ || !exam || topics.length === 0) {
+    const fetchFilteredQuestions = useCallback(async (class_: string, testType: string, topics: string[]) => {
+        if (!class_ || !testType || topics.length === 0) {
             return;
         }
         
@@ -20,7 +20,7 @@ export function useFilteredQuestions() {
                 cache: "no-store",
                 body: JSON.stringify({
                     class: class_,
-                    exam,
+                    testType,
                     topics
                 })
             });

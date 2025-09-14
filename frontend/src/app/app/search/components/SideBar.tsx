@@ -17,7 +17,7 @@ export default function SideBar({ updateQuestions }: SideBarProps) {
     return (
         <div className="flex flex-col w-96 h-full p-6 bg-white/90">
             <p className="font-bold text-gray-700/90">Questions Filter</p>
-            <div className="mt-6 space-y-3">
+            <div className="mt-3 space-y-3">
                 <SearchSelect 
                     label="Class"
                     placeholder="Select your class"
@@ -39,14 +39,13 @@ export default function SideBar({ updateQuestions }: SideBarProps) {
                     values={topics}
                     setValues={setTopics}
                 />
-                <button
-                    onClick={() => updateQuestions(class_, exam, topics)}
-                    className="text-center px-3 py-2 bg-uw/90 rounded-md font-medium text-white/90"
-                >
-                    Find questions
-                </button>
             </div>
-
+            <button
+                onClick={() => updateQuestions(class_, exam, topics)}
+                className="text-center px-3 py-2 bg-uw/90 rounded-sm font-medium text-white/90 mt-6 hover:bg-uw/80 focus:outline-0 focus:bg-uw/80"
+            >
+                Find questions
+            </button>
         </div>
     )
 }

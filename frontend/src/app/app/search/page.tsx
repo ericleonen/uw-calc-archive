@@ -10,10 +10,10 @@ export default function Search() {
     return (
         <>
             <SideBar updateQuestions={updateQuestions} />
-            <div className="grow flex flex-col h-full py-8 px-16 overflow-y-scroll">
+            <div className="grow flex flex-col h-full py-8 px-16 overflow-y-scroll space-y-3">
                 {questions.map(question => (
                     <div className="bg-white/90 w-full rounded-md flex flex-col p-3">
-                        <p className="font-bold">Question {question.questionNum} of {question.test.class} {question.test.exam}, {question.test.quarter}</p>
+                        <p className="font-bold">Question {question.number} of {question.test.class} {question.test.type}, {question.test.quarter}</p>
                         <Image
                             src={question.questionImgSrc}
                             alt="question"
