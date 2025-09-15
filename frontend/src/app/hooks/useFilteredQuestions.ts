@@ -1,15 +1,21 @@
+import { useAtomValue } from "jotai";
 import { useCallback, useState } from "react";
+import questionFilterAtom from "../atoms/questionFilter";
 
 export function useFilteredQuestions() {
+    const questionFilter = useAtomValue(questionFilterAtom);
+
     const [questions, setQuestions] = useState<Question[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchFilteredQuestions = useCallback(async (class_: string, testType: string, topics: string[]) => {
-        if (!class_ || !testType || topics.length === 0) {
+    const fetchFilteredQuestions = useCallback(async () => {
+        
+        if (!questionFilter.class || !questionFilter.testType || questionFilter.topics.length === 0) {
             return;
         }
         
+        setQuestions([]);
         setLoading(true);
         setError(null);
 
@@ -19,9 +25,9 @@ export function useFilteredQuestions() {
                 headers: { "Content-Type": "application/json" },
                 cache: "no-store",
                 body: JSON.stringify({
-                    class: class_,
-                    testType,
-                    topics
+                    class: questionFilter.class,
+                    testType: questionFilter.testType,
+                    topics: questionFilter.topics
                 })
             });
 
@@ -38,6 +44,8 @@ export function useFilteredQuestions() {
     }, []);
 
     return {
+        loading,
+        error,
         questions,
         updateQuestions: fetchFilteredQuestions
     };

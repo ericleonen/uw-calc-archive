@@ -1,3 +1,15 @@
+export const CLASSES = [
+    "MATH 124",
+    "MATH 125",
+    "MATH 126"
+];
+
+export const TEST_TYPES = [
+    "Midterm 1",
+    "Midterm 2",
+    "Final"
+];
+
 export const TOPICS: {
     [class_: string]: string[]
 } = {

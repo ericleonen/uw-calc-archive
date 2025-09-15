@@ -1,6 +1,6 @@
 import Select, { type MultiValue } from "react-select"
 
-type SearchMultiSelectProps = {
+type MultiSelectInputProps = {
   label: string
   placeholder: string
   options: string[]
@@ -17,13 +17,13 @@ const GRAY_400_90 = "rgba(156, 163, 175, 0.90)"
 const GRAY_100_90 = "rgba(243, 244, 246, 0.90)"
 const PURPLE_100_90 = "rgba(237, 233, 254, 0.90)"
 
-export default function SearchMultiSelect({
+export default function MultiSelectInput({
   label,
   placeholder,
   options,
   values,
   setValues,
-}: SearchMultiSelectProps) {
+}: MultiSelectInputProps) {
   const optionObjects: Option[] = options.map((o) => ({ label: o, value: o }))
   const selected: Option[] = optionObjects.filter((o) => values.includes(o.value))
 

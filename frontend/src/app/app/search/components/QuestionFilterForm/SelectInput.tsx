@@ -1,6 +1,6 @@
 import Select, { type SingleValue } from "react-select"
 
-type SearchSelectProps = {
+type SelectInputProps = {
   label: string
   placeholder: string
   options: string[]
@@ -17,13 +17,13 @@ const GRAY_400_90 = "rgba(156, 163, 175, 0.90)"
 const GRAY_100_90 = "rgba(243, 244, 246, 0.90)"
 const PURPLE_100_90 = "rgba(237, 233, 254, 0.90)"
 
-export default function SearchSelect({
+export default function SelectInput({
   label,
   placeholder,
   options,
   value,
   setValue,
-}: SearchSelectProps) {
+}: SelectInputProps) {
   const optionObjects: Option[] = options.map((o) => ({ label: o, value: o }))
   const selected: Option | null =
     optionObjects.find((o) => o.value === value) ?? null
