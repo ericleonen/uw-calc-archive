@@ -26,8 +26,8 @@ RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
 NUMBERED_1_SECTION_REGEXES = [
-    r"^1+\.",
-    r"^#\s*1+",
+    r"^1\.",
+    r"^#\s*1",
     r"^problem\s+1",
     r"^question\s+1",
     r"^q1+\.",
@@ -138,18 +138,18 @@ def get_numbered_sections_and_undesirable_block_bounds(
         for block in dict_.get("blocks", []):
             _, y0, _, y1 = block["bbox"]
 
-            if (
-                len(sections_bounds) > 0 \
-                and sections_bounds[-1]["p0"] == p \
-                and sections_bounds[-1]["y0"] > y0
-            ):
-                # block inside last numbered section lies above its start bound
-                sections_bounds[-1]["y0"] = y0 
+            # if (
+            #     len(sections_bounds) > 0 \
+            #     and sections_bounds[-1]["p0"] == p \
+            #     and sections_bounds[-1]["y0"] > y0
+            # ):
+            #     # block inside last numbered section lies above its start bound
+            #     sections_bounds[-1]["y0"] = y0 
 
-                if len(sections_bounds) > 1 and sections_bounds[-2]["p1"] == p:
-                    # block inside last numbered section lies above the penultimate numbered
-                    # section's end bound
-                    sections_bounds[-2]["y1"] = y0
+            #     if len(sections_bounds) > 1 and sections_bounds[-2]["p1"] == p:
+            #         # block inside last numbered section lies above the penultimate numbered
+            #         # section's end bound
+            #         sections_bounds[-2]["y1"] = y0
 
             block_text = "".join(
                 span["text"] for line in block.get("lines", []) for span in line.get("spans", [])
@@ -162,6 +162,8 @@ def get_numbered_sections_and_undesirable_block_bounds(
                 numbered_q_section_regex = None
 
                 break
+
+            # print(block_text)
             
             if numbered_q_section_regex is None:
                 numbered_q_section_regex = \
@@ -402,7 +404,7 @@ def slice_doc(
     sections_bounds: list,
     undesirables_bounds: list,
     dpi: int = 200,
-) -> list[Image]:
+) -> list[Image.Image]:
     """
     Slices the given doc into sections defined by sections and undesirables bounds.
 
@@ -511,7 +513,8 @@ def slice_doc(
             canvas.paste(slice_, (0, curr_y))
             curr_y += slice_.height
 
-        sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
+        # sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
+        sections.append(cap_whitespace_from_canvas(canvas))
 
     return sections
 
