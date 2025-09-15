@@ -1,3 +1,4 @@
+import AppBar from "./components/AppBar";
 import Header from "./components/Header";
 
 export default function AppLayout({
@@ -8,9 +9,10 @@ export default function AppLayout({
     return (
         <div className="flex flex-col h-screen overflow-hidden">
             <Header />
-            <main className="flex bg-gray-300 grow h-[calc(100vh-3.5rem)]">
+            <main className="flex bg-gray-200 grow relative min-h-0">
                 {children}
             </main>
+            <AppBar />
         </div>
     )
 }

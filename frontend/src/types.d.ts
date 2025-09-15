@@ -1,29 +1,32 @@
 type QuestionFilter = {
     class: string,
-    exam: string,
+    testType: string,
     topics: string[]
 }
 
-type TestIndex = {
-    questions: QuestionIndex[],
-    exam: string,
-    class: string
+type Index = {
+    [testId: string]: Test
 }
 
-type QuestionIndex = {
-    key: string,
-    topics: string[]
+type Test = {
+    id: string,
+    type: string,
+    class: string,
+    quarter: string
 }
 
 type Question = {
-    questionNum: number,
+    number: number,
     questionImgSrc: string,
     answerImgSrc: string,
     topics: string[],
-    test: {
-        id: string,
-        quarter: string,
-        exam: string,
-        class: string
-    }
+    questionShort: string,
+    answerStrategy: string,
+    test: Test
+}
+
+type Data<T> = {
+    data: T,
+    loading: boolean,
+    error: Error | null
 }

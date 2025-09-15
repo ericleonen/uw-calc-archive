@@ -1,3 +1,15 @@
+export const CLASSES = [
+    "MATH 124",
+    "MATH 125",
+    "MATH 126"
+];
+
+export const TEST_TYPES = [
+    "Midterm 1",
+    "Midterm 2",
+    "Final"
+];
+
 export const TOPICS: {
     [class_: string]: string[]
 } = {
@@ -67,9 +79,6 @@ export const TOPICS: {
         "Iterated Integrals",
         "Polar Form Integrals",
         "Center of Mass",
-        "Taylor Polynomials",
-        "Taylor Series",
-        "Convergence Tests",
-        "Taylor Series Manipulations"
+        "Taylor Series"
     ]
 }

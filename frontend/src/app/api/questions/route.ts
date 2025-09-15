@@ -4,61 +4,62 @@ import { r2 } from "@/lib/r2";
 
 export const runtime = "nodejs";
 
-// type Cache = { data: any; ts: number }
-// let indexCache: Cache | null = null;
-// const CACHE_MS = 60_000;
+type Cache = { data: any; ts: number }
+let indexCache: Cache | null = null;
+const CACHE_MS = 60_000;
 
-async function fetchJSON(key: string) {
-    // if (cache && Date.now() - cache.ts < CACHE_MS) return cache.data;
+async function fetchIndex(): Promise<any> {
+    if (indexCache && Date.now() - indexCache.ts < CACHE_MS) return indexCache.data;
 
     const Bucket = process.env.R2_BUCKET!;
 
-    const obj = await r2.send(new GetObjectCommand({ Bucket, Key: key }));
+    const obj = await r2.send(new GetObjectCommand({ Bucket, Key: "archive/index.json" }));
     const text = await (obj.Body as any).transformToString();
     const data = JSON.parse(text);
 
-    // cache = { data, ts: Date.now() };
+    indexCache = { data, ts: Date.now() };
 
     return data;
 }
 
-async function getFilteredQuestions(index: TestIndex[], questionFilter: QuestionFilter) {
+function imgSrc(testId: string, questionNumber: number, isAnswer: boolean = false) {
+    return `/api/image?key=archive/${testId}/Q${questionNumber}/${isAnswer ? "answer" : "question"}.png`;
+}
+
+function getFilteredQuestions(index: any, questionFilter: QuestionFilter): Question[] {
     const questions: Question[] = [];
     const topicsSet = new Set(questionFilter.topics)
 
-    for (const testIndex of index) {
+    for (const testMetadata of (Object.values(index) as any[])) {
+        const test: Test = {
+            id: testMetadata.id,
+            type: testMetadata.type,
+            class: testMetadata.class,
+            quarter: testMetadata.quarter
+        }
+
         if (
-            testIndex.class !== questionFilter.class ||
-            testIndex.exam !== questionFilter.exam
+            testMetadata.class !== questionFilter.class ||
+            testMetadata.type !== questionFilter.testType
         ) {
           continue;
         }
 
-        const testId = testIndex.questions[0].key.split("/")[1]
-        const testKey = `archive/${testId}`;
-        const testMetadata = await fetchJSON(`${testKey}/metadata.json`);
-        
-        let questionNum = 1
-        for (const questionIndex of testIndex.questions) {
-            if (questionIndex.topics.some(topic => topicsSet.has(topic))) {
-                const questionKey = questionIndex.key;
-                const questionMetadata = await fetchJSON(questionKey + "/metadata.json");
-
+        let questionNumber = 1;
+        for (const questionMetadata of testMetadata.questions) {
+            if (questionMetadata.topics.some((topic: string) => topicsSet.has(topic))) {
                 questions.push({
-                    questionNum,
-                    questionImgSrc: `/api/image?key=${questionKey}/question.png`,
-                    answerImgSrc: `/api/image?key=${questionKey}/answer.png`,
+                    number: questionNumber,
                     topics: questionMetadata.topics,
-                    test: {
-                        id: testMetadata.id,
-                        exam: testMetadata.type,
-                        quarter: testMetadata.quarter,
-                        class: testMetadata.class
-                    }
+                    questionImgSrc: imgSrc(testMetadata.id, questionNumber),
+                    answerImgSrc: imgSrc(testMetadata.id, questionNumber, true),
+                    questionShort: questionMetadata.question_short,
+                    answerStrategy: questionMetadata.answer_strategy,
+                    test
                 });
             }
 
-            questionNum++;
+            questionNumber++;
         }
     }
 
@@ -66,10 +67,10 @@ async function getFilteredQuestions(index: TestIndex[], questionFilter: Question
 }
 
 export async function POST(req: NextRequest) {
-    const index = await fetchJSON("archive/index.json");
+    const index = await fetchIndex();
     const questionFilter = (await req.json()) as QuestionFilter;
 
-    const questions = await getFilteredQuestions(index, questionFilter);
+    const questions = getFilteredQuestions(index, questionFilter);
     
     return NextResponse.json(questions);
 }
