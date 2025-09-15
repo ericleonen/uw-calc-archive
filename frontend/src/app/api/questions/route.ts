@@ -68,9 +68,22 @@ function getFilteredQuestions(index: any, questionFilter: QuestionFilter): Quest
 
 export async function POST(req: NextRequest) {
     const index = await fetchIndex();
-    const questionFilter = (await req.json()) as QuestionFilter;
+    const  {questionFilter, page, pageSize } = (await req.json()) as {
+        questionFilter: QuestionFilter,
+        page: number,
+        pageSize: number,
+    };
 
     const questions = getFilteredQuestions(index, questionFilter);
+    const totalQuestionsCount = questions.length;
+    const startIndex = (page - 1) * pageSize;
+
+    const questionsSlice = questions.slice(startIndex, startIndex + pageSize)
     
-    return NextResponse.json(questions);
+    return NextResponse.json({
+        data: questionsSlice,
+        totalQuestionsCount,
+        page,
+        totalPagesCount: Math.max(1, Math.ceil(totalQuestionsCount / pageSize))
+    });
 }

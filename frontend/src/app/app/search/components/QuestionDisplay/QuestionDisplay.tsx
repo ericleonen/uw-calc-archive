@@ -1,10 +1,9 @@
-import questionsAtom from "@/app/atoms/questions";
-import { useAtomValue } from "jotai";
 import QuestionDisplayLoader from "./QuestionDisplayLoader";
 import QuestionList from "./QuestionList";
+import { useQuestions } from "@/app/hooks/useQuestions";
 
 export default function QuestionDisplay() {
-    const questions = useAtomValue(questionsAtom);
+    const questions = useQuestions();
 
     return (
         <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
@@ -13,7 +12,11 @@ export default function QuestionDisplay() {
                 questions.loading ? (
                     <QuestionDisplayLoader />
                 ) : (
-                    <QuestionList questions={questions.data} />
+                    <QuestionList 
+                        questions={questions.data}
+                        page={questions.page}
+                        totalPagesCount={questions.totalPagesCount}
+                    />
                 )
             }
         </div>
