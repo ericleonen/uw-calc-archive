@@ -24,3 +24,9 @@ type Question = {
     answerStrategy: string,
     test: Test
 }
+
+type Data<T> = {
+    data: T,
+    loading: boolean,
+    error: Error | null
+}

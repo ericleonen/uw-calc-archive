@@ -1,23 +1,22 @@
-import { useAtomValue } from "jotai";
-import { useCallback, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useCallback } from "react";
 import questionFilterAtom from "../atoms/questionFilter";
+import questionsAtom from "../atoms/questions";
 
-export function useFilteredQuestions() {
+export function useFilterQuestions() {
     const questionFilter = useAtomValue(questionFilterAtom);
-
-    const [questions, setQuestions] = useState<Question[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const setQuestions = useSetAtom(questionsAtom);
 
     const fetchFilteredQuestions = useCallback(async () => {
-        
         if (!questionFilter.class || !questionFilter.testType || questionFilter.topics.length === 0) {
             return;
         }
         
-        setQuestions([]);
-        setLoading(true);
-        setError(null);
+        setQuestions({
+            data: [],
+            loading: true,
+            error: null
+        });
 
         try {
             const res = await fetch("/api/questions", {
@@ -35,18 +34,19 @@ export function useFilteredQuestions() {
                 throw new Error(`${res.status} ${res.statusText}`)
             }
 
-            setQuestions(await res.json());
+            setQuestions({
+                data: await res.json(),
+                loading: false,
+                error: null
+            });
         } catch (e: any) {
-            setError(e.message || "Failed to fetch filtered question keys.");
-        } finally {
-            setLoading(false);
+            setQuestions({
+                data: [],
+                loading: false,
+                error: e
+            });
         }
-    }, []);
+    }, [questionFilter, setQuestions]);
 
-    return {
-        loading,
-        error,
-        questions,
-        updateQuestions: fetchFilteredQuestions
-    };
+    return fetchFilteredQuestions;
 }

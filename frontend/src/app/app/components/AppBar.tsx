@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 export default function AppBar() {
     return (
-        <div className="flex justify-around w-full p-2 bg-gray-200 border-t-2 h-18 border-t-gray-300 lg:hidden">
+        <div className="flex justify-around w-full h-16 p-2 bg-gray-200 border-t-2 border-t-gray-300 lg:hidden shrink-0">
             <AppBarLink
                 Icon={QuestionMarkCircleIcon}
                 label="About"

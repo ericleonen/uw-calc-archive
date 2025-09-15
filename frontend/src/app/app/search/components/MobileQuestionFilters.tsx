@@ -2,22 +2,19 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { FilterIcon } from "lucide-react"
 import QuestionFilterForm from "./QuestionFilterForm/QuestionFilterForm"
 
-type MobileQuestionFiltersProps = {
-    updateQuestions: () => Promise<void>
-}
 
-export default function MobileQuestionFilters({ updateQuestions }: MobileQuestionFiltersProps) {
+export default function MobileQuestionFilters() {
     return (
         <Sheet>
-            <SheetTrigger className="block lg:hidden absolute bottom-2 right-2">
-                <FilterIcon />
+            <SheetTrigger className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw/90 aspect-square hover:bg-uw/80 hover:cursor-pointer">
+                <FilterIcon className="text-lg text-white/90"/>
             </SheetTrigger>
             <SheetContent
                 side="bottom"
-                className="bg-white/90 p-6 flex items-center"
+                className="flex items-center p-6 bg-white"
             >
                 <div className="flex flex-col w-full max-w-96">
-                    <QuestionFilterForm updateQuestions={updateQuestions}/>
+                    <QuestionFilterForm sheetClose />
                 </div>
             </SheetContent>
         </Sheet>
