@@ -518,7 +518,28 @@ def slice_doc(
 
     return sections
 
-def generate_questions_answers_from_test(test_dir: Path):
+def doc_to_img(doc: Document, dpi: int = 200) -> Image.Image:
+    pixmaps = []
+    widths, heights = [], []
+    for page in doc:
+        pix = page.get_pixmap(dpi=dpi, alpha=False)
+        pixmaps.append(pix)
+        widths.append(pix.width)
+        heights.append(pix.height)
+
+    W = max(widths)
+    H = sum(heights)
+    canvas = Image.new("RGB", (W, H))
+
+    y = 0
+    for pix in pixmaps:
+        img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        canvas.paste(img, (0, y))
+        y += pix.height
+
+    return canvas 
+
+def generate_questions_answers_from_test(test_dir: Path, full=False):
     test_id = test_dir.name
     test_pdf = test_dir / "test.pdf"
     answers_pdf = test_dir / "answers.pdf"
@@ -548,7 +569,7 @@ def generate_questions_answers_from_test(test_dir: Path):
         elif answers_doc.page_count < test_doc.page_count:
             # answers are compact
             answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
-        else:
+        elif not full:
             raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
         if answers_bounds is None:
@@ -559,14 +580,20 @@ def generate_questions_answers_from_test(test_dir: Path):
 
     if len(answers_bounds) != len(questions_bounds):
         raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
-
-    question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
-    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
-
+    
     processed_test_dir = PROCESSED_DIR / test_id
     processed_test_dir.mkdir(parents=True, exist_ok=False)
 
     shutil.copy(metadata_json, processed_test_dir / "metadata.json")
+
+    if full and answers_pdf_exists:
+        questions_img = doc_to_img(test_doc)
+        questions_img.save(processed_test_dir / "questions.png")
+        answers_img = doc_to_img(answers_doc)
+        answers_img.save(processed_test_dir / "answers.png")
+
+    question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
+    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
 
     for q, (question_image, answer_image) in enumerate(zip(question_images, answer_images)):
         question_dir = processed_test_dir / f"Q{q + 1}"
@@ -579,6 +606,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-parse", type=str, required=False, default=None)
     parser.add_argument("-testId", type=str, required=False, default=None)
+    parser.add_argument("-full", type=bool, required=False, default=False)
     args = parser.parse_args()
 
     if args.parse is not None and args.testId is not None:
@@ -586,7 +614,7 @@ if __name__ == "__main__":
     elif args.parse is None and args.testId is None:
         raise Exception("You must provide parse or testId. Not neither.")
     elif args.testId is not None:
-        generate_questions_answers_from_test(RAW_DIR / args.testId)
+        generate_questions_answers_from_test(RAW_DIR / args.testId, full=args.full)
     else:
         tests_to_parse_num = None
         if args.parse != "all":
@@ -605,7 +633,7 @@ if __name__ == "__main__":
                 continue
 
             try:
-                generate_questions_answers_from_test(folder)
+                generate_questions_answers_from_test(folder, full=args.full)
                 parsed_tests_num += 1
             except Exception as e:
                 err_tests_num += 1
