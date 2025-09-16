@@ -138,18 +138,18 @@ def get_numbered_sections_and_undesirable_block_bounds(
         for block in dict_.get("blocks", []):
             _, y0, _, y1 = block["bbox"]
 
-            # if (
-            #     len(sections_bounds) > 0 \
-            #     and sections_bounds[-1]["p0"] == p \
-            #     and sections_bounds[-1]["y0"] > y0
-            # ):
-            #     # block inside last numbered section lies above its start bound
-            #     sections_bounds[-1]["y0"] = y0 
+            if (
+                len(sections_bounds) > 0 \
+                and sections_bounds[-1]["p0"] == p \
+                and sections_bounds[-1]["y0"] > y0
+            ):
+                # block inside last numbered section lies above its start bound
+                sections_bounds[-1]["y0"] = y0 
 
-            #     if len(sections_bounds) > 1 and sections_bounds[-2]["p1"] == p:
-            #         # block inside last numbered section lies above the penultimate numbered
-            #         # section's end bound
-            #         sections_bounds[-2]["y1"] = y0
+                if len(sections_bounds) > 1 and sections_bounds[-2]["p1"] == p:
+                    # block inside last numbered section lies above the penultimate numbered
+                    # section's end bound
+                    sections_bounds[-2]["y1"] = y0
 
             block_text = "".join(
                 span["text"] for line in block.get("lines", []) for span in line.get("spans", [])
