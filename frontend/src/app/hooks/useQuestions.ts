@@ -3,17 +3,7 @@ import { useSearchParams } from "next/navigation";
 
 export function useQuestions() {
     const searchParams = useSearchParams();
-    const [questions, setQuestions] = useState<
-        Data<Question[]> & 
-        { page: number, totalPagesCount: number, totalQuestionsCount: number, }
-    >({
-        data: [],
-        loading: false,
-        error: null,
-        page: 1,
-        totalPagesCount: 1,
-        totalQuestionsCount: 0
-    });
+    const [questions, setQuestions] = useState<PagedData<Question[]> | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -25,15 +15,19 @@ export function useQuestions() {
             if (!class_ || !testType || topics.length === 0) {
                 return;
             }
-            
-            setQuestions({
-                data: [],
-                loading: true,
-                error: null,
-                page: 1,
-                totalPagesCount: 1,
-                totalQuestionsCount: 0
-            });
+
+            setQuestions(prevQuestions => {
+                if (prevQuestions) {
+                    return {
+                        ...prevQuestions,
+                        data: [],
+                        loading: true,
+                        error: undefined
+                    };
+                } else {
+                    return prevQuestions;
+                }
+            })
 
             try {
                 const res = await fetch("/api/questions", {
@@ -60,20 +54,22 @@ export function useQuestions() {
                 setQuestions({
                     data: json.data,
                     loading: false,
-                    error: null,
                     page: json.page,
                     totalPagesCount: json.totalPagesCount,
-                    totalQuestionsCount: json.totalQuestionsCount
+                    totalItemsCount: json.totalItemsCount
                 });
             } catch (e: any) {
-                setQuestions({
-                    data: [],
-                    loading: false,
-                    error: e,
-                    page: 1,
-                    totalPagesCount: 1,
-                    totalQuestionsCount: 0
-                });
+                setQuestions(prevQuestions => {
+                    if (prevQuestions) {
+                        return {
+                            ...prevQuestions,
+                            loading: false,
+                            error: e,
+                        };
+                    } else {
+                        return prevQuestions;
+                    }
+                })
             }
         })();
     }, [searchParams, setQuestions]);

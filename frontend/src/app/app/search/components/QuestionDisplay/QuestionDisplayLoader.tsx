@@ -1,10 +1,13 @@
-import { LoaderCircleIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function QuestionDisplayLoader() {
     return (
-        <div className="flex flex-col items-center justify-center h-full w-full text-gray-500/90">
-            <LoaderCircleIcon className="animate-spin" />
-            <span className="mt-2 font-semibold">Loading questions</span>
+        <div className="w-full space-y-6 my-6">
+            {
+                Array.from(Array(5)).map((_, i) => (
+                    <Skeleton key={i} className="w-full rounded-md h-32"/>
+                ))
+            }
         </div>
     )
 }

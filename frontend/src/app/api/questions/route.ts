@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json({
         data: questionsSlice,
-        totalQuestionsCount,
+        totalItemsCount: totalQuestionsCount,
         page,
         totalPagesCount: Math.max(1, Math.ceil(totalQuestionsCount / pageSize))
     });

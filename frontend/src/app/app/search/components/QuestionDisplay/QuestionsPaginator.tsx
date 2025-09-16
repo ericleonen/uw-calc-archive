@@ -2,23 +2,17 @@
 
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationPrevious,
-    PaginationNext,
-    PaginationEllipsis,
-    PaginationLink,
-} from "@/components/ui/pagination";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-type Props = {
+type QuestionsPaginatorProps = {
     page: number;
     totalPagesCount: number;
     siblingCount?: number;
 };
 
-export default function QuestionsPaginator({ page, totalPagesCount, siblingCount = 1 }: Props) {
+export default function QuestionsPaginator({ page, totalPagesCount, siblingCount = 1 }: QuestionsPaginatorProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -50,30 +44,55 @@ export default function QuestionsPaginator({ page, totalPagesCount, siblingCount
     const nextDisabled = page >= totalPagesCount;
 
     return (
-        <Pagination>
-            <PaginationContent>
-                <PaginationItem>
-                    <PaginationPrevious href={prevDisabled ? undefined : buildHref(page - 1)} />
-                </PaginationItem>
-
-                {items.map((it, idx) =>
-                    it === "..." ? (
-                        <PaginationItem key={`ellipsis-${idx}`}>
-                            <PaginationEllipsis />
-                        </PaginationItem>
+        <div className="bg-white/90 rounded-md p-1 flex space-x-1 shadow">
+            <QuestionsPaginatorLink href={prevDisabled ? undefined : buildHref(page - 1)}>
+                <ChevronLeft />
+            </QuestionsPaginatorLink>
+            {
+                items.map((item, i) => 
+                    item === "..." ? (
+                        <div className="font-semibold h-full text-gray-600/90 text-center p-1">
+                            {item}
+                        </div>
                     ) : (
-                        <PaginationItem key={it}>
-                            <PaginationLink href={buildHref(it)} isActive={it === clamp(page)}>
-                                {it}
-                            </PaginationLink>
-                        </PaginationItem>
+                        <QuestionsPaginatorLink
+                            key={i}
+                            href={buildHref(item)}
+                            active={page === item}
+                        >
+                            {item}
+                        </QuestionsPaginatorLink>
                     )
-                )}
-
-                <PaginationItem>
-                    <PaginationNext href={nextDisabled ? undefined : buildHref(page + 1)} />
-                </PaginationItem>
-            </PaginationContent>
-        </Pagination>
+                )
+            }
+            <QuestionsPaginatorLink href={nextDisabled ? undefined : buildHref(page + 1)}>
+                <ChevronRight />
+            </QuestionsPaginatorLink>
+        </div>
     );
+}
+
+type QuestionsPaginatorLinkProps = {
+    href?: string,
+    active?: boolean,
+    children: React.ReactNode
+}
+
+function QuestionsPaginatorLink({ href, active, children }: QuestionsPaginatorLinkProps) {
+    return (
+        <Button
+            asChild
+            disabled={!!href || active}
+            className={
+                "font-bold rounded-md shadow-none aspect-square p-0 " +
+                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-600/90 hover:text-uw/90 hover:bg-uw/40")
+            }
+        >
+            <Link
+                href={href || ""}
+            >
+                {children}
+            </Link>
+        </Button>
+    )
 }

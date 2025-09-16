@@ -1,17 +1,12 @@
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import Image from "next/image";
-import QuestionsPaginator from "./QuestionsPaginator";
 
 type QuestionListProps = {
-    questions: Question[],
-    page: number,
-    totalPagesCount: number
+    questions: Question[]
 }
 
-export default function QuestionList({ questions, page, totalPagesCount }: QuestionListProps) {
+export default function QuestionList({ questions }: QuestionListProps) {
     return (
-        <div className="w-full max-w-2xl space-y-6">
-            <QuestionsPaginator page={page} totalPagesCount={totalPagesCount} />
+        <div className="w-full space-y-6 my-6">
             {
                 questions.map(question => (
                     <div

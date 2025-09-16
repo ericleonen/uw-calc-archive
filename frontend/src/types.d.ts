@@ -28,5 +28,11 @@ type Question = {
 type Data<T> = {
     data: T,
     loading: boolean,
-    error: Error | null
+    error?: Error
+}
+
+type PagedData<T> = Data<T> & {
+    page: number,
+    totalItemsCount: number,
+    totalPagesCount: number
 }
