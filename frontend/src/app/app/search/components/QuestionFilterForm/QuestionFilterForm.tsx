@@ -1,35 +1,47 @@
-import { useAtom, useAtomValue } from "jotai";
 import { CLASSES, TEST_TYPES, TOPICS } from "../../constants";
 import SelectInput from "./SelectInput";
-import { classAtom, testTypeAtom, topicsAtom } from "@/app/atoms/questionFilter";
 import MultiSelectInput from "./MultiSelectInput";
 import { Button } from "@/components/ui/button";
-import { useFilterQuestions } from "@/app/hooks/useFilterQuestions";
 import { SheetClose } from "@/components/ui/sheet";
 import { FilterIcon, LoaderCircleIcon } from "lucide-react";
-import { questionsAreLoadingAtom } from "@/app/atoms/questions";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 type QuestionFilterFormProps = {
     sheetClose?: boolean
 }
 
 export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormProps) {
-    const [class_, setClass] = useAtom(classAtom);
-    const [testType, setTestType] = useAtom(testTypeAtom);
-    const [topics, setTopics] = useAtom(topicsAtom);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
 
-    const questionsAreLoading = useAtomValue(questionsAreLoadingAtom)
+    const [class_, setClass] = useState(searchParams.get("class") || "");
+    const [testType, setTestType] = useState(searchParams.get("exam") || "");
+    const [topics, setTopics] = useState<string[]>(searchParams.get("topics")?.split(",") || []);
 
-    const filterQuestions = useFilterQuestions();
+    useEffect(() => {
+        setClass(searchParams.get("class") || "");
+        setTestType(searchParams.get("exam") || "");
+        setTopics(searchParams.get("topics")?.split(",") || []);
+    }, [searchParams]);
+
+    const updateQuestionQuery = () => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("class", class_);
+        params.set("exam", testType);
+        params.set("topics", topics.join(","));
+
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    };
 
     const filterButton = (
         <Button
-            onClick={filterQuestions}
-            disabled={questionsAreLoading}
+            onClick={updateQuestionQuery}
             className="w-full font-semibold disabled:hover:cursor-default hover:cursor-pointer bg-uw/90 text-white/90 hover:bg-uw/80 disabled:bg-uw/90 disabled:text-white/90 disabled:hover:bg-uw/90 disabled:opacity-100"
         >
             {
-                questionsAreLoading ? (
+                false ? (
                     <LoaderCircleIcon className="animate-spin" />
                 ) : (
                     <span>Filter questions</span>
