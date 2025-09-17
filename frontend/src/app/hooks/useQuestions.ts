@@ -12,7 +12,17 @@ export function useQuestions() {
             const topics = searchParams.get("topics")?.split(",") || [];
             const page = parseInt(searchParams.get("page") || "1");
 
-            if (!class_ || !testType || topics.length === 0) {
+            if (!class_ && !testType && !topics.length) {
+                setQuestions({
+                    data: null,
+                    loading: false,
+                    totalItemsCount: 0,
+                    totalPagesCount: 0,
+                    page: 0
+                });
+
+                return;
+            } else if (!class_ || !testType || topics.length === 0) {
                 return;
             }
 
@@ -25,7 +35,7 @@ export function useQuestions() {
                     };
                 } else {
                     return {
-                        data: [],
+                        data: null,
                         loading: true,
                         totalItemsCount: 0,
                         totalPagesCount: 0,

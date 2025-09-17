@@ -1,14 +1,14 @@
 import { DicesIcon, TextSearchIcon } from "lucide-react";
 import Image from "next/image";
 
-export default function NoQuestionsFound() {
+export default function NoQuery() {
     return (
         <div className="mx-auto max-w-3xl py-16 text-center">
             <div className="mx-auto mb-2 h-40 w-40">
-                <Image src="/dubs-sad.png" alt="No questions found" width={160} height={160} />
+                <Image src="/dubs-happy.png" alt="No questions yet" width={160} height={160} />
             </div>
-            <h2 className="text-xl font-bold text-uw/90">Sorry, no questions found!</h2>
-            <p className="mt-1 text-gray-500/90 font-medium">Nothing in the archive matches your query. Try a different one</p>
+            <h2 className="text-xl font-bold text-uw/90">Ready to search the archive?</h2>
+            <p className="mt-1 text-gray-500/90 font-medium">Choose your class, exam, and topics in the left sidebar</p>
             <p className="font-bold text-gray-400/90 my-4">OR</p>
             <div className="flex justify-center gap-3 flex-wrap">
                 <button className="bg-uw/90 text-white/90 px-2 py-1 rounded-md flex items-center hover:bg-uw/70" onClick={() => {}}>

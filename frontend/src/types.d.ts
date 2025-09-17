@@ -26,7 +26,7 @@ type Question = {
 }
 
 type Data<T> = {
-    data: T,
+    data: T | null,
     loading: boolean,
     error?: Error
 }

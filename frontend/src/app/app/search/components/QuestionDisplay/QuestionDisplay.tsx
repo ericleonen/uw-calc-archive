@@ -3,6 +3,7 @@ import QuestionList from "./QuestionList";
 import { useQuestions } from "@/app/hooks/useQuestions";
 import QuestionsPaginator from "./QuestionsPaginator";
 import NoQuestionsFound from "./NoQuestionsFound";
+import NoQuery from "./NoQuery";
 
 export default function QuestionDisplay() {
     const questions = useQuestions();
@@ -14,12 +15,10 @@ export default function QuestionDisplay() {
                     <div className="w-full max-w-2xl flex flex-col items-center h-min space-y-3">
                         {
                             questions.error ? null :
-                            !questions.loading && questions.data.length === 0 ? (
-                                <NoQuestionsFound />
-                            ) : 
-                            questions.loading && questions.data.length === 0 ? (
-                                <QuestionDisplayLoader withPaginator />
-                            ) : (<>
+                            !questions.data ? (<>
+                                { questions.loading ? <QuestionDisplayLoader withPaginator /> : <NoQuery /> }
+                            </>) :
+                            questions.data.length === 0 ? <NoQuestionsFound /> : (<>
                                 <QuestionsPaginator
                                     page={questions.page}
                                     totalPagesCount={questions.totalPagesCount}
