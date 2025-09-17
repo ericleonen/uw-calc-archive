@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { r2 } from "@/lib/r2";
+import { SEASONS } from "@/app/app/search/constants";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,7 @@ function imgSrc(testId: string, questionNumber: number, isAnswer: boolean = fals
 
 function getFilteredQuestions(index: any, questionFilter: QuestionFilter): Question[] {
     const questions: Question[] = [];
-    const topicsSet = new Set(questionFilter.topics)
+    const topicsSet = new Set(questionFilter.topics);
 
     for (const testMetadata of (Object.values(index) as any[])) {
         const test: Test = {
@@ -39,15 +40,15 @@ function getFilteredQuestions(index: any, questionFilter: QuestionFilter): Quest
         }
 
         if (
-            testMetadata.class !== questionFilter.class ||
-            testMetadata.type !== questionFilter.testType
+            (questionFilter.class && testMetadata.class !== questionFilter.class) ||
+            (questionFilter.testType && testMetadata.type !== questionFilter.testType)
         ) {
           continue;
         }
 
         let questionNumber = 1;
         for (const questionMetadata of testMetadata.questions) {
-            if (questionMetadata.topics.some((topic: string) => topicsSet.has(topic))) {
+            if (topicsSet.size === 0 || questionMetadata.topics.some((topic: string) => topicsSet.has(topic))) {
                 questions.push({
                     number: questionNumber,
                     topics: questionMetadata.topics,
@@ -75,6 +76,24 @@ export async function POST(req: NextRequest) {
     };
 
     const questions = getFilteredQuestions(index, questionFilter);
+    questions.sort((q1, q2) => {
+        const [season1, yearStr1] = q1.test.quarter.split(" ");
+        const year1 = parseInt(yearStr1);
+
+        const [season2, yearStr2] = q2.test.quarter.split(" ");
+        const year2 = parseInt(yearStr2);
+
+        if (year1 !== year2) {
+            return year2 - year1;
+        } else if (season1 !== season2) {
+            return SEASONS.indexOf(season2) - SEASONS.indexOf(season1);
+        } else if (q1.test.id !== q2.test.id) {
+            return q2.test.id.localeCompare(q1.test.id);
+        } else {
+            return q1.number - q2.number;
+        }
+    });
+
     const totalQuestionsCount = questions.length;
     const startIndex = (page - 1) * pageSize;
 

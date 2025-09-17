@@ -43,6 +43,7 @@ export default function SelectInput({
         value={selected}
         onChange={(opt: SingleValue<Option>) => setValue(opt?.value ?? "")}
         placeholder={placeholder}
+        isClearable
         styles={{
           control: (base, state) => ({
             ...base,

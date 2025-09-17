@@ -1,3 +1,5 @@
+export const SEASONS = ["Winter", "Spring", "Summer", "Fall"];
+
 export const CLASSES = [
     "MATH 124",
     "MATH 125",

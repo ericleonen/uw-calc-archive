@@ -4,17 +4,15 @@ import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type QuestionsPaginatorProps = {
     page: number,
     totalPagesCount: number,
-    siblingCount?: number,
     pageQuestionsCount: number,
     totalQuestionsCount: number
 };
 
-export default function QuestionsPaginator({ page, pageQuestionsCount, totalQuestionsCount, totalPagesCount, siblingCount = 1 }: QuestionsPaginatorProps) {
+export default function QuestionsPaginator({ page, pageQuestionsCount, totalQuestionsCount, totalPagesCount }: QuestionsPaginatorProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -27,20 +25,30 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
     };
 
     const items = useMemo(() => {
-        const current = clamp(page);
-        const total = Math.max(totalPagesCount, 1);
-        const start = Math.max(2, current - siblingCount);
-        const end = Math.min(total - 1, current + siblingCount);
+        const pages: (number | "...")[] = [];
 
-        const pages: (number | "...")[] = [1];
+        if (totalPagesCount <= 7) {
+            for (let i = 1; i <= totalPagesCount; i++) pages.push(i);
+        } else {
+            if (page <= 4) {
+                for (let i = 1; i <= 5; i++) pages.push(i);
+                pages.push("...");
+                pages.push(totalPagesCount);
+            } else if (page >= totalPagesCount - 4) {
+                pages.push(1);
+                pages.push("...");
+                for (let i = totalPagesCount - 4; i <= totalPagesCount; i++) pages.push(i);
+            } else {
+                pages.push(1);
+                pages.push("...");
+                for (let i = page - 1; i <= page + 1; i++) pages.push(i);
+                pages.push("...");
+                pages.push(totalPagesCount);
+            }
+        }
 
-        if (start > 2) pages.push("...");
-        for (let i = start; i <= end; i++) pages.push(i);
-        if (end < total - 1) pages.push("...");
-        if (total > 1) pages.push(total);
-
-        return Array.from(new Set(pages));
-    }, [page, totalPagesCount, siblingCount]);
+        return pages;
+    }, [page, totalPagesCount]);
 
     const prevDisabled = page <= 1;
     const nextDisabled = page >= totalPagesCount;
@@ -55,7 +63,7 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
                     item === "..." ? (
                         <div
                             key={`ellipsis_${i}`}
-                            className="font-semibold h-full text-gray-600/90 text-center p-1"
+                            className="font-semibold h-8 w-8 text-gray-600/90 text-center p-1"
                         >
                             {item}
                         </div>
@@ -86,19 +94,15 @@ type QuestionsPaginatorLinkProps = {
 
 function QuestionsPaginatorLink({ href, active, children }: QuestionsPaginatorLinkProps) {
     return (
-        <Button
-            asChild
-            disabled={!!href || active}
+        <Link
+            href={href || ""}
             className={
-                "font-bold rounded-full shadow-none h-8 w-8 " +
-                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90")
+                "font-bold rounded-full shadow-none h-8 w-8 flex items-center justify-center text-sm " +
+                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90") +
+                ((!href || active) ? " pointer-events-none" : " pointer-events-auto")
             }
         >
-            <Link
-                href={href || ""}
-            >
-                {children}
-            </Link>
-        </Button>
+            {children}
+        </Link>
     )
 }

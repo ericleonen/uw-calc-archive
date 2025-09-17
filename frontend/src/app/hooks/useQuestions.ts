@@ -7,12 +7,19 @@ export function useQuestions() {
 
     useEffect(() => {
         (async () => {
-            const class_ = searchParams.get("class") || "";
-            const testType = searchParams.get("exam") || "";
-            const topics = searchParams.get("topics")?.split(",") || [];
+            const class_ = searchParams.has("class") ? searchParams.get("class") : null;
+            const testType = searchParams.has("exam") ? searchParams.get("exam") : null;
+            const topics = searchParams.has("topics") ? searchParams.get("topics")?.split(",") || [] : null;
+
+            if (topics && topics.length === 1 && !topics[0]) {
+                topics.pop();
+            }
+
+            console.log(class_, testType, topics)
+
             const page = parseInt(searchParams.get("page") || "1");
 
-            if (!class_ && !testType && !topics.length) {
+            if (!class_ && !testType && !topics) {
                 setQuestions({
                     data: null,
                     loading: false,
@@ -21,8 +28,6 @@ export function useQuestions() {
                     page: 0
                 });
 
-                return;
-            } else if (!class_ || !testType || topics.length === 0) {
                 return;
             }
 
