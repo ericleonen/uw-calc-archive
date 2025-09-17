@@ -1,13 +1,20 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function QuestionDisplayLoader() {
+type QuestionDisplayLoaderProps = {
+    withPaginator?: boolean
+}
+
+export default function QuestionDisplayLoader({ withPaginator = false }: QuestionDisplayLoaderProps) {
     return (
-        <div className="w-full space-y-6 my-6">
+        <>
+            {
+                withPaginator && <Skeleton className="rounded-md h-12 w-full max-w-64"/>
+            }
             {
                 Array.from(Array(5)).map((_, i) => (
                     <Skeleton key={i} className="w-full rounded-md h-32"/>
                 ))
             }
-        </div>
+        </>
     )
 }

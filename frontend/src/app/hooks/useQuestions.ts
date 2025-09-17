@@ -20,12 +20,17 @@ export function useQuestions() {
                 if (prevQuestions) {
                     return {
                         ...prevQuestions,
-                        data: [],
                         loading: true,
                         error: undefined
                     };
                 } else {
-                    return prevQuestions;
+                    return {
+                        data: [],
+                        loading: true,
+                        totalItemsCount: 0,
+                        totalPagesCount: 0,
+                        page: 0
+                    };
                 }
             })
 

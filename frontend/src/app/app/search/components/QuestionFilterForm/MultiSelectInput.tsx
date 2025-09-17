@@ -16,6 +16,7 @@ const GRAY_300_90 = "rgba(209, 213, 219, 0.90)"
 const GRAY_400_90 = "rgba(156, 163, 175, 0.90)"
 const GRAY_100_90 = "rgba(243, 244, 246, 0.90)"
 const PURPLE_100_90 = "rgba(237, 233, 254, 0.90)"
+const PURPLE_200_90 = "oklch(90.2% 0.063 306.703)"
 
 export default function MultiSelectInput({
   label,
@@ -95,20 +96,23 @@ export default function MultiSelectInput({
           multiValue: (base) => ({
             ...base,
             backgroundColor: PURPLE_100_90,
-            borderRadius: 6,
+            borderRadius: 999,
           }),
           multiValueLabel: (base) => ({
             ...base,
             color: UW_PURPLE_90,
             fontWeight: 600,
+            paddingLeft: 10
           }),
           multiValueRemove: (base) => ({
             ...base,
             color: UW_PURPLE_90,
             ":hover": {
-              backgroundColor: GRAY_100_90,
+              backgroundColor: PURPLE_200_90,
               color: UW_PURPLE_90,
             },
+            borderTopRightRadius: 999,
+            borderBottomRightRadius: 999
           }),
         }}
       />

@@ -1,24 +1,24 @@
 "use client"
 
-import { MagnifyingGlassCircleIcon, QuestionMarkCircleIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { CircleQuestionMarkIcon, SearchIcon, User2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function AppBar() {
     return (
-        <div className="flex justify-around w-full h-16 p-2 bg-gray-200 border-t-2 border-t-gray-300 lg:hidden shrink-0">
+        <div className="flex justify-around w-full h-16 p-2 bg-white/90 border-t-2 border-t-gray-300 lg:hidden shrink-0">
             <AppBarLink
-                Icon={QuestionMarkCircleIcon}
+                Icon={CircleQuestionMarkIcon}
                 label="About"
                 to="about"
             />
             <AppBarLink
-                Icon={MagnifyingGlassCircleIcon}
+                Icon={SearchIcon}
                 label="Search"
                 to="search"
             />
             <AppBarLink 
-                Icon={UserCircleIcon}
+                Icon={User2Icon}
                 label="Profile"
                 to="signup"
             />
@@ -41,12 +41,11 @@ function AppBarLink({ Icon, label, to }: AppBarLinkProps) {
             href={`/app/${to}`}
             className={
                 "flex flex-col items-center justify-center h-full p-1 aspect-square rounded-full " +
-                (active ? "text-uw/90 bg-uw/20" : "text-gray-400/90 hover:text-uw/70")
+                (active ? "text-uw/90" : "text-gray-400/90 hover:text-uw/90 hover:bg-purple-100/90")
             }
             title={label}
         >
             <Icon />
-            {/* <span className="text-xs font-semibold">{label}</span> */}
         </Link>
     )
 }

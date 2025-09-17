@@ -7,12 +7,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type QuestionsPaginatorProps = {
-    page: number;
-    totalPagesCount: number;
-    siblingCount?: number;
+    page: number,
+    totalPagesCount: number,
+    siblingCount?: number,
+    pageQuestionsCount: number,
+    totalQuestionsCount: number
 };
 
-export default function QuestionsPaginator({ page, totalPagesCount, siblingCount = 1 }: QuestionsPaginatorProps) {
+export default function QuestionsPaginator({ page, pageQuestionsCount, totalQuestionsCount, totalPagesCount, siblingCount = 1 }: QuestionsPaginatorProps) {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -44,7 +46,7 @@ export default function QuestionsPaginator({ page, totalPagesCount, siblingCount
     const nextDisabled = page >= totalPagesCount;
 
     return (
-        <div className="bg-white/90 rounded-md p-1 flex space-x-1 shadow">
+        <div className="bg-white/90 rounded-md p-2 flex space-x-1 shadow items-center justify-center">
             <QuestionsPaginatorLink href={prevDisabled ? undefined : buildHref(page - 1)}>
                 <ChevronLeft />
             </QuestionsPaginatorLink>
@@ -68,6 +70,7 @@ export default function QuestionsPaginator({ page, totalPagesCount, siblingCount
             <QuestionsPaginatorLink href={nextDisabled ? undefined : buildHref(page + 1)}>
                 <ChevronRight />
             </QuestionsPaginatorLink>
+            <p className="text-sm text-gray-600/90 font-semibold ml-2 mr-4 hidden sm:block">Showing {pageQuestionsCount} of {totalQuestionsCount} results</p>
         </div>
     );
 }
@@ -84,8 +87,8 @@ function QuestionsPaginatorLink({ href, active, children }: QuestionsPaginatorLi
             asChild
             disabled={!!href || active}
             className={
-                "font-bold rounded-md shadow-none aspect-square p-0 " +
-                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-600/90 hover:text-uw/90 hover:bg-uw/40")
+                "font-bold rounded-full shadow-none h-8 w-8 " +
+                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90")
             }
         >
             <Link

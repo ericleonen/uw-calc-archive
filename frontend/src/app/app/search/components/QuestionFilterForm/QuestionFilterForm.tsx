@@ -31,6 +31,7 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
         params.set("class", class_);
         params.set("exam", testType);
         params.set("topics", topics.join(","));
+        params.delete("page")
 
         router.push(`${pathname}?${params.toString()}`, { scroll: false });
     };
