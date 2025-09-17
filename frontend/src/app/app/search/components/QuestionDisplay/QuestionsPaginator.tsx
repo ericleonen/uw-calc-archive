@@ -53,12 +53,15 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
             {
                 items.map((item, i) => 
                     item === "..." ? (
-                        <div className="font-semibold h-full text-gray-600/90 text-center p-1">
+                        <div
+                            key={`ellipsis_${i}`}
+                            className="font-semibold h-full text-gray-600/90 text-center p-1"
+                        >
                             {item}
                         </div>
                     ) : (
                         <QuestionsPaginatorLink
-                            key={i}
+                            key={`page_${i}`}
                             href={buildHref(item)}
                             active={page === item}
                         >

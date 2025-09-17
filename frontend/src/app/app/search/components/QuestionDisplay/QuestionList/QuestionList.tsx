@@ -5,13 +5,7 @@ type QuestionListProps = {
 }
 
 export default function QuestionList({ questions }: QuestionListProps) {
-    return (
-        <>
-            {
-                questions.map(question => (
-                    <Question question={question} />
-                ))
-            }
-        </>
-    )
+    return questions.map((question, i) => (
+        <Question key={`question_${i}`} question={question} />
+    ));
 }

@@ -14,13 +14,16 @@ export default function Question({ question }: QuestionProps) {
             className="flex flex-col w-full p-3 rounded-md shadow bg-white/90"
         >
             <p className="text-sm font-bold text-gray-700/90">Question {question.number} of {question.test.class} {question.test.type}, {question.test.quarter}</p>
-            <div className="flex flex-wrap">
-                {
-                    question.topics.map(topic => (
-                        <span className="py-1 px-2 text-xs bg-purple-100/90 text-uw/90 rounded-full font-semibold my-1 mr-2">{topic}</span>
-                    ))
-                }
-            </div>
+            <div className="flex flex-wrap">{
+                question.topics.map(topic => (
+                    <span
+                        key={topic}
+                        className="py-1 px-2 text-xs bg-purple-100/90 text-uw/90 rounded-full font-semibold my-1 mr-2"
+                    >
+                        {topic}
+                    </span>
+                ))
+            }</div>
             <Image
                 src={question.questionImgSrc}
                 alt="question"
