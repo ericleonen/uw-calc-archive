@@ -7,6 +7,7 @@ type QuestionProps = {
 
 export default function Question({ question }: QuestionProps) {
     const [showAnswer, setShowAnswer] = useState(false);
+    const [answerLoading, setAnswerLoading] = useState(false);
 
     return (
         <div
@@ -28,25 +29,32 @@ export default function Question({ question }: QuestionProps) {
                 src={question.questionImgSrc}
                 alt="question"
                 width={512}
-                height={32}
+                height={48}
                 className="w-full h-auto p-2 bg-white border-2 rounded-sm border-gray-300/90 mt-1"
             />
             <div className="flex mt-2">
                 <button
-                    onClick={() => setShowAnswer(prevShowAnswer => !prevShowAnswer)}
-                    className="px-2 py-1 text-sm border-2 font-semibold rounded-md ml-auto bg-orange-100/90 text-orange-600/90 border-orange-300/90 hover:bg-orange-200/90"
+                    onClick={() => {
+                        setShowAnswer(prevShowAnswer => !prevShowAnswer)
+                        setAnswerLoading(true);
+                    }}
+                    className="px-2 py-1 text-sm border-2 font-semibold rounded-md ml-auto bg-amber-100/90 text-amber-600/90 border-amber-300/90 hover:bg-amber-200/90"
                 >
                     { showAnswer ? "Hide" : "Show" } Answer
                 </button>
             </div>
             {
                 showAnswer &&
-                <div className="border-orange-300/90 bg-orange-600 border-2 rounded-md mt-2 overflow-hidden">
+                <div className={
+                    " rounded-md mt-2 overflow-hidden border-2 border-amber-300/90 " +
+                    (answerLoading ? "animate-pulse bg-amber-200/90" : "animate-none bg-amber-600") 
+                }>
                     <Image
                         src={question.answerImgSrc}
                         alt="answer"
                         width={512}
-                        height={32}
+                        height={48}
+                        onLoadingComplete={() => setAnswerLoading(false)}
                         className="w-full h-auto p-2 bg-white opacity-90"
                     />
                 </div>
