@@ -1,9 +1,7 @@
 import { CLASSES, TEST_TYPES, TOPICS } from "../../constants";
 import SelectInput from "./SelectInput";
 import MultiSelectInput from "./MultiSelectInput";
-import { Button } from "@/components/ui/button";
 import { SheetClose } from "@/components/ui/sheet";
-import { FilterIcon, LoaderCircleIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
@@ -37,26 +35,19 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
     };
 
     const filterButton = (
-        <Button
+        <button
             onClick={updateQuestionQuery}
-            className="w-full font-semibold disabled:hover:cursor-default hover:cursor-pointer bg-uw/90 text-white/90 hover:bg-uw/80 disabled:bg-uw/90 disabled:text-white/90 disabled:hover:bg-uw/90 disabled:opacity-100"
+            className="rounded-md py-1 px-2 w-full font-semibold disabled:hover:cursor-default hover:cursor-pointer bg-uw/90 text-white/90 hover:bg-uw/70"
         >
-            {
-                false ? (
-                    <LoaderCircleIcon className="animate-spin" />
-                ) : (
-                    <span>Filter questions</span>
-                )
-            }
-        </Button>
+            Filter questions
+        </button>
     );
 
     return (
         <>
-            <div className="flex items-center font-bold text-gray-700/90">
-                <FilterIcon className="h-4"/>
-                <span className="ml-1">Questions Filter</span>
-            </div>
+            <p className="flex items-center font-bold text-gray-700/90">
+                Questions Filter
+            </p>
             <div className="mt-3 space-y-3 mb-9">
                 <SelectInput
                     label="Class"
@@ -82,7 +73,7 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
             </div>
             {
                 sheetClose ? (
-                    <SheetClose className="w-full">
+                    <SheetClose className="w-full" asChild>
                         {filterButton}
                     </SheetClose>
                 ) : filterButton

@@ -98,8 +98,8 @@ function QuestionsPaginatorLink({ href, active, children }: QuestionsPaginatorLi
             href={href || ""}
             className={
                 "font-bold rounded-full shadow-none h-8 w-8 flex items-center justify-center text-sm " +
-                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90" : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90") +
-                ((!href || active) ? " pointer-events-none" : " pointer-events-auto")
+                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90 pointer-events-none " : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90 pointer-events-auto") +
+                (!href ? " pointer-events-none !text-gray-300/90" : " pointer-events-auto")
             }
         >
             {children}

@@ -1,4 +1,4 @@
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { FilterIcon } from "lucide-react"
 import QuestionFilterForm from "./QuestionFilterForm/QuestionFilterForm"
 
@@ -13,6 +13,12 @@ export default function MobileQuestionFilters() {
                 side="top"
                 className="flex items-center p-6 bg-white"
             >
+                <SheetHeader className="hidden">
+                    <SheetTitle>Questions Filter</SheetTitle>
+                    <SheetDescription>
+                        Select your class, exam, and topics to filter questions.
+                    </SheetDescription>
+                </SheetHeader>
                 <div className="flex flex-col w-full max-w-96">
                     <QuestionFilterForm sheetClose />
                 </div>
