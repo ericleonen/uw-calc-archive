@@ -10,7 +10,7 @@ export default function MobileQuestionFilters() {
                 <FilterIcon className="text-lg text-white/90"/>
             </SheetTrigger>
             <SheetContent
-                side="bottom"
+                side="top"
                 className="flex items-center p-6 bg-white"
             >
                 <div className="flex flex-col w-full max-w-96">

@@ -2,8 +2,7 @@ import QuestionDisplayLoader from "./QuestionDisplayLoader";
 import QuestionList from "./QuestionList";
 import { useQuestions } from "@/app/hooks/useQuestions";
 import QuestionsPaginator from "./QuestionsPaginator";
-import NoQuestionsFound from "./NoQuestionsFound";
-import NoQuery from "./NoQuery";
+import Empty from "./Empty";
 
 export default function QuestionDisplay() {
     const questions = useQuestions();
@@ -16,9 +15,9 @@ export default function QuestionDisplay() {
                         {
                             questions.error ? null :
                             !questions.data ? (<>
-                                { questions.loading ? <QuestionDisplayLoader withPaginator /> : <NoQuery /> }
+                                { questions.loading ? <QuestionDisplayLoader withPaginator /> : <Empty noQuery /> }
                             </>) :
-                            questions.data.length === 0 ? <NoQuestionsFound /> : (<>
+                            questions.data.length === 0 ? <Empty /> : (<>
                                 <QuestionsPaginator
                                     page={questions.page}
                                     totalPagesCount={questions.totalPagesCount}
