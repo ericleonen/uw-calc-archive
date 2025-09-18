@@ -513,8 +513,8 @@ def slice_doc(
             canvas.paste(slice_, (0, curr_y))
             curr_y += slice_.height
 
-        # sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
-        sections.append(cap_whitespace_from_canvas(canvas))
+        sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
+        # sections.append(cap_whitespace_from_canvas(canvas))
 
     return sections
 
@@ -556,7 +556,7 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
     test_doc = fitz.open(str(test_pdf))
     questions_bounds, answers_bounds, test_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(test_doc, look_for_pair=not answers_pdf_exists)
 
-    if len(questions_bounds) <= 1:
+    if len(questions_bounds) <= 1 and not full:
         raise Exception(f"Only found {len(questions_bounds)} questions in test {test_id}")
     
     if answers_pdf_exists:
@@ -573,12 +573,12 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
             raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
         if answers_bounds is None:
-            raise Exception(f"Test {test_id} has answers.pdf nor answers attatched to the end of its test.pdf")
+            raise Exception(f"Test {test_id} has neither answers.pdf nor answers attatched to the end of its test.pdf")
         else:   
             answers_doc = test_doc
             answers_undesirables_bounds = test_undesirables_bounds
 
-    if len(answers_bounds) != len(questions_bounds):
+    if len(answers_bounds) != len(questions_bounds) and not full:
         raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
     
     processed_test_dir = PROCESSED_DIR / test_id
@@ -593,13 +593,19 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
         answers_img.save(processed_test_dir / "answers.png")
 
     question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
-    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
 
-    for q, (question_image, answer_image) in enumerate(zip(question_images, answer_images)):
+    for q, question_image in enumerate(question_images):
         question_dir = processed_test_dir / f"Q{q + 1}"
         question_dir.mkdir(exist_ok=False)
 
         question_image.save(question_dir / "question.png")
+
+    answer_images = slice_doc(answers_doc, answers_bounds, answers_undesirables_bounds)
+
+    for q, answer_image in enumerate(answer_images):
+        question_dir = processed_test_dir / f"Q{q + 1}"
+        question_dir.mkdir(exist_ok=True)
+
         answer_image.save(question_dir / "answer.png")
 
 if __name__ == "__main__":
