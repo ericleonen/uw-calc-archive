@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { r2 } from "@/lib/r2";
-import { SEASONS } from "@/app/app/search/constants";
+import { SEASONS } from "@/app/search/constants";
 
 export const runtime = "nodejs";
 
