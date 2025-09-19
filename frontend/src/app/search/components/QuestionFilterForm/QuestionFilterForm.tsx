@@ -1,5 +1,5 @@
 import { CLASSES, TEST_TYPES, TOPICS } from "../../constants";
-import SelectInput from "./SelectInput";
+import SelectInput from "@/components/SelectInput";
 import MultiSelectInput from "./MultiSelectInput";
 import { SheetClose } from "@/components/ui/sheet";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
     const filterButton = (
         <button
             onClick={updateQuestionQuery}
-            className="rounded-md py-1 px-2 w-full font-semibold disabled:hover:cursor-default hover:cursor-pointer bg-uw/90 text-white/90 hover:bg-uw/70"
+            className="focus:outline-2 focus:outline-purple-200/90 rounded-md py-1 px-2 w-full font-semibold disabled:hover:cursor-default hover:cursor-pointer bg-uw/90 text-white/90 hover:bg-uw/70"
         >
             Filter questions
         </button>

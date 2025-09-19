@@ -1,4 +1,4 @@
-import TextInput from "./TextInput";
+import TextInput from "@/components/TextInput";
 
 type AuthFormProps = {
     title: string,

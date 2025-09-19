@@ -1,11 +1,11 @@
-type ProfileLayoutProps = {
+type AuthLayoutProps = {
     children: React.ReactNode
 }
 
-export default function ProfileLayout({ children }: ProfileLayoutProps) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
     return (
         <div className="flex flex-col h-full w-full">
             {children}
         </div>
-    )
+    );
 }

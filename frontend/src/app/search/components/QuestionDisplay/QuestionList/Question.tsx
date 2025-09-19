@@ -38,7 +38,7 @@ export default function Question({ question }: QuestionProps) {
                         setShowAnswer(prevShowAnswer => !prevShowAnswer)
                         setAnswerLoading(true);
                     }}
-                    className="px-2 py-1 text-sm border-2 font-semibold rounded-md ml-auto bg-amber-100/90 text-amber-600/90 border-amber-300/90 hover:bg-amber-200/90"
+                    className="focus:outline-2 focus:outline-amber-200/90 px-2 py-1 text-sm border-2 font-semibold rounded-md ml-auto bg-amber-100/90 text-amber-600/90 border-amber-300/90 hover:bg-amber-200/90"
                 >
                     { showAnswer ? "Hide" : "Show" } Answer
                 </button>

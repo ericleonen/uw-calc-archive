@@ -16,7 +16,7 @@ export default function HeaderLink({ label, to }: HeaderLinkProps) {
         <Link 
             href={`${to}`}
             className={
-                "text-white/90 font-medium rounded-md px-2 py-1 hover:bg-purple-100/10 " +
+                "text-white/90 font-medium rounded-md px-2 py-1 hover:bg-purple-100/10 focus:outline-2 focus:outline-purple-200/20 " +
                 (active ? "bg-purple-300/10 pointer-events-none" : "pointer-events-auto")
             }
         >
