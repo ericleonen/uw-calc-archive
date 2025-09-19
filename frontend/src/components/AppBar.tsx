@@ -34,7 +34,7 @@ type AppBarLinkProps = {
 
 function AppBarLink({ Icon, label, to }: AppBarLinkProps) {
     const pathname = usePathname();
-    const active = pathname === `/app/${to}`;
+    const active = pathname.split("/").at(-1) === to;
 
     return (
         <Link

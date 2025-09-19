@@ -25,7 +25,7 @@ export default function Empty({ noQuery = false }) {
                 <p className="font-bold text-gray-400/90 bg-gray-200 px-2 w-min absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%]">OR</p>
             </div>
             <Link
-                href="/app/search?class=&exam=&topics="
+                href="/search?class=&exam=&topics="
                 className="bg-uw/90 text-white/90 px-2 py-1 rounded-md flex items-center hover:bg-uw/70 font-medium"
             >
                 <TextSearchIcon className="h-5"/>

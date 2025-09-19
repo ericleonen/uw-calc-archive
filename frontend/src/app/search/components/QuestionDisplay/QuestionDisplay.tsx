@@ -1,6 +1,6 @@
 import QuestionDisplayLoader from "./QuestionDisplayLoader";
 import QuestionList from "./QuestionList";
-import { useQuestions } from "@/app/hooks/useQuestions";
+import { useQuestions } from "@/hooks/useQuestions";
 import QuestionsPaginator from "./QuestionsPaginator";
 import Empty from "./Empty";
 

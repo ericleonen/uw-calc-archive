@@ -1,17 +1,10 @@
-import { signup } from "@/app/profile/actions";
+import { signup } from "@/actions/auth";
 import AuthForm from "../components/AuthForm/AuthForm";
 import AuthAlternative from "../components/AuthAlternative";
-import { createClient } from "@/utils/supabase/client";
+import { requireNoUser } from "@/server/guards";
 
-export default function SignupPage() {
-    const supabase = createClient();
-
-    // async function signInWithGoogle () {
-    //     await supabase.auth.signInWithOAuth({
-    //         provider: "google",
-    //         options: { redirectTo: `${location.origin}/api/auth/callback` }
-    //     });
-    // };
+export default async function SignupPage() {
+    await requireNoUser();
 
     return (
         <div className="w-full flex flex-col items-center py-16">
