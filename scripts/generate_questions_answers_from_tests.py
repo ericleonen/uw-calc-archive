@@ -20,6 +20,7 @@ import re
 from re import Pattern
 import shutil
 import argparse
+import json
 
 ARCHIVE_DIR = Path("data/archive")
 RAW_DIR = Path("data/raw")
@@ -636,6 +637,9 @@ if __name__ == "__main__":
 
         for f, folder in enumerate(RAW_DIR.iterdir()):
             if (ARCHIVE_DIR / folder.name).exists():
+                continue
+
+            if json.loads((folder / "metadata.json").read_text())["class"] == "MATH 126":
                 continue
 
             try:
