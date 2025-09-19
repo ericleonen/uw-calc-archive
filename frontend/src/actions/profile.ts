@@ -4,6 +4,9 @@ import { requireUser } from "@/server/guards";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
+/**
+ * Updates a User's name and class.
+ */
 export async function updateProfile(formData: FormData) {
     const user = await requireUser();
     const supabase = await createClient();
