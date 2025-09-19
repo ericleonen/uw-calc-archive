@@ -7,8 +7,8 @@ import { requireUser } from "@/server/guards";
 import { createAdminClient } from "@/utils/supabase/admin";
 
 /**
- * 
- * @param formData 
+ * Logs a user in with email and password. If successful, redirects to /search, otherwise, to
+ * /error.
  */
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -28,6 +28,9 @@ export async function login(formData: FormData) {
     redirect("/search");
 }
 
+/**
+ * Creates a user account with email, password, and name. Waits for a confirmation.
+ */
 export async function signup(formData: FormData) {
     const supabase = await createClient();
 
@@ -48,6 +51,9 @@ export async function signup(formData: FormData) {
     revalidatePath("/", "layout");
 }
 
+/**
+ * Signs a user out and redirects to /search.
+ */
 export async function signout() {
     await requireUser();
 
@@ -58,6 +64,9 @@ export async function signout() {
     redirect("/search");
 }
 
+/**
+ * Deletes a user's account and signs them out, then redirects to /search.
+ */
 export async function deleteAccount() {
     const user = await requireUser();
 
