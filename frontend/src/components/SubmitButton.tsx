@@ -5,10 +5,11 @@ import { useFormStatus } from "react-dom"
 
 type SubmitButtonProps = {
     label: string,
-    theme?: "primary" | "danger" | "secondary"
+    theme?: "primary" | "danger" | "secondary",
+    className?: string
 }
 
-export default function SubmitButton({ label, theme = "primary" }: SubmitButtonProps) {
+export default function SubmitButton({ label, theme = "primary", className = "" }: SubmitButtonProps) {
     const { pending } = useFormStatus();
 
     return (
@@ -17,6 +18,7 @@ export default function SubmitButton({ label, theme = "primary" }: SubmitButtonP
             disabled={pending}
             className={
                 "flex items-center justify-center w-full px-2 py-1 font-semibold rounded-md " +
+                className + " " +
                 (
                     theme === "primary" ? "bg-uw/90 text-white/90 hover:bg-uw/70" :
                     theme === "secondary" ? "text-gray-400/90 border-gray-300/90 border-2 hover:bg-gray-200/90" :

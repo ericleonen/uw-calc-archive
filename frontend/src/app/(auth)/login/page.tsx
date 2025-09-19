@@ -1,23 +1,27 @@
-import { login } from "@/actions/auth";
-import AuthForm from "../components/AuthForm/AuthForm";
+import { signup } from "@/actions/auth";
 import AuthAlternative from "../components/AuthAlternative";
 import { requireNoUser } from "@/server/guards";
+import TextInput from "@/components/TextInput";
+import AuthForm from "../components/AuthForm";
 
-export default async function LoginPage() {
+export default async function SignupPage() {
     await requireNoUser();
 
     return (
-        <div className="w-full flex flex-col items-center py-16">
+        <>
             <AuthForm
+                action={signup}
                 title="Login"
-                formAction={login}
                 submitLabel="Log in"
-            />
+            >
+                <TextInput for_="email" placeholder="Your email here" />
+                <TextInput for_="password" placeholder="Your password here" />
+            </AuthForm>
             <AuthAlternative
                 question="No account?"
                 linkLabel="Sign up"
                 href="signup"
             />
-        </div>
+        </>
     )
 }

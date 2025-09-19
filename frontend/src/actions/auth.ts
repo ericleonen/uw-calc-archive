@@ -6,6 +6,10 @@ import { createClient } from "@/utils/supabase/server"
 import { requireUser } from "@/server/guards";
 import { createAdminClient } from "@/utils/supabase/admin";
 
+/**
+ * 
+ * @param formData 
+ */
 export async function login(formData: FormData) {
     const supabase = await createClient();
 
@@ -29,7 +33,10 @@ export async function signup(formData: FormData) {
 
     const data = {
         email: String(formData.get("email")),
-        password: String(formData.get("password"))
+        password: String(formData.get("password")),
+        options: {
+            data: { name: String(formData.get("name")) }
+        }
     };
 
     const { error } = await supabase.auth.signUp(data);

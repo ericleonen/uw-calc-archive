@@ -4,7 +4,7 @@ import { requireUser } from "@/server/guards";
 import { CLASSES } from "../search/constants";
 import { createClient } from "@/utils/supabase/server";
 import { updateProfile } from "@/actions/profile";
-import SubmitButton from "./components/SubmitButton";
+import SubmitButton from "@/components/SubmitButton";
 import Divider from "@/components/Divider";
 import { deleteAccount, signout } from "@/actions/auth";
 
