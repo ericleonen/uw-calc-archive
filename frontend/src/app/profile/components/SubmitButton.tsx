@@ -4,17 +4,25 @@ import { LoaderCircleIcon } from "lucide-react";
 import { useFormStatus } from "react-dom"
 
 type SubmitButtonProps = {
-    label: string
+    label: string,
+    theme?: "primary" | "danger" | "secondary"
 }
 
-export default function SubmitButton({ label }: SubmitButtonProps) {
+export default function SubmitButton({ label, theme = "primary" }: SubmitButtonProps) {
     const { pending } = useFormStatus();
 
     return (
         <button
             type="submit"
             disabled={pending}
-            className="flex items-center justify-center w-full px-2 py-1 my-6 font-semibold rounded-md bg-uw/90 text-white/90 hover:bg-uw/70"
+            className={
+                "flex items-center justify-center w-full px-2 py-1 font-semibold rounded-md " +
+                (
+                    theme === "primary" ? "bg-uw/90 text-white/90 hover:bg-uw/70" :
+                    theme === "secondary" ? "text-gray-400/90 border-gray-300/90 border-2 hover:bg-gray-200/90" :
+                    theme === "danger" ? "text-white/90 bg-red-600/90 hover:bg-red-400/90" : ""
+                )
+            }
         >
             {
                 pending ? (

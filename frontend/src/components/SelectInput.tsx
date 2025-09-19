@@ -24,14 +24,14 @@ export default function SelectInput({
     label,
     placeholder,
     options,
-    initialValue = ""
+    initialValue
 }: SelectInputProps) {
     const optionObjects: Option[] = options.map((o) => ({ label: o, value: o }));
     const hiddenRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         if (hiddenRef.current) {
-            hiddenRef.current.value = initialValue;
+            hiddenRef.current.value = initialValue || "";
         }
     }, [initialValue]);
 
@@ -48,7 +48,7 @@ export default function SelectInput({
             <Select
                 inputId={label}
                 options={optionObjects}
-                defaultValue={{ value: initialValue, label: initialValue }}
+                defaultValue={initialValue ? { value: initialValue, label: initialValue } : undefined}
                 onChange={(opt: Option | null) => {
                     if (hiddenRef.current) hiddenRef.current.value = opt?.value ?? ''
                 }}

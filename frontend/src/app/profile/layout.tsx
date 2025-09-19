@@ -4,7 +4,7 @@ type ProfileLayoutProps = {
 
 export default function ProfileLayout({ children }: ProfileLayoutProps) {
     return (
-        <div className="flex flex-col h-full w-full items-center py-16">
+        <div className="flex flex-col items-center w-full h-full py-16 overflow-y-scroll">
             {children}
         </div>
     );

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
+import { requireUser } from "@/server/guards";
+import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -19,6 +21,7 @@ export async function login(formData: FormData) {
     }
 
     revalidatePath("/", "layout");
+    redirect("/search");
 }
 
 export async function signup(formData: FormData) {
@@ -36,4 +39,25 @@ export async function signup(formData: FormData) {
     }
 
     revalidatePath("/", "layout");
+}
+
+export async function signout() {
+    await requireUser();
+
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+
+    revalidatePath("/", "layout");
+    redirect("/search");
+}
+
+export async function deleteAccount() {
+    const user = await requireUser();
+
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(user.id);
+
+    if (error) throw error;
+
+    await signout();
 }
