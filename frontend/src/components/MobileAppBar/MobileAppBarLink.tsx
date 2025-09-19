@@ -1,16 +1,13 @@
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 type MobileAppBarLinkProps = {
     Icon: React.ForwardRefExoticComponent<any>,
     label: string,
-    to: string
+    to: string,
+    active: boolean
 }
 
-export default function MobileAppBarLink({ Icon, label, to }: MobileAppBarLinkProps) {
-    const pathname = usePathname();
-    const active = pathname.split("/").at(-1) === to;
-
+export default function MobileAppBarLink({ Icon, label, to, active }: MobileAppBarLinkProps) {
     return (
         <Link
             href={`${to}`}
