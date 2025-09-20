@@ -1,39 +1,29 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import Select, { type SingleValue } from "react-select"
+import Select from "react-select"
+import { asOption } from "./utils";
 
-type SelectInputProps = {
+type MultiSelectInputProps = {
     label: string
     placeholder: string
     options: string[]
-    initialValue?: string
+    initialValuesStr?: string
 }
 
-type Option = { label: string; value: string }
-
-const UW_PURPLE_90 = "color-mix(in oklab, var(--color-uw) 90%, transparent)";
-const GRAY_500_90 = "color-mix(in oklab, var(--color-gray-500) 90%, transparent)";
-const GRAY_300_90 = "color-mix(in oklab, var(--color-gray-300) 90%, transparent)";
-const GRAY_400_90 = "color-mix(in oklab, var(--color-gray-400) 90%, transparent)";
-const GRAY_100_90 = "color-mix(in oklab, var(--color-gray-100) 90%, transparent)";
-const PURPLE_100_90 = "color-mix(in oklab, var(--color-purple-100) 90%, transparent)";
-const PURPLE_200_90 = "color-mix(in oklab, var(--color-purple-200) 90%, transparent)";
-
-export default function SelectInput({
+export default function MultiSelectInput({
     label,
     placeholder,
     options,
-    initialValue
-}: SelectInputProps) {
-    const optionObjects: Option[] = options.map((o) => ({ label: o, value: o }));
-    const hiddenRef = useRef<HTMLInputElement>(null)
+    initialValuesStr = ""
+}: MultiSelectInputProps) {
+    const hiddenRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (hiddenRef.current) {
-            hiddenRef.current.value = initialValue || "";
+            hiddenRef.current.value = initialValuesStr;
         }
-    }, [initialValue]);
+    }, [initialValuesStr]);
 
     return (
         <div className="w-full">
@@ -44,40 +34,41 @@ export default function SelectInput({
             >
                 {label}
             </label>
-
-            <Select
+            <Select<Option, true>
                 inputId={label}
-                options={optionObjects}
-                defaultValue={initialValue ? { value: initialValue, label: initialValue } : undefined}
-                onChange={(opt: Option | null) => {
-                    if (hiddenRef.current) hiddenRef.current.value = opt?.value ?? ''
+                isMulti
+                options={options.map(asOption)}
+                defaultValue={initialValuesStr ? initialValuesStr.split(",").map(asOption) : undefined}
+                onChange={(opts: readonly Option[] | null) => {
+                    if (hiddenRef.current) hiddenRef.current.value = opts?.map(o => o.value).join(",") || "";
                 }}
                 placeholder={placeholder}
-                isClearable
+                closeMenuOnSelect={false}
+                hideSelectedOptions={false}
                 styles={{
                     control: (base, state) => ({
                         ...base,
                         borderWidth: 2,
-                        borderColor: state.isFocused ? GRAY_400_90 : GRAY_300_90,
+                        borderColor: state.isFocused ? "var(--color-gray-400)" : "var(--color-gray-300)",
                         boxShadow: "none",
-                        ":hover": { borderColor: GRAY_400_90 },
+                        ":hover": { borderColor: "var(--color-gray-400)" },
                         fontWeight: 500,
-                        color: GRAY_500_90,
+                        color: "color-mix(in oklab, var(--color-gray-500) 90%, transparent)",
                         borderRadius: "calc(var(--radius) - 2px)",
                         padding: 0,
                         minHeight: undefined,
                         outline: state.isFocused ? "2px solid" : 0,
-                        outlineColor: PURPLE_200_90
+                        outlineColor: "var(--color-purple-200)"
                     }),
                     placeholder: (base) => ({
                         ...base,
-                        color: GRAY_400_90,
+                        color: "color-mix(in oklab, var(--color-gray-400) 90%, transparent)",
                         fontWeight: 500,
                         margin: 0
                     }),
                     singleValue: (base) => ({
                         ...base,
-                        color: GRAY_500_90,
+                        color: "color-mix(in oklab, var(--color-gray-500) 90%, transparent)",
                         fontWeight: 500,
                         padding: 0,
                         margin: 0
@@ -86,30 +77,30 @@ export default function SelectInput({
                         ...base,
                         paddingBlock: 0,
                         paddingInline: "calc(var(--spacing) * 1.5)",
-                        color: GRAY_300_90,
-                        ":hover": { color: GRAY_400_90 }
+                        color: "var(--color-gray-300)",
+                        ":hover": { color: "var(--color-gray-400)" }
                     }),
                     indicatorSeparator: (base) => ({
                         ...base,
                         width: 1.6,
                         marginBlock: "var(--spacing)",
                         borderRadius: 999,
-                        backgroundColor: GRAY_300_90
+                        backgroundColor: "var(--color-gray-300)"
                     }),
                     dropdownIndicator: (base) => ({
                         ...base,
                         paddingInline: "calc(var(--spacing) * 1.5)",
                         paddingBlock: 0,
-                        color: GRAY_300_90,
-                        ":hover": { color: GRAY_400_90 }
+                        color: "color-mix(in oklab, var(--color-gray-300) 90%, transparent)",
+                        ":hover": { color: "var(--color-gray-400)" }
                     }),
                     menu: (base) => ({
                         ...base,
                         borderWidth: 1,
-                        borderColor: GRAY_300_90,
+                        borderColor: "var(--color-gray-300)",
                         overflow: "hidden",
                         fontWeight: 500,
-                        color: GRAY_500_90,
+                        color: "color-mix(in oklab, var(--color-gray-500) 90%, transparent)",
                         marginBlock: "var(--spacing)",
                         borderRadius: "calc(var(--radius) - 2px)",
                     }),
@@ -121,23 +112,24 @@ export default function SelectInput({
                     option: (base, state) => ({
                         ...base,
                         backgroundColor: state.isSelected
-                            ? PURPLE_100_90
+                            ? "var(--color-purple-100)"
                             : state.isFocused
-                            ? GRAY_100_90
+                            ? "var(--color-gray-100)"
                             : "white",
                         color: state.isSelected
-                            ? `${UW_PURPLE_90}`
-                            : GRAY_500_90,
+                            ? "color-mix(in oklab, var(--color-uw) 90%, transparent)"
+                            : "color-mix(in oklab, var(--color-gray-500) 90%, transparent)",
                         cursor: "pointer",
                         paddingInline: "calc(var(--spacing) * 2)",
                         paddingBlock: "var(--spacing)"
                     }),
                     input: (base) => ({
                         ...base,
-                        color: GRAY_500_90,
+                        color: "color-mix(in oklab, var(--color-gray-500) 90%, transparent)",
                         fontWeight: 500,
                         margin: 0,
-                        padding: 0
+                        paddingInline: 0,
+                        paddingBlock: "calc(var(--spacing) / 2)"
                     }),
                     valueContainer: (base) => ({
                         ...base,
@@ -151,7 +143,33 @@ export default function SelectInput({
                         minHeight: undefined,
                         textAlign: "start",
                         margin: 0
-                    })
+                    }),
+                    multiValue: (base) => ({
+                        ...base,
+                        backgroundColor: "var(--color-purple-100)",
+                        borderRadius: 999,
+                    }),
+                    multiValueLabel: (base) => ({
+                        ...base,
+                        color: "color-mix(in oklab, var(--color-uw) 90%, transparent)",
+                        fontWeight: 600,
+                        paddingLeft: "calc(var(--spacing) * 2)",
+                        fontSize: "var(--text-xs)",
+                        lineHeight: "var(--tw-leading, var(--text-xs--line-height))",
+                        paddingBlock: "var(--spacing)",
+                    }),
+                    multiValueRemove: (base) => ({
+                        ...base,
+                        color: "color-mix(in oklab, var(--color-uw) 90%, transparent)",
+                        ":hover": {
+                            backgroundColor: "var(--color-uw-light)",
+                            color: "color-mix(in oklab, var(--color-uw) 90%, transparent)",
+                        },
+                        borderTopRightRadius: 999,
+                        borderBottomRightRadius: 999,
+                        paddingLeft: "calc(var(--spacing) / 2)",
+                        paddingRight: "var(--spacing)"
+                    }),
                 }}
             />
         </div>

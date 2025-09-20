@@ -1,6 +1,6 @@
 "use client"
 
-import QuestionFilterForm from "./QuestionFilterForm/QuestionFilterForm";
+import QuestionFilterForm from "./QuestionFilterForm";
 
 export default function SideBar() {
     return (

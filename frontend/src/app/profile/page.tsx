@@ -1,7 +1,7 @@
-import SelectInput from "@/components/SelectInput";
+import SelectInput from "@/components/select/SelectInput";
 import TextInput from "@/components/TextInput";
 import { requireUser } from "@/server/guards";
-import { CLASSES } from "../search/constants";
+import { CLASSES } from "../../constants";
 import { createClient } from "@/utils/supabase/server";
 import { updateProfile } from "@/actions/profile";
 import SubmitButton from "@/components/SubmitButton";

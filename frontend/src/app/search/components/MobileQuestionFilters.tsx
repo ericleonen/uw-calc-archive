@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
-import { FilterIcon } from "lucide-react"
-import QuestionFilterForm from "./QuestionFilterForm/QuestionFilterForm"
+import { FilterIcon } from "lucide-react";
+import QuestionFilterForm from "./QuestionFilterForm";
 
 export default function MobileQuestionFilters() {
     return (

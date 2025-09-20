@@ -83,4 +83,4 @@ export const TOPICS: {
         "Center of Mass",
         "Taylor Series"
     ]
-}
+};

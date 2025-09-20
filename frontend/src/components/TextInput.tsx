@@ -10,7 +10,7 @@ export default function TextInput({ for_, placeholder = "", disabled = false, in
         <div className="w-full">
             <label
                 htmlFor={for_}
-                className="w-full text-xs uppercase tracking-wide font-bold text-uw/90"
+                className="w-full text-xs font-bold tracking-wide uppercase text-uw/90"
             >
                 {for_}
             </label>
@@ -22,7 +22,7 @@ export default function TextInput({ for_, placeholder = "", disabled = false, in
                 defaultValue={initialValue}
                 required
                 disabled={disabled}
-                className="focus:border-gray-400/90 hover:border-gray-400/90 focus:outline-2 focus:outline-purple-200/90 text-gray-500/90 placeholder:text-gray-400/90 font-medium w-full border-2 border-gray-300/90 rounded-md px-2 py-1 disabled:pointer-events-none"
+                className="w-full px-2 py-1 font-medium border-2 border-gray-300 rounded-md focus:border-gray-400 hover:border-gray-400 focus:outline-2 focus:outline-purple-200 text-gray-500/90 placeholder:text-gray-400/90 disabled:pointer-events-none"
             />
         </div>
     )
