@@ -54,7 +54,7 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
     const nextDisabled = page >= totalPagesCount;
 
     return (
-        <div className="bg-white/90 rounded-md p-2 flex space-x-1 shadow items-center justify-center">
+        <div className="flex items-center justify-center p-2 space-x-1 rounded-md shadow bg-white/90">
             <QuestionsPaginatorLink href={prevDisabled ? undefined : buildHref(page - 1)}>
                 <ChevronLeft />
             </QuestionsPaginatorLink>
@@ -63,7 +63,7 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
                     item === "..." ? (
                         <div
                             key={`ellipsis_${i}`}
-                            className="font-semibold h-8 w-8 text-gray-600/90 text-center p-1"
+                            className="w-8 h-8 p-1 font-semibold text-center text-gray-600/90"
                         >
                             {item}
                         </div>
@@ -81,7 +81,7 @@ export default function QuestionsPaginator({ page, pageQuestionsCount, totalQues
             <QuestionsPaginatorLink href={nextDisabled ? undefined : buildHref(page + 1)}>
                 <ChevronRight />
             </QuestionsPaginatorLink>
-            <p className="text-sm text-gray-600/90 font-semibold ml-2 mr-4 hidden sm:block">Showing {pageQuestionsCount} of {totalQuestionsCount} results</p>
+            <p className="hidden ml-2 mr-4 text-sm font-semibold text-gray-600/90 sm:block">Showing {pageQuestionsCount} of {totalQuestionsCount} results</p>
         </div>
     );
 }
@@ -97,8 +97,8 @@ function QuestionsPaginatorLink({ href, active, children }: QuestionsPaginatorLi
         <Link
             href={href || ""}
             className={
-                "font-bold rounded-full shadow-none h-8 w-8 flex items-center justify-center text-sm focus:outline-2 focus:outline-purple-200/90 " +
-                (active ? "bg-uw/90 text-white/90 hover:bg-uw/90 pointer-events-none " : "bg-transparent text-gray-500/90 hover:text-uw/90 hover:bg-purple-100/90 pointer-events-auto ") +
+                "font-bold rounded-full shadow-none h-8 w-8 flex items-center justify-center text-sm " +
+                (active ? "bg-uw text-white/90 pointer-events-none " : "bg-transparent text-gray-500/90 hover:text-uw hover:bg-purple-100 pointer-events-auto ") +
                 (!href ? "pointer-events-none !text-gray-300/90" : "pointer-events-auto")
             }
         >
