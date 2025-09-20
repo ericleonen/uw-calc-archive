@@ -6,3 +6,5 @@ openai
 Pillow
 dotenv
 boto3
+supabase
+tqdm
