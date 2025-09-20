@@ -11,7 +11,7 @@ export default function MobileAppBar() {
     const lastPathSegment = pathname.split("/").at(-1) || "";
 
     return (
-        <div className="flex justify-around w-full h-16 p-2 bg-white/90 border-t-2 border-t-gray-300 lg:hidden shrink-0">
+        <div className="flex justify-around w-full h-16 p-2 bg-white border-t-2 border-t-gray-300 lg:hidden shrink-0">
             <MobileAppBarLink
                 Icon={CircleQuestionMarkIcon}
                 label="About"
