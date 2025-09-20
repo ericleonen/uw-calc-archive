@@ -29,6 +29,7 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
         next.set("class", String(formData.get("class")));
         next.set("exam", String(formData.get("exam")));
         next.set("topics", String(formData.get("topics")));
+        next.set("page", "1");
 
         router.replace(`?${next.toString()}`, { scroll: false })
     };

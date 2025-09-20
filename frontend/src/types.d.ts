@@ -1,18 +1,7 @@
 type QuestionFilter = {
-    class: string,
-    testType: string,
-    topics: string[]
-}
-
-type Index = {
-    [testId: string]: Test
-}
-
-type Test = {
-    id: string,
-    type: string,
-    class: string,
-    quarter: string
+    class?: string,
+    exam?: string,
+    topics?: string[]
 }
 
 type Question = {
@@ -20,18 +9,14 @@ type Question = {
     questionImgSrc: string,
     answerImgSrc: string,
     topics: string[],
-    questionShort: string,
-    answerStrategy: string,
-    test: Test
+    testId: string,
+    quarter: string,
+    class: string,
+    exam: string
 }
 
-type Data<T> = {
-    data: T | null,
-    loading: boolean,
-    error?: Error
-}
-
-type PagedData<T> = Data<T> & {
+type PagedData<T> = {
+    data: T,
     page: number,
     totalItemsCount: number,
     totalPagesCount: number
