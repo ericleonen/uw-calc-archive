@@ -35,7 +35,7 @@ def upload_archive(archive_dir: Path):
     errors = []
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
-        with tqdm(total=len(paths), desc="Uploading", unit="file") as pbar:
+        with tqdm(total=len(paths), desc="Uploading .png's", unit="file") as pbar:
             fut_to_path = {}
             for p in paths:
                 storage_path = p.relative_to(archive_dir).as_posix()
@@ -94,7 +94,9 @@ def get_test_question_rows(archive_dir: Path):
                 "topics": question_metadata["topics"]
             }
 
-            question_row.append(question_row)
+            question_rows.append(question_row)
+
+    return test_rows, question_rows
 
 def chunked(iterable, size):
     for i in range(0, len(iterable), size):
@@ -107,7 +109,7 @@ def upsert_rows(table: str, rows: list):
 if __name__ == "__main__":
     upload_archive(Path("data/archive").resolve())
 
-    test_rows, question_rows = get_test_question_rows()
+    test_rows, question_rows = get_test_question_rows(Path("data/archive"))
 
-    upsert_rows("public.tests", test_rows)
-    upsert_rows("public.questions", question_rows)
+    upsert_rows("tests", test_rows)
+    upsert_rows("questions", question_rows)
