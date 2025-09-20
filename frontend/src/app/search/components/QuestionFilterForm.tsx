@@ -1,3 +1,5 @@
+"use client"
+
 import { CLASSES, TEST_TYPES, TOPICS } from "@/constants";
 import SelectInput from "@/components/select/SelectInput";
 import MultiSelectInput from "@/components/select/MultiSelectInput";

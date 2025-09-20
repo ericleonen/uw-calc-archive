@@ -1,3 +1,5 @@
+"use client"
+
 import QuestionDisplayLoader from "./QuestionDisplayLoader";
 import QuestionList from "./QuestionList";
 import { useQuestions } from "@/hooks/useQuestions";
@@ -8,10 +10,10 @@ export default function QuestionDisplay() {
     const questions = useQuestions();
 
     return (
-        <div className="h-full overflow-y-scroll grow flex justify-center p-3">
+        <div className="flex justify-center h-full p-3 overflow-y-scroll grow">
             {
                 !questions ? null : (
-                    <div className="w-full max-w-2xl flex flex-col items-center h-min space-y-3">
+                    <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
                         {
                             questions.error ? null :
                             !questions.data ? (<>
