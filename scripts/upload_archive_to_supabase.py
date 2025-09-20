@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from supabase import create_client, Client
 from tqdm import tqdm
 from pathlib import Path
+import time
+import random
 
 load_dotenv()
 URL = os.environ["SUPABASE_URL"]
@@ -10,17 +12,56 @@ KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
 
 supabase: Client = create_client(URL, KEY)
 
-def upload_file(local_path: Path, storage_path: str):
+def object_exists(storage_path: str) -> bool:
+    """
+    Check if object already exists in the bucket by listing its parent folder.
+    Works without downloading the file.
+    """
+    from posixpath import dirname, basename
+    folder = dirname(storage_path)
+    filename = basename(storage_path)
+    # list() with folder path; some SDKs support 'search=filename'
+    try:
+        entries = supabase.storage.from_("archive").list(path=folder or "")
+    except Exception:
+        # If list fails (e.g., folder missing), treat as not existing
+        return False
+    return any(getattr(e, "name", None) == filename or (isinstance(e, dict) and e.get("name") == filename)
+               for e in entries)
+
+def upload_file(local_path: Path, storage_path: str, retries: int = 5):
+    # Skip if already present
+    if object_exists(storage_path):
+        return
+
     ctype = mimetypes.guess_type(local_path.name)[0] or "application/octet-stream"
 
-    with open(local_path, "rb") as file:
-        supabase.storage \
-            .from_("archive") \
-            .upload(
-                file=file,
-                path=storage_path,
-                file_options={"cache-control": "3600", "upsert": "true", "content-type": ctype}
-            )
+    for attempt in range(1, retries + 1):
+        try:
+            with open(local_path, "rb") as f:
+                supabase.storage.from_("archive").upload(
+                    path=storage_path,
+                    file=f,
+                    # no overwrite — if it exists due to race, we'll catch/ignore 409
+                    file_options={"cache-control": "31536000", "upsert": False, "content-type": ctype},
+                )
+            return
+        except Exception as e:
+            msg = str(e).lower()
+
+            # ignore "already exists" conflicts from races
+            if "conflict" in msg or "already exists" in msg or "409" in msg:
+                return
+
+            # don’t retry permission/auth errors
+            if "unauthorized" in msg or "forbidden" in msg:
+                raise
+
+            if attempt == retries:
+                raise
+
+            # jittered exponential backoff
+            time.sleep(min(2 ** attempt, 16) + random.uniform(0, 0.3))
 
 def upload_archive(archive_dir: Path):
     paths = [
@@ -34,7 +75,7 @@ def upload_archive(archive_dir: Path):
     
     errors = []
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         with tqdm(total=len(paths), desc="Uploading .png's", unit="file") as pbar:
             fut_to_path = {}
             for p in paths:
@@ -109,7 +150,7 @@ def upsert_rows(table: str, rows: list):
 if __name__ == "__main__":
     upload_archive(Path("data/archive").resolve())
 
-    test_rows, question_rows = get_test_question_rows(Path("data/archive"))
+    # test_rows, question_rows = get_test_question_rows(Path("data/archive"))
 
-    upsert_rows("tests", test_rows)
-    upsert_rows("questions", question_rows)
+    # upsert_rows("tests", test_rows)
+    # upsert_rows("questions", question_rows)
