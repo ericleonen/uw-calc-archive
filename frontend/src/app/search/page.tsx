@@ -15,7 +15,7 @@ export default async function SearchPage({
         questionFilter = {
             class: typeof sp.class === "string" ? sp.class : undefined,
             exam: typeof sp.exam === "string" ? sp.exam : undefined,
-            topics: typeof sp.topics === "string" && sp.topics.includes(",") ? sp.topics.split(",") : undefined
+            topics: typeof sp.topics === "string" && sp.topics.length ? sp.topics.split(",") : undefined
         };
     }
 

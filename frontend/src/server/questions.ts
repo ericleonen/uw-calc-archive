@@ -3,10 +3,42 @@ import { cache } from "react"
 
 const PAGE_SIZE = 5
 
+export const getFilteredQuestionsPaginatorMetadata = cache(async function (
+    questionFilter: QuestionFilter
+): Promise<PaginatorMetadata> {
+    const supabase = await createClient();
+    
+    let query = supabase
+        .from("questions")
+        .select(`test_id, tests!inner(id)`, { count: "exact", head: true })
+
+    if (questionFilter.class) {
+        query = query.eq("tests.class", questionFilter.class)
+    }
+    if (questionFilter.exam) {
+        query = query.eq("tests.exam", questionFilter.exam)
+    }
+    if (questionFilter.topics && questionFilter.topics.length) {
+        query = query.overlaps("topics", questionFilter.topics)
+    }
+
+    let { count, error } = await query;
+    if (error) throw error;
+
+    count = count || 0;
+
+    return {
+        totalItemsCount: count,
+        totalPagesCount: Math.max(1, Math.ceil(count / PAGE_SIZE)),
+        pageSize: PAGE_SIZE,
+        lastPageSize: count % PAGE_SIZE || PAGE_SIZE
+    }
+})
+
 export const getFilteredQuestions = cache(async function (
     questionFilter: QuestionFilter,
     page: number
-): Promise<PagedData<Question[]>> {
+): Promise<Question[]> {
     const supabase = await createClient()
     const from = Math.max(0, (page - 1) * PAGE_SIZE)
     const to = from + PAGE_SIZE - 1
@@ -40,15 +72,12 @@ export const getFilteredQuestions = cache(async function (
     }
 
     const { data, count, error } = await query
-        .order("year", { foreignTable: "tests", ascending: false })
+        .order("year", { referencedTable: "tests", ascending: false })
         .order("test_id", { ascending: true })
         .order("number", { ascending: true })
         .range(from, to)
 
     if (error) throw error
-
-    const totalQuestionsCount = count ?? 0
-    const totalPagesCount = Math.max(1, Math.ceil(totalQuestionsCount / PAGE_SIZE))
 
     const items: Question[] =
         (data ?? []).map((q: any) => {
@@ -65,10 +94,5 @@ export const getFilteredQuestions = cache(async function (
             }
         })
 
-    return {
-        data: items,
-        page,
-        totalItemsCount: totalQuestionsCount,
-        totalPagesCount
-    }
+    return items;
 });

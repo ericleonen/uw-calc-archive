@@ -21,3 +21,10 @@ type PagedData<T> = {
     totalItemsCount: number,
     totalPagesCount: number
 }
+
+type PaginatorMetadata = {
+    totalItemsCount: number,
+    totalPagesCount: number,
+    pageSize: number
+    lastPageSize: number
+}

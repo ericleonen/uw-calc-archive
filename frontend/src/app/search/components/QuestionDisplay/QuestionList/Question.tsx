@@ -57,7 +57,7 @@ export default function Question({ question }: QuestionProps) {
                         width={512}
                         height={48}
                         onLoadingComplete={() => setAnswerLoading(false)}
-                        className="w-full h-auto p-2 bg-white opacity-90"
+                        className="w-full h-auto p-2 bg-white"
                     />
                 </div>
             }
