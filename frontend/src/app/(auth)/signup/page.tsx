@@ -1,12 +1,9 @@
 import { signup } from "@/actions/auth";
 import AuthAlternative from "../components/AuthAlternative";
-import { requireNoUser } from "@/server/guards";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
 
 export default async function SignupPage() {
-    await requireNoUser();
-
     return (
         <>
             <AuthForm

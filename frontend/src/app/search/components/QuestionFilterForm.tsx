@@ -6,7 +6,7 @@ import MultiSelectInput from "@/components/select/MultiSelectInput";
 import { SheetClose } from "@/components/ui/sheet";
 import { useRouter, useSearchParams } from "next/navigation";
 import SubmitButton from "@/components/SubmitButton";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type QuestionFilterFormProps = {
     sheetClose?: boolean
@@ -19,6 +19,10 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
     const [class_, setClass] = useState(searchParams.get("class") || "");
     const testType = searchParams.get("exam") || "";
     const topicsStr = searchParams.get("topics") || "";
+
+    useEffect(() => {
+        setClass(searchParams.get("class") || "");
+    }, [setClass, searchParams.get("class")]);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

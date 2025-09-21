@@ -1,22 +1,16 @@
 import SelectInput from "@/components/select/SelectInput";
 import TextInput from "@/components/TextInput";
 import { requireUser } from "@/server/guards";
-import { CLASSES } from "../../constants";
-import { createClient } from "@/utils/supabase/server";
+import { CLASSES } from "@/constants";
 import { updateProfile } from "@/actions/profile";
 import SubmitButton from "@/components/SubmitButton";
 import Divider from "@/components/Divider";
 import { deleteAccount, signout } from "@/actions/auth";
+import { getProfile } from "@/server/profile";
 
 export default async function ProfilePage() {
     const user = await requireUser();
-
-    const supabase = await createClient();
-    const { data: profile, error } = await supabase
-        .from("profiles")
-        .select("name, class")
-        .eq("id", user.id)
-        .single()
+    const profile = (await getProfile())!;
 
     return (
         <div className="flex flex-col items-center w-full max-w-sm p-6 rounded-md shadow bg-white/90">
@@ -31,7 +25,7 @@ export default async function ProfilePage() {
                     <TextInput
                         for_="name"
                         placeholder="Your name here"
-                        initialValue={profile?.name}
+                        initialValue={profile.name}
                     />
                     <TextInput
                         for_="email"
@@ -42,7 +36,7 @@ export default async function ProfilePage() {
                         label="class"
                         placeholder="Select your class"
                         options={CLASSES}
-                        initialValue={profile?.class}
+                        initialValue={profile.class}
                     />
                 </div>
                 <SubmitButton label="Save" />

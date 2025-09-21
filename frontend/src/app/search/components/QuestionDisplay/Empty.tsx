@@ -1,5 +1,6 @@
 import Divider from "@/components/Divider";
-import { DicesIcon, TextSearchIcon } from "lucide-react";
+import { getProfile } from "@/server/profile";
+import { TextSearchIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -7,9 +8,12 @@ type EmptyProps = {
     noQuery?: boolean
 }
 
-export default function Empty({ noQuery = false }) {
+export default async function Empty({ noQuery = false }: EmptyProps) {
+    const profile = await getProfile();
+    const class_ = profile ? profile.class : "";
+
     return (
-        <div className="flex flex-col items-center px-4 py-16 text-center">
+        <div className="flex flex-col items-center w-full max-w-md px-4 py-16 mx-auto text-center">
             <div className="w-40 h-40 mx-auto mb-2">
                 <Image src="/dubs-happy.png" alt="No questions yet" width={160} height={160} />
             </div>
@@ -24,11 +28,11 @@ export default function Empty({ noQuery = false }) {
             }</p>
             <Divider text="or" className="my-3" />
             <Link
-                href="/search?class=&exam=&topics="
-                className="flex items-center px-2 py-1 font-medium rounded-md bg-uw text-white/90 hover:bg-uw-light"
+                href={`/search?class=${class_.replace(" ", "+")}&exam=&topics=`}
+                className="flex items-center px-2 py-1 font-semibold rounded-md bg-uw text-white/90 hover:bg-uw-light"
             >
                 <TextSearchIcon className="h-5"/>
-                <span className="ml-2">Browse All Questions</span>
+                <span className="ml-2">Browse All {class_} Questions</span>
             </Link>
         </div>
     )

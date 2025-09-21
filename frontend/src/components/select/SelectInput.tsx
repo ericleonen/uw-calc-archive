@@ -32,7 +32,7 @@ export default function SelectInput(props: SelectInputProps) {
         if (isControlled && hiddenRef.current) {
             hiddenRef.current.value = props.value;
         }
-    }, []);
+    }, [isControlled && props.value]);
 
     useEffect(() => {
         if (!isControlled && hiddenRef.current) {
@@ -56,7 +56,7 @@ export default function SelectInput(props: SelectInputProps) {
                 value={isControlled && props.value ? asOption(props.value) : undefined}
                 onChange={(option: Option | null) => {
                     if (isControlled) props.setValue(option?.value || "");
-                    if (hiddenRef.current) hiddenRef.current.value = option?.value ?? "";
+                    else if (hiddenRef.current) hiddenRef.current.value = option?.value ?? "";
                 }}
                 placeholder={placeholder}
                 isClearable

@@ -38,17 +38,17 @@ export async function signup(formData: FormData) {
         email: String(formData.get("email")),
         password: String(formData.get("password")),
         options: {
-            data: { name: String(formData.get("name")) }
+            data: { name: String(formData.get("name")) },
+            emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/signup/confirm`
         }
     };
 
     const { error } = await supabase.auth.signUp(data);
 
-    if (error) {
-        redirect("/error");
-    }
+    if (error) redirect("/error");
 
     revalidatePath("/", "layout");
+    redirect(`/signup/confirm?email=${encodeURIComponent(data.email)}`);
 }
 
 /**
