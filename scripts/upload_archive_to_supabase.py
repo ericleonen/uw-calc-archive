@@ -150,7 +150,7 @@ def upsert_rows(table: str, rows: list):
 if __name__ == "__main__":
     upload_archive(Path("data/archive").resolve())
 
-    # test_rows, question_rows = get_test_question_rows(Path("data/archive"))
+    test_rows, question_rows = get_test_question_rows(Path("data/archive"))
 
-    # upsert_rows("tests", test_rows)
-    # upsert_rows("questions", question_rows)
+    upsert_rows("tests", test_rows)
+    upsert_rows("questions", question_rows)
