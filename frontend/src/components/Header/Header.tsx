@@ -14,7 +14,10 @@ export default async function Header() {
                     user ? (
                         <HeaderLink label="My Profile" to="profile" />
                     ): (
-                        <HeaderLink label="Log in" to="login" />
+                        <>
+                            <HeaderLink label="Sign up" to="signup" />
+                            <HeaderLink label="Log in" to="login" />
+                        </>
                     )
                 }
             </div>

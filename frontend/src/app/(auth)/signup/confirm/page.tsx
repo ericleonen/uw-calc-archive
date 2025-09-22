@@ -3,6 +3,7 @@
 import Divider from "@/components/Divider";
 import SubmitButton from "@/components/SubmitButton";
 import { createClient } from "@/utils/supabase/client";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -29,6 +30,8 @@ export default function SignupConfirmPage() {
             >
                 <SubmitButton label="Resend email" />
             </form>
+            <p className="mt-3 text-sm font-medium text-center text-gray-400/90">If this email already has an account, you won't get an email. Log in instead.</p>
+            <Link href="/login" className="w-full px-2 py-1 mt-2 font-semibold text-center border-2 border-gray-300 rounded-md text-gray-400/90 hover:bg-gray-200">Log in</Link>
         </div>
     )
 }
