@@ -66,7 +66,7 @@ def upload_file(local_path: Path, storage_path: str, retries: int = 5):
 def upload_archive(archive_dir: Path):
     paths = [
         p for p in archive_dir.rglob("*")
-        if p.is_file() and not p.name == "metadata.json"
+        if p.is_file() and not p.name in ["metadata.json", "answers.png", "questions.png"]
     ]
 
     if not paths:
