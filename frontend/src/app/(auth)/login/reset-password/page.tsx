@@ -12,7 +12,6 @@ export default function ResetPasswordPage() {
     const router = useRouter();
 
     const [ready, setReady] = useState(false);
-    const [showLogin, setShowLogin] = useState(false);
 
     useEffect(() => {
         const code = searchParams.get("code");
