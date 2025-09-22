@@ -1,0 +1,88 @@
+import { getStats } from "@/server/stats";
+
+type StatsDisplayProps = {
+    class_?: string,
+    exam?: string
+}
+
+export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) {
+    if (!class_ || !exam) return null;
+
+    const topicCoverageStats = await getStats(class_, exam);
+
+    const asProbability = (testsWithTopicCount: number, totalTestsCount: number) => {
+        if (totalTestsCount === 0) return "0%";
+        
+        return Math.round(testsWithTopicCount / totalTestsCount * 100) + "%";
+    }
+
+    return (
+        <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
+            <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
+                <div className="flex flex-col w-full p-6 rounded-md shadow bg-white/90">
+                    <h1 className="text-gray-600/90 text-lg font-bold">What's going to be on my {class_} {exam}?</h1>
+                    <p className="text-gray-500/90 text-sm font-medium mb-3 mt-1">A breakdown of what's going to be on your next exam. <b className="text-uw/90">Test Coverage</b> is the probability of a topic being on your next exam. <b className="text-uw/90">Question Coverage</b> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.</p>
+                    <table className="text-sm">
+                        <tr>
+                            <TableHead>Topic</TableHead>
+                            <TableHead>Test Coverage</TableHead>
+                            <TableHead>Question Coverage</TableHead>
+                        </tr>
+                        {
+                            topicCoverageStats.topics.map((topicStats: any) => {
+                                const testProb = asProbability(topicStats.testsWithTopicCount, topicCoverageStats.totalTestsCount);
+                                const questionProb = asProbability(topicStats.questionsWithTopicCount, topicCoverageStats.totalQuestionsCount);
+
+                                return (
+                                    <tr>
+                                        <TableData>{topicStats.topic}</TableData>
+                                        <TableData>
+                                            {testProb}
+                                            <ProbabilityBar probability={testProb} />
+                                        </TableData>
+                                        <TableData>
+                                            {questionProb}
+                                            <ProbabilityBar probability={questionProb} />
+                                        </TableData>
+                                    </tr>
+                                )
+                            })
+                        }
+                    </table>
+                    <p className="text-gray-500/90 mt-3 text-xs"><b>Source: </b> {topicCoverageStats.totalTestsCount} tests ({topicCoverageStats.totalQuestionsCount} questions) scraped from {class_} {exam} archives.</p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+type TableProps = {
+    children: React.ReactNode
+}
+
+function TableHead({ children }: TableProps) {
+    return (
+        <th className="bg-purple-100 text-uw/90 font-semibold px-2 py-1 text-left border-2 border-violet-300">{children}</th>
+    )
+}
+
+function TableData({ children }: TableProps) {
+    return (
+        <th className="text-gray-500/90 font-medium px-2 py-1 text-left border-2 border-gray-300">{children}</th>
+    )
+}
+
+type ProbabilityBarProps = {
+    probability: string
+}
+
+function ProbabilityBar({ probability }: ProbabilityBarProps) {
+    return (
+        <div className="w-full bg-gray-300 rounded-full h-2 overflow-hidden">
+            <div
+                className="bg-uw-light h-full"
+                style={{ width: probability }}
+            />
+        </div>
+    )
+}
