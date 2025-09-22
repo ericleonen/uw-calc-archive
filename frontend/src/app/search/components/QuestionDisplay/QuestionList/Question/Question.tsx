@@ -4,6 +4,9 @@ import Image from "next/image";
 import { type User } from "@supabase/supabase-js";
 import { useState } from "react";
 import useQuestionCompletedToggler from "@/hooks/useQuestionCompletedToggler";
+import { Popover, PopoverTrigger } from "@/components/ui/popover";
+import { PopoverContent } from "@radix-ui/react-popover";
+import Link from "next/link";
 
 type QuestionProps = {
     question: Question,
@@ -17,6 +20,20 @@ export default function Question({ question, user, completed }: QuestionProps) {
     const [showAnswer, setShowAnswer] = useState(false);
     const [answerLoading, setAnswerLoading] = useState(false);
 
+    const completedToggleComponent = (
+        <button
+            onClick={completedToggler.onToggle}
+            className={
+                "px-2 py-1 my-1 mr-2 text-xs font-semibold rounded-full flex items-center " +
+                (!user ? "text-gray-500/90" : "text-green-600/90") + " " +
+                (completedToggler.completed ? "hover:bg-green-200 bg-green-100" : "hover:bg-gray-200 bg-gray-100")
+            }
+        >
+            {/* { completedToggler.inProgress && <LoaderCircleIcon className="w-3 h-3 mr-1 animate-spin"/> } */}
+            { completedToggler.completed  ? "Completed" : "Mark Complete" }
+        </button>
+    );
+
     return (
         <div
             key={`${question.testId}/Q${question.number}`}
@@ -24,19 +41,23 @@ export default function Question({ question, user, completed }: QuestionProps) {
         >
             <p className="text-sm font-bold text-gray-600/90">Question {question.number} of {question.class} {question.exam}, {question.quarter}</p>
             <div className="flex flex-wrap">
-                <button
-                    onClick={completedToggler.onToggle}
-                    disabled={!user}
-                    className={
-                        "px-2 py-1 my-1 mr-2 text-xs font-semibold rounded-full flex items-center " +
-                        (!user ? "pointer-events-none text-gray-500/90" : "pointer-events-auto text-green-600/90") + " " +
-                        (completedToggler.completed ? "hover:bg-green-200 bg-green-100" : "hover:bg-gray-200 bg-gray-100")
-                    }
-                    title={completedToggler.completed ? "Mark question as incomplete" : undefined}
-                >
-                    {/* { completedToggler.inProgress && <LoaderCircleIcon className="w-3 h-3 mr-1 animate-spin"/> } */}
-                    { completedToggler.completed  ? "Completed" : "Mark Complete" }
-                </button>
+                {
+                    user ? completedToggleComponent : (
+                        <Popover >
+                            <PopoverTrigger asChild>
+                                {completedToggleComponent}
+                            </PopoverTrigger>
+                            <PopoverContent className="flex flex-col items-center p-3 mt-1 text-xs font-semibold bg-white border-2 border-gray-300 rounded-md shadow">
+                                <p className="text-gray-500/90">
+                                    You need an account to mark questions complete
+                                </p>
+                                <Link href="/signup" className="w-full px-2 py-1 mt-2 text-center rounded-md bg-uw text-white/90 hover:bg-uw-light">Create an account</Link>
+                                <Link href="/login" className="w-full px-2 py-1 mt-2 text-center border-2 border-gray-300 rounded-md text-gray-400/90 hover:bg-gray-200">Log in</Link>
+                            </PopoverContent>
+                        </Popover>
+                    )
+                    
+                }
                 {
                     question.topics.map(topic => (
                         <span
