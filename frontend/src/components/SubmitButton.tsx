@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom"
 
 type SubmitButtonProps = {
     label: string,
-    theme?: "primary" | "danger" | "secondary",
+    theme?: "primary" | "danger" | "secondary" | "custom",
     className?: string
 }
 

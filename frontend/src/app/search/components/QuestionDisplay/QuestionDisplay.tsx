@@ -17,26 +17,21 @@ export default function QuestionDisplay({ questionFilter, page }: QuestionDispla
 
     const questionFilterStr = JSON.stringify(questionFilter);
 
-    const paginator = (
-        <Suspense
-            key={questionFilterStr}
-            fallback={<QuestionsPaginatorSkeleton />}
-        >
-            <QuestionsPaginator questionFilter={questionFilter} page={page} />
-        </Suspense>
-    )
-
     return (
         <div className="flex justify-center h-full p-3 overflow-y-scroll grow">
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
-                { paginator }
+                <Suspense
+                    key={questionFilterStr}
+                    fallback={<QuestionsPaginatorSkeleton />}
+                >
+                    <QuestionsPaginator questionFilter={questionFilter} page={page} />
+                </Suspense>
                 <Suspense
                     key={questionFilterStr + " page-" + page}
                     fallback={<QuestionListSkeleton />}
                 >
                     <QuestionList questionFilter={questionFilter} page={page} />
                 </Suspense>
-                { paginator }
             </div>
         </div>
     )

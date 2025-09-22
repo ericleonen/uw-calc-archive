@@ -10,6 +10,8 @@ type QuestionsPaginatorProps = {
 export default async function QuestionsPaginator({ questionFilter, page }: QuestionsPaginatorProps) {
     const { totalItemsCount, totalPagesCount, pageSize, lastPageSize } = await getFilteredQuestionsPaginatorMetadata(questionFilter);
 
+    if (totalItemsCount === 0) return null;
+
     const items: (number | "...")[] = [];
     if (totalPagesCount <= 7) {
         for (let i = 1; i <= totalPagesCount; i++) items.push(i);
