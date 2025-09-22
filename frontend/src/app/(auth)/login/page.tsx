@@ -1,13 +1,13 @@
-import { signup } from "@/actions/auth";
+import { login } from "@/actions/auth";
 import AuthAlternative from "../components/AuthAlternative";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
 
-export default async function SignupPage() {
+export default async function LoginPage() {
     return (
         <>
             <AuthForm
-                action={signup}
+                action={login}
                 title="Login"
                 submitLabel="Log in"
             >
