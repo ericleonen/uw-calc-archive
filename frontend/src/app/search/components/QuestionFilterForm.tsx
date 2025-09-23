@@ -7,6 +7,7 @@ import { SheetClose } from "@/components/ui/sheet";
 import { useRouter, useSearchParams } from "next/navigation";
 import SubmitButton from "@/components/SubmitButton";
 import { useEffect, useState } from "react";
+import SectionHeader from "@/components/text/SectionHeader";
 
 type QuestionFilterFormProps = {
     sheetClose?: boolean
@@ -40,7 +41,7 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
 
     return (
         <form onSubmit={onSubmit}>
-            <p className="flex items-center font-bold text-gray-600/90">Questions Filter</p>
+            <SectionHeader variant="secondary">Questions Filter</SectionHeader>
             <div className="mt-2 mb-6 space-y-2">
                 <SelectInput
                     label="class"

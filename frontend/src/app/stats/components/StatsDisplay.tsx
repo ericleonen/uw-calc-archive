@@ -1,4 +1,7 @@
 import Empty from "@/components/Empty";
+import Emphasis from "@/components/text/Emphasis";
+import Paragraph from "@/components/text/Paragraph";
+import SectionHeader from "@/components/text/SectionHeader";
 import { getStats } from "@/server/stats";
 
 type StatsDisplayProps = {
@@ -29,8 +32,10 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
         <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
                 <div className="flex flex-col w-full p-6 rounded-md shadow bg-white/90">
-                    <h1 className="text-gray-600/90 text-lg font-bold">What's going to be on my {class_} {exam}?</h1>
-                    <p className="text-gray-500/90 text-sm font-medium mb-3 mt-1">A breakdown of what's going to be on your next exam. <b className="text-uw/90">Test Coverage</b> is the probability of a topic being on your next exam. <b className="text-uw/90">Question Coverage</b> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.</p>
+                    <SectionHeader>What's going to be on my {class_} {exam}?</SectionHeader>
+                    <Paragraph className="text-sm mb-3 mt-1">
+                        A breakdown of what's going to be on your next exam. <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. <Emphasis>Question Coverage</Emphasis> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.
+                    </Paragraph>
                     <table className="text-sm">
                         <thead>
                             <tr>
@@ -60,7 +65,9 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                             })
                         }</tbody>
                     </table>
-                    <p className="text-gray-500/90 mt-3 text-xs"><b>Source: </b> {topicCoverageStats.totalTestsCount} tests ({topicCoverageStats.totalQuestionsCount} questions) scraped from {class_} {exam} archives.</p>
+                    <Paragraph className="mt-3 text-xs">
+                        <Emphasis variant="secondary">Source:</Emphasis> {topicCoverageStats.totalTestsCount} tests ({topicCoverageStats.totalQuestionsCount} questions) scraped from {class_} {exam} archives.
+                    </Paragraph>
                 </div>
             </div>
         </div>

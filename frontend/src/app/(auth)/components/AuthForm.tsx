@@ -1,4 +1,5 @@
 import SubmitButton from "@/components/SubmitButton"
+import SectionHeader from "@/components/text/SectionHeader"
 import React from "react"
 
 type AuthFormProps = {
@@ -24,7 +25,7 @@ export default function AuthForm(props: AuthFormProps) {
             onSubmit={"onSubmit" in props ? props.onSubmit : undefined}
             className="flex flex-col items-center w-full max-w-sm p-6 rounded-md shadow bg-white/90 h-min"
         >
-            <h2 className="text-lg font-bold text-gray-600/90">{props.title}</h2>
+            <SectionHeader>{props.title}</SectionHeader>
             {
                 props.error ? (
                     <div className="w-full px-2 py-1 mt-1 text-sm font-medium text-center bg-red-100 border-2 border-red-300 rounded-md text-red-500/90">

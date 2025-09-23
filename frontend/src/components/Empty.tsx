@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Paragraph from "./text/Paragraph"
 
 type EmptyProps = {
     imgSrc: string,
@@ -16,8 +17,8 @@ export default function Empty({ imgSrc, imgAlt, primaryText, secondaryText, seco
                 <Image src={imgSrc} alt={imgAlt} width={160} height={160} />
             </div>
             <h2 className="text-2xl font-bold text-uw/90">{primaryText}</h2>
-            <p className="mt-1 font-medium text-gray-500/90 hidden lg:block">{secondaryText}</p>
-            <p className="mt-1 font-medium text-gray-500/90 lg:hidden">{secondaryMobileText || secondaryText}</p>
+            <Paragraph className="mt-1 hidden lg:block">{secondaryText}</Paragraph>
+            <Paragraph className="mt-1 lg:hidden">{secondaryMobileText || secondaryText}</Paragraph>
             {children}
         </div>
     )
