@@ -32,18 +32,20 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                     <h1 className="text-gray-600/90 text-lg font-bold">What's going to be on my {class_} {exam}?</h1>
                     <p className="text-gray-500/90 text-sm font-medium mb-3 mt-1">A breakdown of what's going to be on your next exam. <b className="text-uw/90">Test Coverage</b> is the probability of a topic being on your next exam. <b className="text-uw/90">Question Coverage</b> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.</p>
                     <table className="text-sm">
-                        <tr>
-                            <TableHead>Topic</TableHead>
-                            <TableHead>Test Coverage</TableHead>
-                            <TableHead>Question Coverage</TableHead>
-                        </tr>
-                        {
+                        <thead>
+                            <tr>
+                                <TableHead>Topic</TableHead>
+                                <TableHead>Test Coverage</TableHead>
+                                <TableHead>Question Coverage</TableHead>
+                            </tr>
+                        </thead>
+                        <tbody>{
                             topicCoverageStats.topics.map((topicStats: any) => {
                                 const testProb = asProbability(topicStats.testsWithTopicCount, topicCoverageStats.totalTestsCount);
                                 const questionProb = asProbability(topicStats.questionsWithTopicCount, topicCoverageStats.totalQuestionsCount);
 
                                 return (
-                                    <tr>
+                                    <tr key={topicStats.topic}>
                                         <TableData>{topicStats.topic}</TableData>
                                         <TableData>
                                             {testProb}
@@ -56,7 +58,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                                     </tr>
                                 )
                             })
-                        }
+                        }</tbody>
                     </table>
                     <p className="text-gray-500/90 mt-3 text-xs"><b>Source: </b> {topicCoverageStats.totalTestsCount} tests ({topicCoverageStats.totalQuestionsCount} questions) scraped from {class_} {exam} archives.</p>
                 </div>
