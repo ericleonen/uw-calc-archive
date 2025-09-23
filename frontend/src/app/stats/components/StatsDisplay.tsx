@@ -1,3 +1,4 @@
+import Empty from "@/components/Empty";
 import { getStats } from "@/server/stats";
 
 type StatsDisplayProps = {
@@ -6,7 +7,15 @@ type StatsDisplayProps = {
 }
 
 export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) {
-    if (!class_ || !exam) return null;
+    if (!class_ || !exam) return (
+        <Empty
+            imgSrc="/dubs-happy.png"
+            imgAlt="Dubs is happy to start researching tests!"
+            primaryText="Wonder what's on your next test?"
+            secondaryText="Select your class and exam in the left sidebar to research what topics to study"
+            secondaryMobileText="Select your class and exam with the filters to research what topics to study"
+        />
+    );
 
     const topicCoverageStats = await getStats(class_, exam);
 
