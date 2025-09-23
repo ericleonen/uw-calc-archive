@@ -1,6 +1,6 @@
 "use client"
 
-import { CircleQuestionMarkIcon, SearchIcon, User2Icon } from "lucide-react";
+import { ChartPieIcon, CircleQuestionMarkIcon, SearchIcon, User2Icon } from "lucide-react";
 import MobileAppBarLink from "./MobileAppBarLink";
 import useUser from "@/hooks/useUser";
 import { usePathname } from "next/navigation";
@@ -23,6 +23,12 @@ export default function MobileAppBar() {
                 label="Search"
                 to="search"
                 active={lastPathSegment === "search"}
+            />
+            <MobileAppBarLink
+                Icon={ChartPieIcon}
+                label="Stats"
+                to="stats"
+                active={lastPathSegment === "stats"}
             />
             <MobileAppBarLink 
                 Icon={User2Icon}

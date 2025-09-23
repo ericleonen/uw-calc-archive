@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/app/providers";
 import Header from "@/components/Header";
 import AppBar from "@/components/MobileAppBar";
 
@@ -23,15 +22,13 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={openSans.className}>
-                <Providers>
-                    <div className="flex flex-col h-screen overflow-hidden">
-                            <Header />
-                            <main className="flex bg-gray-200 grow relative min-h-0">
-                                    {children}
-                            </main>
-                            <AppBar />
-                    </div>
-                </Providers>
+                <div className="flex flex-col h-screen overflow-hidden">
+                        <Header />
+                        <main className="flex bg-gray-200 grow relative min-h-0">
+                                {children}
+                        </main>
+                        <AppBar />
+                </div>
             </body>
         </html>
     );

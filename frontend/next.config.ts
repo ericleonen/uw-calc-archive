@@ -6,7 +6,16 @@ const nextConfig: NextConfig = {
             protocol: "https",
             hostname: "mlhgtxhvhffffabmkhzc.supabase.co"
         }]
-    }
+    },
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/search',
+                permanent: true
+            }
+        ]
+    },
 };
 
 export default nextConfig;
