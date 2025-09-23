@@ -3,6 +3,7 @@ import AuthAlternative from "../components/AuthAlternative";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
 import Link from "next/link";
+import Hyperlink from "@/components/text/Hyperlink";
 
 export default async function LoginPage({
     searchParams,
@@ -30,7 +31,7 @@ export default async function LoginPage({
                 <TextInput for_="email" placeholder="Your email here" />
                 <div className="flex flex-col items-end w-full">
                     <TextInput for_="password" placeholder="Your password here" />
-                    <Link href="/login/forgot-password" className="mt-1 text-xs font-medium text-uw hover:text-uw-light">Forgot password?</Link>
+                    <Hyperlink href="/login/forgot-password" className="mt-1 text-xs font-medium">Forgot password?</Hyperlink>
                 </div>
                 
             </AuthForm>

@@ -6,8 +6,8 @@ import QuestionListSkeleton from "./QuestionList/QuestionListSkeleton";
 import Empty from "@/components/Empty";
 import Divider from "@/components/Divider";
 import { getProfile } from "@/server/profile";
-import Link from "next/link";
 import { FileSearchIcon } from "lucide-react";
+import Button from "@/components/Button";
 
 type QuestionDisplayProps = {
     questionFilter: QuestionFilter | null,
@@ -27,13 +27,13 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
                 secondaryMobileText="Filter questions by class, exam, and topics with the lower right filter button"
             >
                 <Divider text="or" className="my-3" />
-                <Link
+                <Button
                     href={`/search?class=${profile?.class.replace(" ", "+") || ""}&exam=&topics=`}
-                    className="flex items-center px-2 py-1 font-semibold rounded-md bg-uw text-white/90 hover:bg-uw-light"
+                    className="w-min"
                 >
                     <FileSearchIcon className="h-5"/>
-                    <span className="ml-2">Browse All {profile?.class} Questions</span>
-                </Link>
+                    <span className="ml-2 whitespace-nowrap">Browse All {profile?.class} Questions</span>
+                </Button>
             </Empty>
         );
     }

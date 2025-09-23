@@ -3,8 +3,9 @@
 import { CLASSES, TEST_TYPES } from "@/constants";
 import SelectInput from "@/components/select/SelectInput";
 import { useRouter, useSearchParams } from "next/navigation";
-import SubmitButton from "@/components/SubmitButton";
+import Button from "@/components/Button";
 import { SheetClose } from "@/components/ui/sheet";
+import SectionHeader from "@/components/text/SectionHeader";
 
 type TestFilterFormProps = {
     sheetClose?: boolean
@@ -31,7 +32,7 @@ export default function TestFilterForm({ sheetClose = false }: TestFilterFormPro
 
     return (
         <form onSubmit={onSubmit}>
-            <p className="flex items-center font-bold text-gray-600/90">Test Filter</p>
+            <SectionHeader variant="secondary">Test Filter</SectionHeader>
             <div className="mt-2 mb-6 space-y-2">
                 <SelectInput
                     label="class"
@@ -49,9 +50,9 @@ export default function TestFilterForm({ sheetClose = false }: TestFilterFormPro
             {
                 sheetClose ? (
                     <SheetClose className="w-full" asChild>
-                        <SubmitButton label="Filter tests" />
+                        <Button>Filter tests</Button>
                     </SheetClose>
-                ) : <SubmitButton label="Filter tests" />
+                ) : <Button>Filter tests</Button>
             }
         </form>
     )

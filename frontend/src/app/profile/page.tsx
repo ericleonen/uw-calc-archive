@@ -3,7 +3,7 @@ import TextInput from "@/components/TextInput";
 import { requireUser } from "@/server/guards";
 import { CLASSES } from "@/constants";
 import { updateProfile } from "@/actions/profile";
-import SubmitButton from "@/components/SubmitButton";
+import SubmitButton from "@/components/Button";
 import Divider from "@/components/Divider";
 import { deleteAccount, signout } from "@/actions/auth";
 import { getProfile } from "@/server/profile";

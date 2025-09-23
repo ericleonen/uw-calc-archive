@@ -7,6 +7,7 @@ import Divider from "@/components/Divider";
 import Link from "next/link";
 import { getProfile } from "@/server/profile";
 import { FileSearchIcon } from "lucide-react";
+import Button from "@/components/Button";
 
 type QuestionListProps = {
     questionFilter: QuestionFilter,
@@ -27,13 +28,13 @@ export default async function QuestionList({ questionFilter, page }: QuestionLis
                 secondaryText="Update your filters and try again"
             >
                 <Divider text="or" className="my-3" />
-                <Link
+                <Button
                     href={`/search?class=${profile?.class.replace(" ", "+") || ""}&exam=&topics=`}
-                    className="flex items-center px-2 py-1 font-semibold rounded-md bg-uw text-white/90 hover:bg-uw-light"
+                    className="w-min"
                 >
                     <FileSearchIcon className="h-5"/>
-                    <span className="ml-2">Browse All {profile?.class} Questions</span>
-                </Link>
+                    <span className="ml-2 whitespace-nowrap">Browse All {profile?.class} Questions</span>
+                </Button>
             </Empty>
         );
     }

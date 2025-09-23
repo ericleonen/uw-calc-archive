@@ -1,4 +1,4 @@
-import SubmitButton from "@/components/SubmitButton"
+import Button from "@/components/Button"
 import SectionHeader from "@/components/text/SectionHeader"
 import React from "react"
 
@@ -41,7 +41,7 @@ export default function AuthForm(props: AuthFormProps) {
             <div className="w-full mt-1 space-y-2">
                 {props.children}
             </div>
-            <SubmitButton label={props.submitLabel} className="mt-6" />
+            <Button className="mt-6">{props.submitLabel}</Button>
         </form>
     )
 }

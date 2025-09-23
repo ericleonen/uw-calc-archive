@@ -1,4 +1,5 @@
-import Link from "next/link"
+import Hyperlink from "@/components/text/Hyperlink";
+import Paragraph from "@/components/text/Paragraph";
 
 type AuthAlternativeProps = {
     question: string,
@@ -8,14 +9,14 @@ type AuthAlternativeProps = {
 
 export default function AuthAlternative({ question, linkLabel, href }: AuthAlternativeProps) {
     return (
-        <div className="font-medium mt-2">
-            <span className="text-gray-500/90">{question}</span>
-            <Link
+        <div className="flex mt-2 font-medium">
+            <Paragraph>{question}</Paragraph>
+            <Hyperlink
                 href={href}
-                className="ml-1 text-uw/90 underline hover:text-uw/70"
+                className="ml-1"
             >
                 {linkLabel}
-            </Link>
+            </Hyperlink>
     </div>
     );
 }

@@ -4,9 +4,9 @@ import Image from "next/image";
 import { type User } from "@supabase/supabase-js";
 import { useState } from "react";
 import useQuestionCompletedToggler from "@/hooks/useQuestionCompletedToggler";
-import { Popover, PopoverTrigger } from "@/components/ui/popover";
-import { PopoverContent } from "@radix-ui/react-popover";
-import Link from "next/link";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import Button from "@/components/Button";
+import Paragraph from "@/components/text/Paragraph";
 
 type QuestionProps = {
     question: Question,
@@ -48,11 +48,9 @@ export default function Question({ question, user, completed }: QuestionProps) {
                                 {completedToggleComponent}
                             </PopoverTrigger>
                             <PopoverContent className="flex flex-col items-center p-3 mt-1 text-xs font-semibold bg-white border-2 border-gray-300 rounded-md shadow">
-                                <p className="text-gray-500/90">
-                                    You need an account to mark questions complete
-                                </p>
-                                <Link href="/signup" className="w-full px-2 py-1 mt-2 text-center rounded-md bg-uw text-white/90 hover:bg-uw-light">Create an account</Link>
-                                <Link href="/login" className="w-full px-2 py-1 mt-2 text-center border-2 border-gray-300 rounded-md text-gray-400/90 hover:bg-gray-200">Log in</Link>
+                                <Paragraph>You need an account to mark questions complete</Paragraph>
+                                <Button href="/signup" className="mt-1">Create an account</Button>
+                                <Button href="/login" theme="secondary" className="mt-1">Log in</Button>
                             </PopoverContent>
                         </Popover>
                     )
@@ -77,15 +75,16 @@ export default function Question({ question, user, completed }: QuestionProps) {
                 className="w-full h-auto p-2 mt-1 bg-white border-2 border-gray-300 rounded-sm"
             />
             <div className="flex justify-end mt-2 text-sm">
-                <button
+                <Button
+                    theme="custom"
                     onClick={() => {
                         setShowAnswer(prevShowAnswer => !prevShowAnswer)
                         setAnswerLoading(true);
                     }}
-                    className="px-2 py-1 text-sm font-semibold border-2 rounded-md bg-amber-100 text-amber-600/90 border-amber-300 hover:bg-amber-200"
+                    className="border-2 bg-amber-100 text-amber-600/90 border-amber-300 hover:bg-amber-200 w-min whitespace-nowrap"
                 >
                     { showAnswer ? "Hide" : "Show" } answer
-                </button>
+                </Button>
             </div>
             {
                 showAnswer &&

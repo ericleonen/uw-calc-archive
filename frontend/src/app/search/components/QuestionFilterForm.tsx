@@ -5,7 +5,7 @@ import SelectInput from "@/components/select/SelectInput";
 import MultiSelectInput from "@/components/select/MultiSelectInput";
 import { SheetClose } from "@/components/ui/sheet";
 import { useRouter, useSearchParams } from "next/navigation";
-import SubmitButton from "@/components/SubmitButton";
+import Button from "@/components/Button";
 import { useEffect, useState } from "react";
 import SectionHeader from "@/components/text/SectionHeader";
 
@@ -66,9 +66,9 @@ export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormPro
             {
                 sheetClose ? (
                     <SheetClose className="w-full" asChild>
-                        <SubmitButton label="Filter questions" />
+                        <Button>Filter questions</Button>
                     </SheetClose>
-                ) : <SubmitButton label="Filter questions" />
+                ) : <Button>Filter questions</Button>
             }
         </form>
     )
