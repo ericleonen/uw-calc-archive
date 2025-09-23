@@ -13,7 +13,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
             imgAlt="Dubs is happy to start researching tests!"
             primaryText="Wonder what's on your next test?"
             secondaryText="Select your class and exam in the left sidebar to research what topics to study"
-            secondaryMobileText="Select your class and exam with the filters to research what topics to study"
+            secondaryMobileText="Select class and exam with the lower right filter button to research what topics to study"
         />
     );
 

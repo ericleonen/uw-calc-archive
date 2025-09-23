@@ -1,8 +1,12 @@
 import { getFilteredQuestions } from "@/server/questions";
 import Question from "./Question/Question"
-import Empty from "../Empty";
+import Empty from "@/components/Empty";
 import { getCurrentUser } from "@/server/auth";
 import { getQuestionCompleted } from "@/server/completed";
+import Divider from "@/components/Divider";
+import Link from "next/link";
+import { getProfile } from "@/server/profile";
+import { FileSearchIcon } from "lucide-react";
 
 type QuestionListProps = {
     questionFilter: QuestionFilter,
@@ -12,7 +16,27 @@ type QuestionListProps = {
 export default async function QuestionList({ questionFilter, page }: QuestionListProps) {
     const questions = await getFilteredQuestions(questionFilter, page);
 
-    if (questions.length === 0) return <Empty />;
+    if (questions.length === 0) {
+        const profile = await getProfile();
+
+        return (
+            <Empty
+                imgSrc="/dubs-sad.png"
+                imgAlt="Dubs is sad that no questions were found."
+                primaryText="Sorry, no questions found"
+                secondaryText="Update your filters and try again"
+            >
+                <Divider text="or" className="my-3" />
+                <Link
+                    href={`/search?class=${profile?.class.replace(" ", "+") || ""}&exam=&topics=`}
+                    className="flex items-center px-2 py-1 font-semibold rounded-md bg-uw text-white/90 hover:bg-uw-light"
+                >
+                    <FileSearchIcon className="h-5"/>
+                    <span className="ml-2">Browse All {profile?.class} Questions</span>
+                </Link>
+            </Empty>
+        );
+    }
 
     const user = await getCurrentUser();
 
