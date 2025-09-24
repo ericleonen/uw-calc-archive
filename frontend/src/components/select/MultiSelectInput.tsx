@@ -1,29 +1,43 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import Select from "react-select"
 import { asOption } from "./utils";
 
-type MultiSelectInputProps = {
-    label: string
-    placeholder: string
+type BaseProps = {
+    label: string,
+    placeholder: string,
     options: string[]
-    initialValuesStr?: string
 }
 
-export default function MultiSelectInput({
-    label,
-    placeholder,
-    options,
-    initialValuesStr = ""
-}: MultiSelectInputProps) {
+type ControlledProps = BaseProps & {
+    values: string[],
+    setValues: React.Dispatch<React.SetStateAction<string[]>>
+};
+
+type UncontrolledProps = BaseProps & {
+    initialValuesStr: string
+};
+
+
+type MultiSelectInputProps = ControlledProps | UncontrolledProps; 
+
+export default function MultiSelectInput(props: MultiSelectInputProps) {
+    const { label, placeholder, options } = props;
+    const isControlled = "values" in props;
     const hiddenRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (hiddenRef.current) {
-            hiddenRef.current.value = initialValuesStr;
+        if (isControlled && hiddenRef.current) {
+            hiddenRef.current.value = props.values.join(",");
         }
-    }, [initialValuesStr]);
+    }, [isControlled && props.values]);
+
+    useEffect(() => {
+        if (!isControlled && hiddenRef.current) {
+            hiddenRef.current.value = props.initialValuesStr;
+        }
+    }, [!isControlled && props.initialValuesStr]);
 
     return (
         <div className="w-full">
@@ -38,9 +52,15 @@ export default function MultiSelectInput({
                 inputId={label}
                 isMulti
                 options={options.map(asOption)}
-                defaultValue={initialValuesStr ? initialValuesStr.split(",").map(asOption) : undefined}
-                onChange={(opts: readonly Option[] | null) => {
-                    if (hiddenRef.current) hiddenRef.current.value = opts?.map(o => o.value).join(",") || "";
+                defaultValue={
+                    !isControlled && props.initialValuesStr ? 
+                    props.initialValuesStr.split(",").map(asOption) : 
+                    undefined
+                }
+                value={isControlled && props.values ? props.values.map(asOption) : undefined}
+                onChange={(options_: readonly Option[] | null) => {
+                    if (isControlled) props.setValues(options_?.map(o => o.value) || []);
+                    else if (hiddenRef.current) hiddenRef.current.value = options_?.map(o => o.value).join(",") || "";
                 }}
                 placeholder={placeholder}
                 closeMenuOnSelect={false}

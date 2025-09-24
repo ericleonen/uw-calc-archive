@@ -24,8 +24,6 @@ type SelectInputProps = ControlledProps | UncontrolledProps;
 export default function SelectInput(props: SelectInputProps) {
     const { label, placeholder, options } = props;
     const isControlled = !("initialValue" in props);
-
-    const optionObjects: Option[] = options.map(asOption);
     const hiddenRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -51,7 +49,7 @@ export default function SelectInput(props: SelectInputProps) {
             </label>
             <Select
                 inputId={label}
-                options={optionObjects}
+                options={options.map(asOption)}
                 defaultValue={!isControlled && props.initialValue ? asOption(props.initialValue) : undefined}
                 value={isControlled && props.value ? asOption(props.value) : undefined}
                 onChange={(option: Option | null) => {

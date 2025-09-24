@@ -19,9 +19,12 @@ export default function QuestionFilterForm({ sheetClose = false, initialClass }:
     const searchParams = useSearchParams();
 
     const [class_, setClass] = useState(searchParams.get("class") || initialClass || "");
+    const exam = searchParams.get("exam") || "";
+    const [topics, setTopics] = useState<string[]>(searchParams.has("topics") ? searchParams.get("topics")?.split(",") || [] : [])
 
-    const testType = searchParams.get("exam") || "";
-    const topicsStr = searchParams.get("topics") || "";
+    useEffect(() => {
+        setTopics([]);
+    }, [class_, setTopics]);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -52,13 +55,14 @@ export default function QuestionFilterForm({ sheetClose = false, initialClass }:
                     label="exam"
                     placeholder="Select your exam"
                     options={TEST_TYPES}
-                    initialValue={testType}
+                    initialValue={exam}
                 />
                 <MultiSelectInput
                     label="topics"
                     placeholder="Select topics"
                     options={TOPICS[class_] || []}
-                    initialValuesStr={topicsStr}
+                    values={topics}
+                    setValues={setTopics}
                 />
             </div>
             {
