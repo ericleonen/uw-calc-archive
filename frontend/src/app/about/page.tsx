@@ -9,27 +9,27 @@ export default function AboutPage() {
             <div className="w-full max-w-lg space-y-6 h-min">
                 <div className="space-y-2">
                     <SectionHeader>What is this?</SectionHeader>
-                    <Paragraph>UW CalcArchive solves two of the biggest problems MATH 124/5/6 students face preparing for midterms and finals:</Paragraph>
+                    <Paragraph>UW CalcArchive is <u>the</u> website to prepare for the University of Washington's introductory calculus series exams. I built it to solve two of the biggest problems MATH 124/5/6 students face preparing for midterms and finals:</Paragraph>
                     <List variant="unordered">
                         <Paragraph>Not knowing what topics are most important</Paragraph>
                         <Paragraph>Not being able to focus practice testing on topics they're struggling with</Paragraph>
                     </List>
-                    <Paragraph>You <i>could</i> spend hours taking practice test after practice test—if you have nothing better to do (me as a freshman). OR, you could use UW CalcArchive.</Paragraph>
+                    <Paragraph>You <i>could</i> spend hours taking practice test after practice test—if you have nothing better to do (me as a freshman). Or, you could try UW CalcArchive.</Paragraph>
                 </div>
                 <div className="space-y-2">
                     <SectionHeader>How to use this</SectionHeader>
-                    <Paragraph>I made this website with the intention of the following workflow:</Paragraph>
+                    <Paragraph>I made this website with the intention of the following study process:</Paragraph>
                     <List>
                         <Paragraph>Use <Hyperlink href="/stats">Stats</Hyperlink> to understand what's likely to be on your next test</Paragraph>
-                        <Paragraph>Do 1-2 practice tests from the archive to see which topics you're making mistakes on</Paragraph>
-                        <Paragraph>Use UW CalcArchive <Hyperlink href="/search">Question Search</Hyperlink> to block-practice topics you struggle with</Paragraph>
+                        <Paragraph>Know what topics you're struggling with either through experience or attempting 1-2 practice tests</Paragraph>
+                        <Paragraph>Use <Hyperlink href="/search">Question Search</Hyperlink> to find past test questions that allow you to block-practice tricky topics</Paragraph>
                         <Paragraph>Ace the test</Paragraph>
                     </List>
                 </div>
                 <div className="space-y-2">
                     <SectionHeader>The dream</SectionHeader>
-                    <Paragraph>For you, I want you to be a part of the elite 4.0 club of introductory calculus. At the very least, I want to extinguish the notion of this series being a "weed-out" class.</Paragraph>
-                    <Paragraph>For me, I wanted to create something people would actually use. If you find this website useful, please share it with everyone you know.</Paragraph>
+                    <Paragraph>I want MATH 124/5/6 to no longer feel like "weed-out" classes. Or, for motivated students, I wanted to create a way to earn a 4.0 without wasting time.</Paragraph>
+                    <Paragraph>As for me, I hope I created something students actually use. If you find this website useful, please share it with everyone you know. 😇</Paragraph>
                 </div>
             </div>
         </div>

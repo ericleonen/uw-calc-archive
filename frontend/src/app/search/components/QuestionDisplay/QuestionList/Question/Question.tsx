@@ -7,6 +7,7 @@ import useQuestionCompletedToggler from "@/hooks/useQuestionCompletedToggler";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import Button from "@/components/Button";
 import Paragraph from "@/components/text/Paragraph";
+import { LoaderCircleIcon } from "lucide-react";
 
 type QuestionProps = {
     question: Question,
@@ -24,7 +25,7 @@ export default function Question({ question, user, completed }: QuestionProps) {
         <button
             onClick={completedToggler.onToggle}
             className={
-                "px-2 py-1 my-1 mr-2 text-xs font-semibold rounded-full flex items-center " +
+                "px-2 py-1 my-1 mr-2 text-sm font-semibold rounded-full flex items-center " +
                 (!user ? "text-gray-500/90" : "text-green-600/90") + " " +
                 (completedToggler.completed ? "hover:bg-green-200 bg-green-100" : "hover:bg-gray-200 bg-gray-100")
             }
@@ -37,10 +38,10 @@ export default function Question({ question, user, completed }: QuestionProps) {
     return (
         <div
             key={`${question.testId}/Q${question.number}`}
-            className="flex flex-col w-full p-3 rounded-md shadow bg-white/90"
+            className="flex flex-col items-end w-full p-3 rounded-md shadow bg-white/90"
         >
-            <p className="text-sm font-bold text-gray-600/90">Question {question.number} of {question.class} {question.exam}, {question.quarter}</p>
-            <div className="flex flex-wrap">
+            <Paragraph className="!font-bold w-full">Question {question.number} of {question.class} {question.exam}, {question.quarter}</Paragraph>
+            <div className="flex flex-wrap w-full">
                 {
                     user ? completedToggleComponent : (
                         <Popover >
@@ -54,13 +55,12 @@ export default function Question({ question, user, completed }: QuestionProps) {
                             </PopoverContent>
                         </Popover>
                     )
-                    
                 }
                 {
                     question.topics.map(topic => (
                         <span
                             key={topic}
-                            className="px-2 py-1 my-1 mr-2 text-xs font-semibold bg-purple-100 rounded-full text-uw/90"
+                            className="px-2 py-1 my-1 mr-2 text-sm font-semibold bg-purple-100 rounded-full text-uw/90"
                         >
                             {topic}
                         </span>
@@ -74,33 +74,34 @@ export default function Question({ question, user, completed }: QuestionProps) {
                 height={48}
                 className="w-full h-auto p-2 mt-1 bg-white border-2 border-gray-300 rounded-sm"
             />
-            <div className="flex justify-end mt-2 text-sm">
-                <Button
-                    theme="custom"
-                    onClick={() => {
-                        setShowAnswer(prevShowAnswer => !prevShowAnswer)
-                        setAnswerLoading(true);
-                    }}
-                    className="border-2 bg-amber-100 text-amber-600/90 border-amber-300 hover:bg-amber-200 w-min whitespace-nowrap"
-                >
-                    { showAnswer ? "Hide" : "Show" } answer
-                </Button>
-            </div>
+            <Button
+                theme="custom"
+                onClick={() => {
+                    setShowAnswer(prevShowAnswer => !prevShowAnswer);
+
+                    if (!showAnswer) setAnswerLoading(true);
+                }}
+                loading={answerLoading}
+                className="mt-2 max-w-30 border-2 bg-amber-100 text-amber-600/90 border-amber-300 hover:bg-amber-200 whitespace-nowrap"
+            >
+                { showAnswer ? "Hide" : "Show" } answer
+            </Button>
             {
-                showAnswer &&
-                <div className={
-                    " rounded-md mt-2 overflow-hidden border-2 border-amber-300 " +
-                    (answerLoading ? "animate-pulse bg-amber-200" : "animate-none bg-amber-600") 
-                }>
-                    <Image
-                        src={question.answerImgSrc}
-                        alt="answer"
-                        width={512}
-                        height={48}
-                        onLoadingComplete={() => setAnswerLoading(false)}
-                        className="w-full h-auto p-2 bg-white"
-                    />
-                </div>
+                showAnswer && (
+                    <div className={
+                        "rounded-md overflow-hidden border-amber-300 bg-amber-100 w-full " +
+                        (answerLoading ? "h-0 mt-0 border-0" : "mt-2 border-2")
+                    }>
+                        <Image
+                            src={question.answerImgSrc}
+                            alt="answer"
+                            width={512}
+                            height={48}
+                            onLoadingComplete={() => setAnswerLoading(false)}
+                            className="w-full h-auto p-2 bg-white"
+                        />
+                    </div>
+                )
             }
         </div>
     )

@@ -6,7 +6,7 @@ import QuestionListSkeleton from "./QuestionList/QuestionListSkeleton";
 import Empty from "@/components/Empty";
 import Divider from "@/components/Divider";
 import { getProfile } from "@/server/profile";
-import { FileSearchIcon } from "lucide-react";
+import { FileSearchIcon, FilterIcon } from "lucide-react";
 import Button from "@/components/Button";
 
 type QuestionDisplayProps = {
@@ -24,7 +24,7 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
                 imgAlt="Dubs is happy to start practicing questions!"
                 primaryText="Ready to start practicing?"
                 secondaryText="Select your class, exam, and topics in the left sidebar to find test questions to practice"
-                secondaryMobileText="Filter questions by class, exam, and topics with the lower right filter button"
+                secondaryMobileText="Hit the lower right filter button to select your class, exam, and topics to find test questions to practice"
             >
                 <Divider text="or" className="my-3" />
                 <Button

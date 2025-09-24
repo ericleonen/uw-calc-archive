@@ -10,10 +10,11 @@ type ButtonProps = {
     onClick?: () => void,
     className?: string
     children: React.ReactNode,
-    disabled?: boolean
+    disabled?: boolean,
+    loading?: boolean
 }
 
-export default function Button({ theme = "primary", href, onClick, className = "", children, disabled }: ButtonProps) {
+export default function Button({ theme = "primary", href, onClick, className = "", children, disabled, loading }: ButtonProps) {
     const { pending } = useFormStatus();
 
     className = (
@@ -45,7 +46,7 @@ export default function Button({ theme = "primary", href, onClick, className = "
             className={className}
         >
             {
-                pending ? (
+                pending || loading ? (
                     <LoaderCircleIcon className="h-6 p-1 animate-spin"/>
                 ) : children
             }

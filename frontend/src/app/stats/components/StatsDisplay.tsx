@@ -16,7 +16,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
             imgAlt="Dubs is wondering what to study"
             primaryText="Wonder what's on your test?"
             secondaryText="Select your class and exam in the left sidebar to research what topics to study"
-            secondaryMobileText="Select class and exam with the lower right filter button to research what topics to study"
+            secondaryMobileText="Hit the lower right filter button to select class and exam to research what topics to study"
         />
     );
 
@@ -33,10 +33,10 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
                 <div className="flex flex-col w-full p-6 rounded-md shadow bg-white/90">
                     <SectionHeader>What's going to be on my {class_} {exam}?</SectionHeader>
-                    <Paragraph className="text-sm mb-3 mt-1">
+                    <Paragraph className="mt-2 mb-3">
                         A breakdown of what's going to be on your next exam. <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. <Emphasis>Question Coverage</Emphasis> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.
                     </Paragraph>
-                    <table className="text-sm">
+                    <table>
                         <thead>
                             <tr>
                                 <TableHead>Topic</TableHead>
@@ -65,7 +65,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                             })
                         }</tbody>
                     </table>
-                    <Paragraph className="mt-3 text-xs">
+                    <Paragraph className="mt-3 text-sm">
                         <Emphasis variant="secondary">Source:</Emphasis> {topicCoverageStats.totalTestsCount} tests ({topicCoverageStats.totalQuestionsCount} questions) scraped from {class_} {exam} archives.
                     </Paragraph>
                 </div>

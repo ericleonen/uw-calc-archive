@@ -5,8 +5,8 @@ type EmptyProps = {
     imgSrc: string,
     imgAlt: string,
     primaryText: string,
-    secondaryText: string,
-    secondaryMobileText?: string,
+    secondaryText: string
+    secondaryMobileText?: string
     children?: React.ReactNode
 }
 

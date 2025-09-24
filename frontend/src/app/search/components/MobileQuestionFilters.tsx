@@ -8,7 +8,7 @@ export default async function MobileQuestionFilters() {
 
     return (
         <Sheet>
-            <SheetTrigger className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw/90 aspect-square hover:bg-uw/80 hover:cursor-pointer">
+            <SheetTrigger className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw aspect-square hover:bg-uw-light hover:cursor-pointer">
                 <FilterIcon className="text-lg text-white/90"/>
             </SheetTrigger>
             <SheetContent

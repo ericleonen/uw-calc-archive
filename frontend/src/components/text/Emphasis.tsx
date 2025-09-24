@@ -5,8 +5,8 @@ type EmphasisProps = {
 
 export default function Emphasis({ children, variant = "primary" }: EmphasisProps) {
     return (
-        <b className={variant === "primary" ? "text-uw" : ""}>
+        <span className={"font-semibold " + (variant === "primary" ? "text-uw" : "")}>
             {children}
-        </b>
+        </span>
     )
 }
