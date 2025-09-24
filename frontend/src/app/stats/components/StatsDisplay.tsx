@@ -12,9 +12,9 @@ type StatsDisplayProps = {
 export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) {
     if (!class_ || !exam) return (
         <Empty
-            imgSrc="/dubs-happy.png"
-            imgAlt="Dubs is happy to start researching tests!"
-            primaryText="Wonder what's on your next test?"
+            imgSrc="/dubs-thinking.png"
+            imgAlt="Dubs is wondering what to study"
+            primaryText="Wonder what's on your test?"
             secondaryText="Select your class and exam in the left sidebar to research what topics to study"
             secondaryMobileText="Select class and exam with the lower right filter button to research what topics to study"
         />

@@ -20,8 +20,8 @@ This archive lets your search for specific types of test questions. The question
 - [X] Compile a list of all MATH 12x test archive pages on professor sites or on the official UW Math Department test archives.
 - [X] Capture image pairs of every question and their answer. Store in a cloud-hosted database.
 - [X] Tune an image classification model to provide tags for each question. Add tags as metadata to the questions in the database.
-- [ ] Build and deploy an API to handle queries and return relevant questions.
+- [X] Build and deploy an API to handle queries and return relevant questions.
 - [X] Mock up the web app UI on Figma.
 - [ ] Build and deploy a web app as the front-end of the database.
 - [ ] (Maybe) Add a system to handle complaints (i.e. mistagged questions, incorrect answer key).
-- [ ] (Maybe) Add user authentication to the web app.
+- [X] (Maybe) Add user authentication to the web app.

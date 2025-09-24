@@ -11,7 +11,7 @@ export default function List({ variant = "ordered", children, className = "" }: 
         <li key={child_index}>{child}</li>
     ));
 
-    className = "text-gray-500/90 font-semibold pl-6 " + className;
+    className = "text-gray-700/90 font-semibold pl-6 " + className;
 
     return variant === "ordered" ? (
         <ol className={"list-decimal " + className}>{items}</ol>
