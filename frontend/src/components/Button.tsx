@@ -9,10 +9,11 @@ type ButtonProps = {
     href?: string,
     onClick?: () => void,
     className?: string
-    children: React.ReactNode
+    children: React.ReactNode,
+    disabled?: boolean
 }
 
-export default function Button({ theme = "primary", href, onClick, className = "", children }: ButtonProps) {
+export default function Button({ theme = "primary", href, onClick, className = "", children, disabled }: ButtonProps) {
     const { pending } = useFormStatus();
 
     className = (
@@ -22,7 +23,7 @@ export default function Button({ theme = "primary", href, onClick, className = "
             theme === "primary" ? "bg-uw text-white/90 hover:bg-uw-light" :
             theme === "secondary" ? "text-gray-500/90 border-gray-300 border-2 hover:bg-gray-200" :
             theme === "danger" ? "text-white/90 bg-red-500 hover:bg-red-400" : ""
-        )
+        ) + " disabled:pointer-events-none disabled:bg-gray-300 disabled:text-gray-500/90"
     );
 
     if (href) {
@@ -40,7 +41,7 @@ export default function Button({ theme = "primary", href, onClick, className = "
         <button
             type={onClick ? "button" : "submit"}
             onClick={onClick || undefined}
-            disabled={pending}
+            disabled={disabled}
             className={className}
         >
             {

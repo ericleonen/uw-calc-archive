@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import { SheetClose } from "@/components/ui/sheet";
 import SectionHeader from "@/components/text/SectionHeader";
+import { useState } from "react";
 
 type TestFilterFormProps = {
     sheetClose?: boolean
@@ -16,17 +17,17 @@ export default function TestFilterForm({ sheetClose = false, initialClass }: Tes
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const class_ = searchParams.get("class") || initialClass || "";
-    const exam = searchParams.get("exam") || "";
+    const [class_, setClass] = useState(searchParams.get("class") || initialClass || "");
+    const [exam, setExam] = useState(searchParams.get("exam") || "");
+
+    const submitDisabled = !class_ || !exam;
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        const formData = new FormData(e.currentTarget);
         const next = new URLSearchParams(searchParams);
 
-        next.set("class", String(formData.get("class")));
-        next.set("exam", String(formData.get("exam")));
+        next.set("class", class_);
+        next.set("exam", exam);
 
         router.replace(`?${next.toString()}`, { scroll: false })
     };
@@ -39,21 +40,23 @@ export default function TestFilterForm({ sheetClose = false, initialClass }: Tes
                     label="class"
                     placeholder="Select your class"
                     options={CLASSES}
-                    initialValue={class_}
+                    value={class_}
+                    setValue={setClass}
                 />
                 <SelectInput
                     label="exam"
                     placeholder="Select your exam"
                     options={TEST_TYPES}
-                    initialValue={exam}
+                    value={exam}
+                    setValue={setExam}
                 />
             </div>
             {
                 sheetClose ? (
                     <SheetClose className="w-full" asChild>
-                        <Button>Filter tests</Button>
+                        <Button disabled={submitDisabled}>Filter tests</Button>
                     </SheetClose>
-                ) : <Button>Filter tests</Button>
+                ) : <Button disabled={submitDisabled}>Filter tests</Button>
             }
         </form>
     )
