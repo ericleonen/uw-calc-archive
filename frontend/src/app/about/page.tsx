@@ -1,3 +1,4 @@
+import Hyperlink from "@/components/text/Hyperlink"
 import List from "@/components/text/List"
 import Paragraph from "@/components/text/Paragraph"
 import SectionHeader from "@/components/text/SectionHeader"
@@ -19,9 +20,9 @@ export default function AboutPage() {
                     <SectionHeader>How to use this</SectionHeader>
                     <Paragraph>I made this website with the intention of the following workflow:</Paragraph>
                     <List>
-                        <Paragraph>Use the "Stats" page to understand what's likely to be on your next test</Paragraph>
+                        <Paragraph>Use <Hyperlink href="/stats">Stats</Hyperlink> to understand what's likely to be on your next test</Paragraph>
                         <Paragraph>Do 1-2 practice tests from the archive to see which topics you're making mistakes on</Paragraph>
-                        <Paragraph>Use UW CalcArchive to block-practice topics you struggle with</Paragraph>
+                        <Paragraph>Use UW CalcArchive <Hyperlink href="/search">Question Search</Hyperlink> to block-practice topics you struggle with</Paragraph>
                         <Paragraph>Ace the test</Paragraph>
                     </List>
                 </div>
