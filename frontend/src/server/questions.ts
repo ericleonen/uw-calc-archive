@@ -35,7 +35,7 @@ export const getFilteredQuestionsPaginatorMetadata = cache(async function (
     }
 })
 
-export const getFilteredQuestions = async function (
+export const getFilteredQuestions = cache(async function (
     questionFilter: QuestionFilter,
     page: number
 ): Promise<Question[]> {
@@ -88,4 +88,4 @@ export const getFilteredQuestions = async function (
         })
 
     return items;
-};
+});
