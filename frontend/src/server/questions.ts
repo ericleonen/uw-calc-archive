@@ -35,7 +35,7 @@ export const getFilteredQuestionsPaginatorMetadata = cache(async function (
     }
 })
 
-export const getFilteredQuestions = cache(async function (
+export const getFilteredQuestions = async function (
     questionFilter: QuestionFilter,
     page: number
 ): Promise<Question[]> {
@@ -44,22 +44,19 @@ export const getFilteredQuestions = cache(async function (
     const to = from + PAGE_SIZE - 1
 
     let query = supabase
-        .from("questions")
-        .select(
-            `
-                test_id,
-                number,
-                topics,
-                tests!inner (
-                    id,
-                    class,
-                    exam,
-                    quarter,
-                    year
-                )
-            `,
-            { count: "exact" }
-        )
+        .from("ordered_questions")
+        .select(`
+            test_id,
+            number,
+            topics,
+            tests!inner (
+                id,
+                class,
+                exam,
+                quarter,
+                year
+            )
+        `)
 
     if (questionFilter.class) {
         query = query.eq("tests.class", questionFilter.class)
@@ -71,11 +68,7 @@ export const getFilteredQuestions = cache(async function (
         query = query.overlaps("topics", questionFilter.topics)
     }
 
-    const { data, count, error } = await query
-        .order("year", { referencedTable: "tests", ascending: false })
-        .order("test_id", { ascending: true })
-        .order("number", { ascending: true })
-        .range(from, to)
+    const { data, error } = await query.range(from, to)
 
     if (error) throw error
 
@@ -95,4 +88,4 @@ export const getFilteredQuestions = cache(async function (
         })
 
     return items;
-});
+};
