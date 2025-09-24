@@ -20,16 +20,8 @@ export default function QuestionFilterForm({ sheetClose = false, initialClass }:
 
     const [class_, setClass] = useState(searchParams.get("class") || initialClass || "");
 
-    useEffect(() => {
-        console.log("Class: " + class_)
-    }, [class_]);
-
     const testType = searchParams.get("exam") || "";
     const topicsStr = searchParams.get("topics") || "";
-
-    useEffect(() => {
-        setClass(searchParams.get("class") || "");
-    }, [setClass, searchParams.get("class")]);
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
