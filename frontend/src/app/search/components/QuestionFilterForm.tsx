@@ -10,14 +10,15 @@ import { useEffect, useState } from "react";
 import SectionHeader from "@/components/text/SectionHeader";
 
 type QuestionFilterFormProps = {
-    sheetClose?: boolean
+    sheetClose?: boolean,
+    initialClass?: string
 }
 
-export default function QuestionFilterForm({ sheetClose }: QuestionFilterFormProps) {
+export default function QuestionFilterForm({ sheetClose = false, initialClass }: QuestionFilterFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const [class_, setClass] = useState(searchParams.get("class") || "");
+    const [class_, setClass] = useState(searchParams.get("class") || initialClass || "");
     const testType = searchParams.get("exam") || "";
     const topicsStr = searchParams.get("topics") || "";
 

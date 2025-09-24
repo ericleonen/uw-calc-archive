@@ -9,13 +9,14 @@ import SectionHeader from "@/components/text/SectionHeader";
 
 type TestFilterFormProps = {
     sheetClose?: boolean
+    initialClass?: string,
 }
 
-export default function TestFilterForm({ sheetClose = false }: TestFilterFormProps) {
+export default function TestFilterForm({ sheetClose = false, initialClass }: TestFilterFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const class_ = searchParams.get("class") || "";
+    const class_ = searchParams.get("class") || initialClass || "";
     const exam = searchParams.get("exam") || "";
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

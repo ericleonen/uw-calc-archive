@@ -7,6 +7,7 @@ import SubmitButton from "@/components/Button";
 import Divider from "@/components/Divider";
 import { deleteAccount, signout } from "@/actions/auth";
 import { getProfile } from "@/server/profile";
+import Button from "@/components/Button";
 
 export default async function ProfilePage() {
     const user = await requireUser();
@@ -39,7 +40,7 @@ export default async function ProfilePage() {
                         initialValue={profile.class}
                     />
                 </div>
-                <SubmitButton label="Save" />
+                <Button>Save</Button>
             </form>
             <Divider text="signout" className="mt-6 mb-2"/>
             <p className="text-sm font-medium text-center text-gray-400/90">Hitting the button below will not delete your account, but while you're are signed out, you can't see which questions you marked as completed.</p>
@@ -47,7 +48,7 @@ export default async function ProfilePage() {
                 action={signout}
                 className="w-full mt-3"
             >
-                <SubmitButton label="Sign out" theme="secondary" />
+                <Button theme="secondary">Sign out</Button>
             </form>
             <Divider text="delete account" className="mt-6 mb-2"/>
             <p className="text-sm font-medium text-center text-gray-400/90">Hitting the button below will forever lose the questions you marked as completed. You cannot un-delete your account.</p>
@@ -55,7 +56,7 @@ export default async function ProfilePage() {
                 action={deleteAccount}
                 className="w-full mt-3"
             >
-                <SubmitButton label="Delete account" theme="danger" />
+                <Button theme="danger">Delete account</Button>
             </form>
         </div>
     );
