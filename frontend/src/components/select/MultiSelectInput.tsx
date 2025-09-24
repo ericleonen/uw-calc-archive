@@ -162,7 +162,7 @@ export default function MultiSelectInput({
                         ...base,
                         color: "color-mix(in oklab, var(--color-uw) 90%, transparent)",
                         ":hover": {
-                            backgroundColor: "var(--color-uw-light)",
+                            backgroundColor: "var(--color-purple-200)",
                             color: "color-mix(in oklab, var(--color-uw) 90%, transparent)",
                         },
                         borderTopRightRadius: 999,

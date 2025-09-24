@@ -19,6 +19,11 @@ export default function QuestionFilterForm({ sheetClose = false, initialClass }:
     const searchParams = useSearchParams();
 
     const [class_, setClass] = useState(searchParams.get("class") || initialClass || "");
+
+    useEffect(() => {
+        console.log("Class: " + class_)
+    }, [class_]);
+
     const testType = searchParams.get("exam") || "";
     const topicsStr = searchParams.get("topics") || "";
 
