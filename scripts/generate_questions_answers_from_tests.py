@@ -257,6 +257,43 @@ def get_numbered_sections_and_undesirable_block_bounds(
 
     return sections_bounds_1, sections_bounds_2, undesirables_bounds
 
+def delete_vertical_lines(
+    canvas: Image.Image,
+    min_line_percentage_width: float = 0.7,
+    white_threshold: int = 245
+) -> Image.Image:
+    rgb = canvas.convert("RBG")
+    arr = np.array(rgb, dtype=np.np.uint8)
+
+    gray = np.array(rgb.convert("L"), dtype=np.uint8)
+    _, width = gray.shape
+    non_white = gray < white_threshold
+    col_density = non_white.mean(axis=0)
+    col_density_mask = col_density >= min_line_percentage_width
+
+    if not col_density_mask.any():
+        return canvas
+    
+    idx = np.where(col_density_mask)[0]
+    splits = np.split(idx, np.where(np.diff(idx) != 1)[0] + 1)
+
+    to_remove = np.zeros(col_density_mask, dtype=bool)
+    for run in splits:
+        if run.size == 0:
+            continue
+        run_start, run_end = run[0], run[-1]
+        
+        vertical_coverage = non_white[:, run_start:run_end + 1].any(axis=1).mean()
+        if vertical_coverage >= min_line_percentage_width:
+            to_remove[run_start, run_end + 1] = True
+
+    if not to_remove.any():
+        return canvas
+    
+    kept = arr[:, ~to_remove, :]
+    return Image.fromarray(kept)
+    
+
 def erase_horizontal_lines(
     canvas: Image.Image,
     min_line_percentage_width: float = 0.7,
@@ -514,7 +551,15 @@ def slice_doc(
             canvas.paste(slice_, (0, curr_y))
             curr_y += slice_.height
 
-        sections.append(cap_whitespace_from_canvas(erase_horizontal_lines(canvas)))
+        sections.append(
+            cap_whitespace_from_canvas(
+                delete_vertical_lines(
+                    erase_horizontal_lines(
+                        canvas
+                    )
+                )
+            )
+        )
         # sections.append(cap_whitespace_from_canvas(canvas))
 
     return sections
