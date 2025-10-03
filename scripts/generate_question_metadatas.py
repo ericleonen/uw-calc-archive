@@ -18,6 +18,18 @@ class QuestionMetadata(BaseModel):
     question_short: str
     answer_strategy: str
 
+# MATH 124 Topics:
+# - Midterm 1
+#   - Limits
+#   - Continuity
+#   - Definition of a Derivative / Limit Definition of a Derivative / Derivatives by Limits
+#   - Derivative Rules
+#   - Tangent Lines / To Curves / To Circles
+#   - Trigonometry
+#   - Analyzing Features a Graph/Function (Discontinuities, Asymptotes, Non-Differentiable Points, Increasing/Decreasing)
+#   - Kinematics (Velocity, Acceleration) / Motion
+# - Midterm 2
+
 class QuestionMetadataMATH124(QuestionMetadata):
     topics: list[Literal[
         "Tangent Lines",
