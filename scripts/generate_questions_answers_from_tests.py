@@ -293,7 +293,6 @@ def delete_vertical_lines(
     kept = arr[:, ~to_remove, :]
     return Image.fromarray(kept)
     
-
 def erase_horizontal_lines(
     canvas: Image.Image,
     min_line_percentage_width: float = 0.7,
@@ -596,13 +595,24 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
     
     if not metadata_json.exists():
         raise FileNotFoundError(f"Test {test_id} has no metadata.json")
+    else:
+        shutil.copy(metadata_json, processed_test_dir / "metadata.json")
     
     answers_pdf_exists = answers_pdf.exists()
 
+    processed_test_dir = PROCESSED_DIR / test_id
+    processed_test_dir.mkdir(parents=True, exist_ok=False)
     test_doc = fitz.open(str(test_pdf))
+
+    if full and answers_pdf_exists:
+        questions_img = doc_to_img(test_doc)
+        questions_img.save(processed_test_dir / "questions.png")
+        answers_img = doc_to_img(answers_doc)
+        answers_img.save(processed_test_dir / "answers.png")
+
     questions_bounds, answers_bounds, test_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(test_doc, look_for_pair=not answers_pdf_exists)
 
-    if len(questions_bounds) <= 1 and not full:
+    if len(questions_bounds) <= 1:
         raise Exception(f"Only found {len(questions_bounds)} questions in test {test_id}")
     
     if answers_pdf_exists:
@@ -615,7 +625,7 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
         elif answers_doc.page_count < test_doc.page_count:
             # answers are compact
             answers_bounds, _, answers_undesirables_bounds = get_numbered_sections_and_undesirable_block_bounds(answers_doc)
-        elif not full:
+        else:
             raise Exception(f"Test {test_id} has a shorter test.pdf than answers.pdf")
     else:
         if answers_bounds is None:
@@ -624,19 +634,8 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
             answers_doc = test_doc
             answers_undesirables_bounds = test_undesirables_bounds
 
-    if len(answers_bounds) != len(questions_bounds) and not full:
+    if len(answers_bounds) != len(questions_bounds):
         raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
-    
-    processed_test_dir = PROCESSED_DIR / test_id
-    processed_test_dir.mkdir(parents=True, exist_ok=False)
-
-    shutil.copy(metadata_json, processed_test_dir / "metadata.json")
-
-    if full and answers_pdf_exists:
-        questions_img = doc_to_img(test_doc)
-        questions_img.save(processed_test_dir / "questions.png")
-        answers_img = doc_to_img(answers_doc)
-        answers_img.save(processed_test_dir / "answers.png")
 
     question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
 
@@ -674,7 +673,6 @@ if __name__ == "__main__":
                 tests_to_parse_num = int(args.parse)
             else:
                 raise Exception("parse must be 'all' or an integer")
-            
 
         parsed_tests_num, err_tests_num = 0, 0
 
