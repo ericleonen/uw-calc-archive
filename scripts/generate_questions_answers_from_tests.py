@@ -63,7 +63,7 @@ def get_numbered_sections_and_undesirable_block_bounds(
     numbered_1_section_regexes: list[Pattern[str]] = NUMBERED_1_SECTION_REGEXES,
     undesirables_regexes: list[Pattern[str]] = UNDESIRABLES_REGEXES,
     undesirables_min_whitespace_margin: float = 4,
-    instructions_page_regexes: list[str] = INSTRUCTIONS_PAGE_REGEXES
+    instructions_page_regexes: list[str] = []
 ) -> tuple[list, list | None, list]:
     """
     Creates bounds of (1) numbered sections, (2) a possible second numbered sections, and (3)
@@ -262,8 +262,8 @@ def delete_vertical_lines(
     min_line_percentage_width: float = 0.7,
     white_threshold: int = 245
 ) -> Image.Image:
-    rgb = canvas.convert("RBG")
-    arr = np.array(rgb, dtype=np.np.uint8)
+    rgb = canvas.convert("RGB")
+    arr = np.array(rgb, dtype=np.uint8)
 
     gray = np.array(rgb.convert("L"), dtype=np.uint8)
     _, width = gray.shape
@@ -595,18 +595,21 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
     
     if not metadata_json.exists():
         raise FileNotFoundError(f"Test {test_id} has no metadata.json")
-    else:
-        shutil.copy(metadata_json, processed_test_dir / "metadata.json")
     
     answers_pdf_exists = answers_pdf.exists()
 
     processed_test_dir = PROCESSED_DIR / test_id
     processed_test_dir.mkdir(parents=True, exist_ok=False)
+
+    shutil.copy(metadata_json, processed_test_dir / "metadata.json")
+
     test_doc = fitz.open(str(test_pdf))
 
     if full and answers_pdf_exists:
         questions_img = doc_to_img(test_doc)
         questions_img.save(processed_test_dir / "questions.png")
+
+        answers_doc = fitz.open(str(answers_pdf))
         answers_img = doc_to_img(answers_doc)
         answers_img.save(processed_test_dir / "answers.png")
 
@@ -634,7 +637,7 @@ def generate_questions_answers_from_test(test_dir: Path, full=False):
             answers_doc = test_doc
             answers_undesirables_bounds = test_undesirables_bounds
 
-    if len(answers_bounds) != len(questions_bounds):
+    if len(answers_bounds) != len(questions_bounds) and not full:
         raise Exception(f"There are {len(questions_bounds)} questions and {len(answers_bounds)} answers in test {test_id}")
 
     question_images = slice_doc(test_doc, questions_bounds, test_undesirables_bounds)
@@ -682,8 +685,9 @@ if __name__ == "__main__":
             if (ARCHIVE_DIR / folder.name).exists():
                 continue
 
-            if json.loads((folder / "metadata.json").read_text())["class"] == "MATH 126":
-                continue
+            test_metadata = json.loads((folder / "metadata.json").read_text())
+            # if test_metadata["type"] != "Midterm 1":
+            #     continue
 
             try:
                 generate_questions_answers_from_test(folder, full=args.full)
