@@ -27,6 +27,7 @@ RAW_DIR = Path("data/raw")
 PROCESSED_DIR = Path("data/processed")
 
 NUMBERED_1_SECTION_REGEXES = [
+    r"^1\s*",
     r"^1\.",
     r"^#\s*1",
     r"^problem\s+1",
