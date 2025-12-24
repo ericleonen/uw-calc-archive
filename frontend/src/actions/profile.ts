@@ -3,6 +3,7 @@
 import { requireUser } from "@/server/guards";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 /**
  * Updates a User's name and class.
@@ -24,4 +25,6 @@ export async function updateProfile(formData: FormData) {
     if (error) throw error;
 
     revalidatePath("/profile");
+
+    redirect("/search")
 }
