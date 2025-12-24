@@ -10,8 +10,8 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
-    title: "UW CalcArchive",
-    description: "Past test questions archive for MATH 124/5/6",
+    title: "HuskyCalcArchive",
+    description: "Exam questions archive for MATH 124/5/6 at the University of Washington",
 };
 
 export default function RootLayout({

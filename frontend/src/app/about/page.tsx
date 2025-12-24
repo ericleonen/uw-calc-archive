@@ -9,7 +9,7 @@ export default function AboutPage() {
             <div className="w-full max-w-lg space-y-6 h-min">
                 <div className="space-y-2">
                     <SectionHeader>What is this?</SectionHeader>
-                    <Paragraph>UW CalcArchive is <u>the</u> website to prepare for the University of Washington's introductory calculus series exams. I built it to solve two of the biggest problems MATH 124/5/6 students face preparing for midterms and finals:</Paragraph>
+                    <Paragraph>HuskyCalcArchive is the <u>integral</u> website to prepare for the University of Washington's introductory calculus series exams. I built it to solve two of the biggest problems MATH 124/5/6 students face preparing for midterms and finals:</Paragraph>
                     <List variant="unordered">
                         <Paragraph>Not knowing what topics are most important</Paragraph>
                         <Paragraph>Not being able to focus practice testing on topics they're struggling with</Paragraph>
@@ -30,6 +30,11 @@ export default function AboutPage() {
                     <SectionHeader>The dream</SectionHeader>
                     <Paragraph>I want MATH 124/5/6 to no longer feel like "weed-out" classes. Or, for motivated students, I wanted to create a way to earn a 4.0 without wasting time.</Paragraph>
                     <Paragraph>As for me, I hope I created something students actually use. If you find this website useful, please share it with everyone you know. 😇</Paragraph>
+                </div>
+                <div className="space-y-2">
+                    <SectionHeader>Disclaimer</SectionHeader>
+                    <Paragraph>This website is not affiliated with the University of Washington. I am just a student.</Paragraph>
+                    <Paragraph>Answer keys are NOT guaranteed to be correct. Professors can be wrong. Also, I made some of the answer keys myself since they were missing.</Paragraph>
                 </div>
             </div>
         </div>

@@ -11,7 +11,7 @@ export default async function Header() {
                 href="/"
                 className="font-bold text-white/90 lg:static absolute left-1/2 lg:left-0 translate-x-[-50%] lg:translate-x-0"
             >
-                UW CalcArchive
+                HuskyCalcArchive
             </Link>
             <div className="hidden ml-auto space-x-8 lg:flex">
                 <HeaderLink label="Search" to="search" />
