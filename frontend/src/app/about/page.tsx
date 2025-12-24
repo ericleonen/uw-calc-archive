@@ -36,6 +36,10 @@ export default function AboutPage() {
                     <Paragraph>This website is not affiliated with the University of Washington. I am just a student.</Paragraph>
                     <Paragraph>Answer keys are NOT guaranteed to be correct. Professors can be wrong. Also, I made some of the answer keys myself since they were missing.</Paragraph>
                 </div>
+                <div className="space-y-2">
+                    <SectionHeader>Contact</SectionHeader>
+                    <Paragraph>If you have any questions, suggestions, or found an error, please reach out to me at <Hyperlink href="mailto:huskycalcarchive@gmail.com">huskycalcarchive@gmail.com</Hyperlink>.</Paragraph>
+                </div>
             </div>
         </div>
     )
