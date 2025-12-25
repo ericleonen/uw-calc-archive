@@ -86,7 +86,7 @@ export const getFilteredQuestions = cache(async function (
 
     if (error) throw error;
 
-    // @ts-ignore
+    // @ts-expect-error
     const castedData = data as FilterQuestionDB[];
 
     const items: Question[] =
