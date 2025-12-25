@@ -86,7 +86,7 @@ export const getFilteredQuestions = cache(async function (
 
     if (error) throw error;
 
-    // @ts-expect-error
+    // @ts-expect-error PostgrestFilterBuilder gives a wrong type, so recast
     const castedData = data as FilterQuestionDB[];
 
     const items: Question[] =
