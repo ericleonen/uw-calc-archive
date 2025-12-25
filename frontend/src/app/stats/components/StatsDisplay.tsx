@@ -32,9 +32,9 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
         <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
                 <div className="flex flex-col w-full p-6 rounded-md shadow bg-white/90">
-                    <SectionHeader>What's going to be on my {class_} {exam}?</SectionHeader>
+                    <SectionHeader>What&#39;s going to be on my {class_} {exam}?</SectionHeader>
                     <Paragraph className="mt-2 mb-3">
-                        A breakdown of what's going to be on your next exam. <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. <Emphasis>Question Coverage</Emphasis> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.
+                        A breakdown of what&#39;s going to be on your next exam. <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. <Emphasis>Question Coverage</Emphasis> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.
                     </Paragraph>
                     <table>
                         <thead>
@@ -45,7 +45,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                             </tr>
                         </thead>
                         <tbody>{
-                            topicCoverageStats.topics.map((topicStats: any) => {
+                            topicCoverageStats.topics.map((topicStats: TestTopicCoverageStats) => {
                                 const testProb = asProbability(topicStats.testsWithTopicCount, topicCoverageStats.totalTestsCount);
                                 const questionProb = asProbability(topicStats.questionsWithTopicCount, topicCoverageStats.totalQuestionsCount);
 

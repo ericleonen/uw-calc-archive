@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { RefAttributes } from "react";
 
 type MobileAppBarLinkProps = {
-    Icon: React.ForwardRefExoticComponent<any>,
+    Icon: React.ForwardRefExoticComponent<RefAttributes<SVGSVGElement>>,
     label: string,
     to: string,
     active: boolean

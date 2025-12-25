@@ -1,5 +1,4 @@
 import { cache } from "react";
-import { requireUser } from "./guards";
 import { createClient } from "@/utils/supabase/server";
 import { getCurrentUser } from "./auth";
 

@@ -9,7 +9,7 @@ export async function getQuestionCompleted(testId: string, questionNumber: numbe
 
     const supabase = await createClient();
 
-    const { data, error } = await supabase
+    const { data } = await supabase
         .from("completed")
         .select("completed_at")
         .eq("profile_id", user.id)

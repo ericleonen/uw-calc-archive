@@ -2,7 +2,6 @@ import { login } from "@/actions/auth";
 import AuthAlternative from "../components/AuthAlternative";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
-import Link from "next/link";
 import Hyperlink from "@/components/text/Hyperlink";
 
 export default async function LoginPage({

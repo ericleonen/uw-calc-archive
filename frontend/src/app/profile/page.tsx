@@ -42,7 +42,7 @@ export default async function ProfilePage() {
                 <Button>Save</Button>
             </form>
             <Divider text="signout" className="mt-6 mb-2"/>
-            <p className="text-sm font-medium text-center text-gray-400/90">Hitting the button below will not delete your account, but while you're are signed out, you can't see which questions you marked as completed.</p>
+            <p className="text-sm font-medium text-center text-gray-400/90">Hitting the button below will not delete your account, but while you&#39;re are signed out, you can&#39;t see which questions you marked as completed.</p>
             <form
                 action={signout}
                 className="w-full mt-3"

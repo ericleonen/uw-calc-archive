@@ -35,7 +35,7 @@ export default function SignupConfirmPage() {
             >
                 <Button>Resend email</Button>
             </form>
-            <Paragraph className="mt-6 text-sm text-center">If this email already has an account, you won't get an email. Log in instead.</Paragraph>
+            <Paragraph className="mt-6 text-sm text-center">If this email already has an account, you won&#39;t get an email. Log in instead.</Paragraph>
             <Link href="/login" className="w-full px-2 py-1 mt-2 font-semibold text-center border-2 border-gray-300 rounded-md text-gray-400/90 hover:bg-gray-200">Log in</Link>
         </div>
     )

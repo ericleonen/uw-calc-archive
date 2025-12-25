@@ -4,7 +4,6 @@ import Empty from "@/components/Empty";
 import { getCurrentUser } from "@/server/auth";
 import { getQuestionCompleted } from "@/server/completed";
 import Divider from "@/components/Divider";
-import Link from "next/link";
 import { getProfile } from "@/server/profile";
 import { FileSearchIcon } from "lucide-react";
 import Button from "@/components/Button";

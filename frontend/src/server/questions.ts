@@ -3,6 +3,19 @@ import { cache } from "react"
 
 const PAGE_SIZE = 5
 
+type FilterQuestionDB = {
+    test_id: string,
+    number : number,
+    topics: string[],
+    tests: {
+        id: string,
+        class: string,
+        exam: string,
+        quarter: string,
+        year: number
+    }
+}
+
 export const getFilteredQuestionsPaginatorMetadata = cache(async function (
     questionFilter: QuestionFilter
 ): Promise<PaginatorMetadata> {
@@ -22,16 +35,17 @@ export const getFilteredQuestionsPaginatorMetadata = cache(async function (
         query = query.overlaps("topics", questionFilter.topics)
     }
 
-    let { count, error } = await query;
+    const { count, error } = await query;
+
     if (error) throw error;
 
-    count = count || 0;
+    const countOrZero = count || 0;
 
     return {
-        totalItemsCount: count,
-        totalPagesCount: Math.max(1, Math.ceil(count / PAGE_SIZE)),
+        totalItemsCount: countOrZero,
+        totalPagesCount: Math.max(1, Math.ceil(countOrZero / PAGE_SIZE)),
         pageSize: PAGE_SIZE,
-        lastPageSize: count % PAGE_SIZE || PAGE_SIZE
+        lastPageSize: countOrZero % PAGE_SIZE || PAGE_SIZE
     }
 })
 
@@ -70,10 +84,13 @@ export const getFilteredQuestions = cache(async function (
 
     const { data, error } = await query.range(from, to)
 
-    if (error) throw error
+    if (error) throw error;
+
+    // @ts-ignore
+    const castedData = data as FilterQuestionDB[];
 
     const items: Question[] =
-        (data ?? []).map((q: any) => {
+        (castedData ?? []).map((q: FilterQuestionDB) => {
             const t = q.tests;
             return {
                 testId: q.test_id,

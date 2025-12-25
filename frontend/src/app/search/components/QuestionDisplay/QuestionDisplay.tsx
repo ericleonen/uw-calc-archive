@@ -6,7 +6,7 @@ import QuestionListSkeleton from "./QuestionList/QuestionListSkeleton";
 import Empty from "@/components/Empty";
 import Divider from "@/components/Divider";
 import { getProfile } from "@/server/profile";
-import { FileSearchIcon, FilterIcon } from "lucide-react";
+import { FileSearchIcon } from "lucide-react";
 import Button from "@/components/Button";
 
 type QuestionDisplayProps = {

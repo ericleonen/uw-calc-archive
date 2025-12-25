@@ -28,3 +28,9 @@ type PaginatorMetadata = {
     pageSize: number
     lastPageSize: number
 }
+
+type TestTopicCoverageStats = {
+    topic: string,
+    testsWithTopicCount: number,
+    questionsWithTopicCount: number
+}

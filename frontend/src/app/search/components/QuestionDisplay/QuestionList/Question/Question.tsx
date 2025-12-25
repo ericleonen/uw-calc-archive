@@ -7,7 +7,6 @@ import useQuestionCompletedToggler from "@/hooks/useQuestionCompletedToggler";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import Button from "@/components/Button";
 import Paragraph from "@/components/text/Paragraph";
-import { LoaderCircleIcon } from "lucide-react";
 
 type QuestionProps = {
     question: Question,
