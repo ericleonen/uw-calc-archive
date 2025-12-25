@@ -1,4 +1,4 @@
-# UW CalcArchive
+# HuskyCalcArchive
 *Real UW MATH 124/5/6 test questions. Organized. Drill-ready.*
 
 ---
@@ -8,7 +8,7 @@
 
 ---
 ## 💡 What is this?
-UW CalcArchive is a test question bank built for UW MATH 124/5/6 students practicing for midterms and finals.
+HuskyCalcArchive is a exam question bank built for UW MATH 124/5/6 students practicing for midterms and finals.
 
 Everyone (hopefully) knows the UW Math Department provides archives of past tests. But who wants to take practice test after practice test praying you encounter relevant questions? It's better to focus your time and energy on the types of problems that stump you.
 
