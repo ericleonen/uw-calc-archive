@@ -1,6 +1,7 @@
 import SideBar from "./components/SideBar";
 import QuestionDisplay from "./components/QuestionDisplay";
 import MobileQuestionFilters from "./components/MobileQuestionFilters";
+import { getProfile } from "@/server/profile";
 
 export default async function SearchPage({
     searchParams,
@@ -21,11 +22,12 @@ export default async function SearchPage({
 
     const page = typeof sp.page === "string" ? parseInt(sp.page) : 1;
 
+    const profileClass = (await getProfile())?.class;
     return (
         <>
             <SideBar />
             <QuestionDisplay questionFilter={questionFilter} page={page} />
-            <MobileQuestionFilters />
+            <MobileQuestionFilters profileClass={profileClass} />
         </>
     )
 }

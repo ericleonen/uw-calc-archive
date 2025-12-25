@@ -1,16 +1,25 @@
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+"use client"
+
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { FilterIcon } from "lucide-react";
 import TestFilterForm from "./TestFilterForm";
-import { getProfile } from "@/server/profile";
+import { useState } from "react";
 
-export default async function MobileTestFilters() {
-    const profileClass = (await getProfile())?.class;
+type MobileTestFiltersProps = {
+    profileClass?: string
+}
+
+export default function MobileTestFilters({ profileClass }: MobileTestFiltersProps) {
+    const [sheetOpen, setSheetOpen] = useState(false);
 
     return (
-        <Sheet>
-            <SheetTrigger className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw aspect-square hover:bg-uw-light hover:cursor-pointer">
+        <Sheet open={sheetOpen}>
+            <button 
+                onClick={() => setSheetOpen(true)}
+                className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw aspect-square hover:bg-uw-light hover:cursor-pointer"
+            >
                 <FilterIcon className="text-lg text-white/90"/>
-            </SheetTrigger>
+            </button>
             <SheetContent
                 side="top"
                 className="flex items-center p-6 bg-white"
@@ -22,7 +31,10 @@ export default async function MobileTestFilters() {
                     </SheetDescription>
                 </SheetHeader>
                 <div className="flex flex-col w-full max-w-96">
-                    <TestFilterForm sheetClose initialClass={profileClass || undefined} />
+                    <TestFilterForm 
+                        closeSheet={() => setSheetOpen(false)} 
+                        initialClass={profileClass || undefined}
+                    />
                 </div>
             </SheetContent>
         </Sheet>

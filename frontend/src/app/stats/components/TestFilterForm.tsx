@@ -4,16 +4,15 @@ import { CLASSES, TEST_TYPES } from "@/constants";
 import SelectInput from "@/components/select/SelectInput";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
-import { SheetClose } from "@/components/ui/sheet";
 import SectionHeader from "@/components/text/SectionHeader";
 import { useState } from "react";
 
 type TestFilterFormProps = {
-    sheetClose?: boolean
+    closeSheet?: () => void,
     initialClass?: string,
 }
 
-export default function TestFilterForm({ sheetClose = false, initialClass }: TestFilterFormProps) {
+export default function TestFilterForm({ closeSheet, initialClass }: TestFilterFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -28,6 +27,8 @@ export default function TestFilterForm({ sheetClose = false, initialClass }: Tes
 
         next.set("class", class_);
         next.set("exam", exam);
+
+        if (closeSheet) closeSheet();
 
         router.replace(`?${next.toString()}`, { scroll: false })
     };
@@ -51,13 +52,7 @@ export default function TestFilterForm({ sheetClose = false, initialClass }: Tes
                     setValue={setExam}
                 />
             </div>
-            {
-                sheetClose ? (
-                    <SheetClose className="w-full" asChild>
-                        <Button disabled={submitDisabled}>Filter tests</Button>
-                    </SheetClose>
-                ) : <Button disabled={submitDisabled}>Filter tests</Button>
-            }
+            <Button disabled={submitDisabled}>Filter tests</Button>
         </form>
     )
 }

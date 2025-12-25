@@ -1,3 +1,4 @@
+import { getProfile } from "@/server/profile";
 import MobileTestFilters from "./components/MobileTestFilters";
 import SideBar from "./components/SideBar";
 import StatsDisplay from "./components/StatsDisplay";
@@ -9,11 +10,13 @@ export default async function StatsPage({
 }) {
     const sp = await searchParams;
 
+    const profileClass = (await getProfile())?.class;
+
     return (
         <>
             <SideBar />
             <StatsDisplay class_={sp.class} exam={sp.exam} />
-            <MobileTestFilters />
+            <MobileTestFilters profileClass={profileClass} />
         </>
     )
 }
