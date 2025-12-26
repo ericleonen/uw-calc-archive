@@ -4,10 +4,11 @@ import QuestionsPaginatorLink from "./QuestionsPaginatorLink";
 
 type QuestionsPaginatorProps = {
     questionFilter: QuestionFilter,
-    page: number
+    page: number,
+    isBottom?: boolean
 };
 
-export default async function QuestionsPaginator({ questionFilter, page }: QuestionsPaginatorProps) {
+export default async function QuestionsPaginator({ questionFilter, page, isBottom = false }: QuestionsPaginatorProps) {
     const { totalItemsCount, totalPagesCount, pageSize, lastPageSize } = await getFilteredQuestionsPaginatorMetadata(questionFilter);
 
     if (totalItemsCount === 0) return null;
@@ -32,6 +33,9 @@ export default async function QuestionsPaginator({ questionFilter, page }: Quest
             items.push(totalPagesCount);
         }
     }
+
+    if (page > totalPagesCount) return;
+    if (isBottom && page === totalPagesCount) return;
 
     return (
         <div className="flex items-center justify-center p-2 space-x-1 rounded-md shadow bg-white/90">

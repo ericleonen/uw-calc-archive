@@ -42,7 +42,7 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
 
     return (
         <div className="flex justify-center h-full p-3 overflow-y-scroll grow">
-            <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min">
+            <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min pb-15">
                 <Suspense
                     key={questionFilterStr}
                     fallback={<QuestionsPaginatorSkeleton />}
@@ -54,6 +54,12 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
                     fallback={<QuestionListSkeleton />}
                 >
                     <QuestionList questionFilter={questionFilter} page={page} />
+                </Suspense>
+                <Suspense
+                    key={questionFilterStr + "_bottom"}
+                    fallback={<QuestionsPaginatorSkeleton />}
+                >
+                    <QuestionsPaginator questionFilter={questionFilter} page={page} isBottom />
                 </Suspense>
             </div>
         </div>

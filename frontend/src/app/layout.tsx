@@ -22,7 +22,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={openSans.className}>
-                <div className="flex flex-col h-screen overflow-hidden">
+                <div className="flex flex-col h-dvh overflow-hidden">
                         <Header />
                         <main className="flex bg-gray-200 grow relative min-h-0">
                                 {children}
