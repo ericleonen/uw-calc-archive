@@ -13,7 +13,7 @@ export default function MobileQuestionFilters({ profileClass }: MobileQuestionFi
     const [sheetOpen, setSheetOpen] = useState(false);
 
     return (
-        <Sheet open={sheetOpen}>
+        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <button 
                 onClick={() => setSheetOpen(true)}
                 className="absolute block p-3 rounded-full shadow lg:hidden bottom-3 right-3 bg-uw aspect-square hover:bg-uw-light hover:cursor-pointer"
