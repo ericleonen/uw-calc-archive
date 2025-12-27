@@ -1,32 +1,27 @@
 import { createClient } from "@/utils/supabase/server";
-import { EmailOtpType } from "@supabase/supabase-js";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { redirect } from "next/navigation";
 
-export async function GET(req: NextRequest) {
-    const { searchParams } = new URL(req.url);
-    const token_hash = searchParams.get("token_hash");
-    const type_ = searchParams.get("type") as EmailOtpType | null;
-    const next = "/profile";
+export async function POST(req: NextRequest) {
+  const formData = await req.formData();
 
-    const redirectTo = req.nextUrl.clone();
-    redirectTo.pathname = next;
-    redirectTo.searchParams.delete("token_hash");
-    redirectTo.searchParams.delete("type");
+  const token_hash = formData.get("token_hash")?.toString() ?? null;
+  const next = "/profile";
 
-    if (token_hash && type_) {
-        const supabase = await createClient();
+  if (!token_hash) {
+    redirect("/auth/error");
+  }
 
-        const { error } = await supabase.auth.verifyOtp({
-            type: type_,
-            token_hash
-        });
+  const supabase = await createClient();
 
-        if (!error) {
-            redirectTo.searchParams.delete("next");
-            return NextResponse.redirect(redirectTo);
-        }
-    }
+  const { error } = await supabase.auth.verifyOtp({
+    type: "email",
+    token_hash,
+  });
 
-    redirectTo.pathname = "/error";
-    return NextResponse.redirect(redirectTo);
+  if (error) {
+    redirect("/auth/error");
+  }
+
+  redirect(next);
 }

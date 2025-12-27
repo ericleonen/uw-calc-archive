@@ -28,7 +28,7 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
             >
                 <Divider text="or" className="my-3" />
                 <Button
-                    href={`/search?class=${profile?.class.replace(" ", "+") || ""}&exam=&topics=`}
+                    href={`/search?class=${profile?.class?.replace(" ", "+") || ""}&exam=&topics=`}
                     className="w-min"
                 >
                     <FileSearchIcon className="h-5"/>
