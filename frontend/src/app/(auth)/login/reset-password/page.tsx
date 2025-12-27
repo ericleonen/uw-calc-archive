@@ -4,8 +4,16 @@ import TextInput from "@/components/TextInput";
 import AuthForm from "../../components/AuthForm";
 import { useSearchParams } from "next/navigation";
 import { resetPassword } from "@/actions/auth";
+import { Suspense } from "react";
 
 export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={null}>
+            <ResetPasswordContent />
+        </Suspense>
+    );
+}
+function ResetPasswordContent() {
     const searchParams = useSearchParams();
     const tokenHash = searchParams.get("token_hash") || "";
 
