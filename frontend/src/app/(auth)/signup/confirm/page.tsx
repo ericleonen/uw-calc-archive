@@ -7,10 +7,18 @@ import SectionHeader from "@/components/text/SectionHeader";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Button from "@/components/Button";
 
 export default function SignupConfirmPage() {
+    return (
+        <Suspense fallback={null}>
+            <SignupConfirmContent />
+        </Suspense>
+    );
+}
+
+function SignupConfirmContent() {
     const searchParams = useSearchParams();
 
     const email = searchParams.get("email") || "";
