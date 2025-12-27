@@ -66,20 +66,24 @@ export async function loginToResetPassword(formData: FormData) {
 
 export async function resetPassword(formData: FormData) {
     const newPassword = String(formData.get("password"));
+    const newPasswordConfirmation = String(formData.get("password_confirmation"));
+
+    if (newPassword !== newPasswordConfirmation) {
+        redirect("/login/reset-password?error=password_mismatch")
+    }
 
     const supabase = await createClient();
 
     const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
 
     if (updateError) {
-        console.log(updateError.message)
-        redirect("/auth/error");
+        redirect(`/login/reset-password?error=${updateError.code || "unknown"}`);
+    } else {
+        (await cookies()).delete("recovery_lock");
+
+        supabase.auth.signOut();
+        redirect("/login?status=password_reset_success");
     }
-
-    (await cookies()).delete("recovery_lock");
-
-    supabase.auth.signOut();
-    redirect("/login?status=password_reset_success");
 }
 
 /**
@@ -95,6 +99,12 @@ export async function signup(formData: FormData) {
             data: { name: String(formData.get("name")) }
         }
     };
+
+    const passwordConfirmation = String(formData.get("password_confirmation"));
+
+    if (data.password !== passwordConfirmation) {
+        redirect(`/signup?error=password_mismatch`)
+    }
 
     const { error } = await supabase.auth.signUp(data);
 

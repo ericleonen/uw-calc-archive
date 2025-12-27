@@ -1,23 +1,24 @@
 type TextInputProps = {
     for_: string,
+    type_?: string,
     placeholder?: string,
     disabled?: boolean,
     initialValue?: string
 }
 
-export default function TextInput({ for_, placeholder = "", disabled = false, initialValue = "" }: TextInputProps) {
+export default function TextInput({ for_, type_ = "text", placeholder = "", disabled = false, initialValue = "" }: TextInputProps) {
     return (
         <div className="w-full">
             <label
                 htmlFor={for_}
                 className="w-full text-xs font-bold tracking-wide uppercase text-uw/90"
             >
-                {for_}
+                {for_.replace("_", " ")}
             </label>
             <input 
                 id={for_}
                 name={for_}
-                type={for_}
+                type={type_}
                 placeholder={placeholder}
                 defaultValue={initialValue}
                 required

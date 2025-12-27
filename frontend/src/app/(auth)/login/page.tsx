@@ -21,7 +21,7 @@ export default async function LoginPage({
                 submitLabel="Log in"
                 error={
                     !sp.error ? undefined :
-                    sp.error === "invalid_credentials" ? "Invalid email or password. Please try again." : 
+                    sp.error === "invalid_credentials" ? "Invalid email or password. Please try again." :
                     "An unknown error occured. Please try again."
                 }
                 status={
@@ -31,7 +31,7 @@ export default async function LoginPage({
             >
                 <TextInput for_="email" placeholder="Your email here" />
                 <div className="flex flex-col items-end w-full">
-                    <TextInput for_="password" placeholder="Your password here" />
+                    <TextInput for_="password" type_="password" placeholder="Your password here" />
                     <Hyperlink href="/login/forgot-password" className="mt-1 text-xs font-medium">Forgot password?</Hyperlink>
                 </div>
                 
