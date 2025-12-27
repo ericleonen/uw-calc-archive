@@ -22,7 +22,7 @@ export default function OneMoment({ action, message, timeout = 300 }: OneMomentP
 
         const t = setTimeout(() => {
             formRef.current?.requestSubmit();
-        }, 300);
+        }, timeout);
 
         return () => clearTimeout(t);
     }, [tokenHash]);
