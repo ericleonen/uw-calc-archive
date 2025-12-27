@@ -3,12 +3,14 @@ import AuthAlternative from "../components/AuthAlternative";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
 import Hyperlink from "@/components/text/Hyperlink";
+import { requireNoUser } from "@/server/guards";
 
 export default async function LoginPage({
     searchParams,
 }: {
     searchParams: Promise<{ error?: string, status?: string }>
 }) {
+    requireNoUser();
     const sp = await searchParams;
 
     return (

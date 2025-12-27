@@ -2,12 +2,15 @@ import { signup } from "@/actions/auth";
 import AuthAlternative from "../components/AuthAlternative";
 import TextInput from "@/components/TextInput";
 import AuthForm from "../components/AuthForm";
+import { requireNoUser } from "@/server/guards";
 
 export default async function SignupPage({
     searchParams,
 }: {
     searchParams: Promise<{ error?: string }>
 }) {
+    requireNoUser();
+
     const sp = await searchParams;
 
     return (

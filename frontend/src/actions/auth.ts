@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { requireUser } from "@/server/guards";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { cookies } from "next/headers";
 
 /**
  * Logs a user in with email and password. If successful, redirects to /search, otherwise, to
@@ -37,25 +38,36 @@ export async function sendResetPasswordEmail(formData: FormData) {
     });
 }
 
-export async function resetPassword(formData: FormData) {
-    const tokenHash = String(formData.get("token_hash"));
-    const newPassword = String(formData.get("password"));
-
-    if (!tokenHash) {
-        redirect("/auth/error");
-    }
-
+export async function loginToResetPassword(formData: FormData) {
     const supabase = await createClient();
+    const token_hash = String(formData.get("token_hash") || "");
 
     const { error } = await supabase.auth.verifyOtp({
         type: "recovery",
-        token_hash: tokenHash,
+        token_hash,
     });
 
     if (error) {
-        console.log(error.message)
         redirect("/auth/error");
     }
+
+    (await cookies()).set({
+        name: "recovery_lock",
+        value: "1",
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 10
+    })
+
+    redirect("/login/reset-password");
+}
+
+export async function resetPassword(formData: FormData) {
+    const newPassword = String(formData.get("password"));
+
+    const supabase = await createClient();
 
     const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
 
@@ -64,6 +76,9 @@ export async function resetPassword(formData: FormData) {
         redirect("/auth/error");
     }
 
+    (await cookies()).delete("recovery_lock");
+
+    supabase.auth.signOut();
     redirect("/login?status=password_reset_success");
 }
 
@@ -89,6 +104,26 @@ export async function signup(formData: FormData) {
         revalidatePath("/", "layout");
         redirect(`/signup/confirm?email=${encodeURIComponent(data.email)}`);
     }
+}
+
+export async function confirmEmail(formData: FormData) {
+    const token_hash = String(formData.get("token_hash") || "");
+
+    if (!token_hash) {
+        redirect("/auth/error");
+    }
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.verifyOtp({
+        type: "email",
+        token_hash,
+    });
+
+    if (error) {
+        redirect("/auth/error");
+    }
+
+    redirect("/profile");
 }
 
 /**
