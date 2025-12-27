@@ -7,7 +7,7 @@ import SectionHeader from "@/components/text/SectionHeader";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@/components/Button";
 
 export default function SignupConfirmPage() {
@@ -23,6 +23,18 @@ export default function SignupConfirmPage() {
         
         setResent(true);
     }
+
+    const formRef = useRef<HTMLFormElement | null>(null);
+
+    useEffect(() => {
+        if (!tokenHash) return;
+
+        const t = setTimeout(() => {
+            formRef.current?.requestSubmit();
+        }, 500);
+
+        return () => clearTimeout(t);
+    }, [tokenHash]);
 
     if (!tokenHash) {
         return (
@@ -46,16 +58,12 @@ export default function SignupConfirmPage() {
     } else {
         return (
             <div className="flex flex-col items-center w-full max-w-sm p-6 rounded-md shadow bg-white/90 h-min">
-                <SectionHeader>Finish confirming your account</SectionHeader>
+                <SectionHeader>Confirming your account...</SectionHeader>
                 <Paragraph className="mt-3 text-center">
-                    Almost done. Some email providers run a quick security check on links before you open them.
+                    Please wait as we finish confirming your account. Thanks for your patience!
                 </Paragraph>
-                <Paragraph className="mt-2 text-center">
-                    Click <Emphasis variant="secondary">Continue</Emphasis> to complete confirmation.
-                </Paragraph>
-                <form method="post" action="/auth/confirm" className="mt-4 w-full">
+                <form method="post" action="/auth/confirm" className="hidden" ref={formRef}>
                     <input type="hidden" name="token_hash" value={tokenHash} />
-                    <Button>Continue</Button>
                 </form>
             </div>
         )

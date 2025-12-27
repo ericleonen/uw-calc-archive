@@ -37,6 +37,36 @@ export async function sendResetPasswordEmail(formData: FormData) {
     });
 }
 
+export async function resetPassword(formData: FormData) {
+    const tokenHash = String(formData.get("token_hash"));
+    const newPassword = String(formData.get("password"));
+
+    if (!tokenHash) {
+        redirect("/auth/error");
+    }
+
+    const supabase = await createClient();
+
+    const { error } = await supabase.auth.verifyOtp({
+        type: "recovery",
+        token_hash: tokenHash,
+    });
+
+    if (error) {
+        console.log(error.message)
+        redirect("/auth/error");
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+
+    if (updateError) {
+        console.log(updateError.message)
+        redirect("/auth/error");
+    }
+
+    redirect("/login?status=password_reset_success");
+}
+
 /**
  * Creates a user account with email, password, and name. Waits for a confirmation.
  */
