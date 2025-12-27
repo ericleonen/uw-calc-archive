@@ -11,7 +11,7 @@ export default async function SignupPage({
 }) {
     requireNoUser();
 
-    const sp = await searchParams;
+    const { error } = await searchParams;
 
     return (
         <>
@@ -20,9 +20,9 @@ export default async function SignupPage({
                 title="Create an account"
                 submitLabel="Sign up"
                 error={
-                    !sp.error ? undefined :
-                    sp.error === "weak_password" ? "Password is too short or weak. Please enter a stronger password." :
-                    sp.error === "password_mismatch" ? "Your password and password confirmation don't match. Please ensure they match." :
+                    !error ? undefined :
+                    error === "weak_password" ? "Password is too short or weak. Please enter a stronger password." :
+                    error === "password_mismatch" ? "Your password and password confirmation don't match. Please ensure they match." :
                     "An unknown error occurred. Please try again."
                 }
             >

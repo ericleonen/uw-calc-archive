@@ -2,7 +2,11 @@ import TextInput from "@/components/TextInput";
 import AuthForm from "../../components/AuthForm";
 import { sendResetPasswordEmail } from "@/actions/auth";
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ error?: string }>
+}) {
     return (
         <AuthForm
             action={sendResetPasswordEmail}

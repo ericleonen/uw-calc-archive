@@ -33,9 +33,13 @@ export async function sendResetPasswordEmail(formData: FormData) {
     const email = String(formData.get("email") || "");
     const supabase = await createClient();
 
-    await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/login/reset-password`,
     });
+
+    if (error) {
+        redirect(`/login/forgot-password?error=${error.code || "unknown"}`)
+    }
 }
 
 export async function loginToResetPassword(formData: FormData) {
@@ -48,7 +52,7 @@ export async function loginToResetPassword(formData: FormData) {
     });
 
     if (error) {
-        redirect("/auth/error");
+        redirect(`/login/forgot-password?error=${error.code || "unknown"}`);
     }
 
     (await cookies()).set({
@@ -74,10 +78,10 @@ export async function resetPassword(formData: FormData) {
 
     const supabase = await createClient();
 
-    const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
 
-    if (updateError) {
-        redirect(`/login/reset-password?error=${updateError.code || "unknown"}`);
+    if (error) {
+        redirect(`/login/reset-password?error=${error.code || "unknown"}`);
     } else {
         (await cookies()).delete("recovery_lock");
 

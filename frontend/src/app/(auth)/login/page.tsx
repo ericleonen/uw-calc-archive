@@ -11,7 +11,7 @@ export default async function LoginPage({
     searchParams: Promise<{ error?: string, status?: string }>
 }) {
     requireNoUser();
-    const sp = await searchParams;
+    const { error, status } = await searchParams;
 
     return (
         <>
@@ -20,12 +20,13 @@ export default async function LoginPage({
                 title="Login"
                 submitLabel="Log in"
                 error={
-                    !sp.error ? undefined :
-                    sp.error === "invalid_credentials" ? "Invalid email or password. Please try again." :
+                    !error ? undefined :
+                    error === "invalid_credentials" ? "Invalid email or password. Please try again." :
+                    
                     "An unknown error occured. Please try again."
                 }
                 status={
-                    sp.status === "password_reset_success" ? "Successfully reset your password. You can now log in with that password." :
+                    status === "password_reset_success" ? "Successfully reset your password. You can now log in with that password." :
                     undefined
                 }
             >
