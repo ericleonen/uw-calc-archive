@@ -122,10 +122,6 @@ export async function signup(formData: FormData) {
 
 export async function confirmEmail(formData: FormData) {
     const token_hash = String(formData.get("token_hash") || "");
-
-    if (!token_hash) {
-        redirect("/auth/error");
-    }
     const supabase = await createClient();
 
     const { error } = await supabase.auth.verifyOtp({
@@ -134,7 +130,7 @@ export async function confirmEmail(formData: FormData) {
     });
 
     if (error) {
-        redirect("/auth/error");
+        redirect(`/signup?error=${error.code || "unknown"}`);
     }
 
     redirect("/profile");
