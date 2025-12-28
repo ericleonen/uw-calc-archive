@@ -39,6 +39,8 @@ export async function sendResetPasswordEmail(formData: FormData) {
 
     if (error) {
         redirect(`/login/forgot-password?error=${error.code || "unknown"}`)
+    } else {
+        redirect(`/login/forgot-password?email=${email}`)
     }
 }
 
