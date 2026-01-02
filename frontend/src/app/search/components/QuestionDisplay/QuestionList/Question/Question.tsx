@@ -7,6 +7,7 @@ import useQuestionCompletedToggler from "@/hooks/useQuestionCompletedToggler";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import Button from "@/components/Button";
 import Paragraph from "@/components/text/Paragraph";
+import Hyperlink from "@/components/text/Hyperlink";
 
 type QuestionProps = {
     question: Question,
@@ -39,7 +40,7 @@ export default function Question({ question, user, completed }: QuestionProps) {
             key={`${question.testId}/Q${question.number}`}
             className="flex flex-col items-end w-full p-3 rounded-md shadow bg-white/90"
         >
-            <Paragraph className="!font-bold w-full">Question {question.number} of {question.class} {question.exam}, {question.quarter}</Paragraph>
+            <Paragraph className="font-bold! w-full">Question {question.number} of {question.class} {question.exam}, {question.quarter}</Paragraph>
             <div className="flex flex-wrap w-full">
                 {
                     user ? completedToggleComponent : (
@@ -86,7 +87,7 @@ export default function Question({ question, user, completed }: QuestionProps) {
                 { showAnswer ? "Hide" : "Show" } answer
             </Button>
             {
-                showAnswer && (
+                showAnswer && <>
                     <div className={
                         "rounded-md overflow-hidden border-amber-300 bg-amber-100 w-full " +
                         (answerLoading ? "h-0 mt-0 border-0" : "mt-2 border-2")
@@ -100,7 +101,18 @@ export default function Question({ question, user, completed }: QuestionProps) {
                             className="w-full h-auto p-2 bg-white"
                         />
                     </div>
-                )
+                    {
+                        !answerLoading &&
+                        <Paragraph className="w-full mt-2">
+                            Is this answer wrong?&nbsp;
+                            <Hyperlink
+                                href={`mailto:huskycalcarchive@gmail.com?subject=Wrong Answer For Question ${question.number} of ${question.class} ${question.exam}, ${question.quarter}`}
+                            >
+                                    Tell me about it
+                            </Hyperlink>.
+                        </Paragraph>
+                    }
+                </>
             }
         </div>
     )
