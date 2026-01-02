@@ -2,6 +2,7 @@ import Hyperlink from "@/components/text/Hyperlink"
 import List from "@/components/text/List"
 import Paragraph from "@/components/text/Paragraph"
 import SectionHeader from "@/components/text/SectionHeader"
+import BuyMeACoffeeButton from "./components/BuyMeACoffeeButton"
 
 export default function AboutPage() {
     return (
@@ -27,11 +28,6 @@ export default function AboutPage() {
                     </List>
                 </div>
                 <div className="space-y-2">
-                    <SectionHeader>The dream</SectionHeader>
-                    <Paragraph>I want MATH 124/5/6 to no longer feel like &#34;weed-out&#34; classes. Or, for motivated students, I wanted to create a way to earn a 4.0 without wasting time.</Paragraph>
-                    <Paragraph>As for me, I hope I created something students actually use. If you find this website useful, please share it with everyone you know. 😇</Paragraph>
-                </div>
-                <div className="space-y-2">
                     <SectionHeader>Disclaimer</SectionHeader>
                     <Paragraph>This website is not affiliated with the University of Washington. I am just a student.</Paragraph>
                     <Paragraph>Answer keys are NOT guaranteed to be correct. Professors can be wrong. Also, I made some of the answer keys myself since they were missing.</Paragraph>
@@ -39,6 +35,11 @@ export default function AboutPage() {
                 <div className="space-y-2">
                     <SectionHeader>Contact</SectionHeader>
                     <Paragraph>If you have any questions, suggestions, or found an error, please reach out to me at <Hyperlink href="mailto:huskycalcarchive@gmail.com">huskycalcarchive@gmail.com</Hyperlink>.</Paragraph>
+                </div>
+                <div className="space-y-2">
+                    <SectionHeader>Support me</SectionHeader>
+                    <Paragraph>If you find this site useful and want to support me hosting, maintaining, and developing this free service, consider donating below.</Paragraph>
+                    <BuyMeACoffeeButton />
                 </div>
             </div>
         </div>
