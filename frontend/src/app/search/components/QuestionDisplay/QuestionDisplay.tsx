@@ -22,9 +22,9 @@ export default async function QuestionDisplay({ questionFilter, page }: Question
             <Empty
                 imgSrc="/dubs-happy.png"
                 imgAlt="Dubs is happy to start practicing questions!"
-                primaryText="Ready to start practicing?"
-                secondaryText="Select your class, exam, and topics in the left sidebar to find test questions to practice"
-                secondaryMobileText="Hit the lower right filter button to select your class, exam, and topics to find test questions to practice"
+                primaryText="Practice past calculus exam questions"
+                secondaryText="Filter questions by class, exam, and topics in the left sidebar"
+                secondaryMobileText="Hit the lower right filter button to filter questions by class, exam, and topics"
             >
                 <Divider text="or" className="my-3" />
                 <Button

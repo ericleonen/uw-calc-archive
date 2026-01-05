@@ -14,9 +14,9 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
         <Empty
             imgSrc="/dubs-thinking.png"
             imgAlt="Dubs is wondering what to study"
-            primaryText="Wonder what's on your test?"
-            secondaryText="Select your class and exam in the left sidebar to research what topics to study"
-            secondaryMobileText="Hit the lower right filter button to select class and exam to research what topics to study"
+            primaryText="Find out what's likely to be on your next calculus exam"
+            secondaryText="Select your class and exam to view topic statistics"
+            secondaryMobileText="Hit the lower right filter button to select your class and exam to view topic statistics"
         />
     );
 
@@ -32,22 +32,21 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
         <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min pb-9">
                 <div className="flex flex-col w-full">
-                    <SectionHeader>What&#39;s going to be on my {class_} {exam}?</SectionHeader>
+                    <SectionHeader>Here&#39;s what&#39;s likely to be on your {class_} {exam}?</SectionHeader>
                     <Paragraph className="mt-1 mb-3">
-                        A breakdown of what&#39;s going to be on your next exam. <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. <Emphasis>Question Coverage</Emphasis> is the probability of a question testing you on a topic. These probabilities assume the archived tests and questions are a representative sample of tests in general.
+                        <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. Probabilities assume archived exams are a representative sample of exams in general.
                     </Paragraph>
                     <table className="bg-white/90 sm:text-base text-sm">
                         <thead>
                             <tr>
                                 <TableHead>Topic</TableHead>
                                 <TableHead>Test Coverage</TableHead>
-                                <TableHead>Question Coverage</TableHead>
                             </tr>
                         </thead>
                         <tbody>{
                             topicCoverageStats.topics.map((topicStats: TestTopicCoverageStats) => {
                                 const testProb = asProbability(topicStats.testsWithTopicCount, topicCoverageStats.totalTestsCount);
-                                const questionProb = asProbability(topicStats.questionsWithTopicCount, topicCoverageStats.totalQuestionsCount);
+                                // const questionProb = asProbability(topicStats.questionsWithTopicCount, topicCoverageStats.totalQuestionsCount);
 
                                 return (
                                     <tr key={topicStats.topic}>
@@ -55,10 +54,6 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
                                         <TableData>
                                             {testProb}
                                             <ProbabilityBar probability={testProb} />
-                                        </TableData>
-                                        <TableData>
-                                            {questionProb}
-                                            <ProbabilityBar probability={questionProb} />
                                         </TableData>
                                     </tr>
                                 )
