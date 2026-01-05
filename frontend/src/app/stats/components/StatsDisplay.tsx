@@ -32,7 +32,7 @@ export default async function StatsDisplay({ class_, exam }: StatsDisplayProps) 
         <div className="flex justify-center h-full p-6 overflow-y-scroll grow">
             <div className="flex flex-col items-center w-full max-w-2xl space-y-3 h-min pb-9">
                 <div className="flex flex-col w-full">
-                    <SectionHeader>Here&#39;s what&#39;s likely to be on your {class_} {exam}?</SectionHeader>
+                    <SectionHeader>Here&#39;s what&#39;s likely to be on your {class_} {exam}</SectionHeader>
                     <Paragraph className="mt-1 mb-3">
                         <Emphasis>Test Coverage</Emphasis> is the probability of a topic being on your next exam. Probabilities assume archived exams are a representative sample of exams in general.
                     </Paragraph>
