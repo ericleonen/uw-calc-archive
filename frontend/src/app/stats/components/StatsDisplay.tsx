@@ -75,13 +75,13 @@ type TableProps = {
 
 function TableHead({ children }: TableProps) {
     return (
-        <th className="bg-purple-100 text-uw/90 font-semibold px-2 py-1 text-left border-2 border-violet-300">{children}</th>
+        <th className="bg-purple-100 text-uw/90 font-semibold px-2 py-1 text-left border-2 border-violet-300 first-of-type:w-px whitespace-nowrap ">{children}</th>
     )
 }
 
 function TableData({ children }: TableProps) {
     return (
-        <th className="text-gray-500/90 font-medium px-2 py-1 text-left border-2 border-gray-300">{children}</th>
+        <th className="text-gray-500/90 font-medium px-2 py-1 text-left border-2 border-gray-300 whitespace-nowrap">{children}</th>
     )
 }
 
