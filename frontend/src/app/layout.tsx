@@ -3,6 +3,7 @@ import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import AppBar from "@/components/MobileAppBar";
+import { Analytics } from "@vercel/analytics/next"
 
 const openSans = Open_Sans({
     subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
                         </main>
                         <AppBar />
                 </div>
+                <Analytics />
             </body>
         </html>
     );
